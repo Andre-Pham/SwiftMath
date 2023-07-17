@@ -7,11 +7,11 @@
 
 import Foundation
 
-public struct SMAngle: SMClonable, Equatable {
+public class SMAngle: SMClonable, Equatable {
     
     // MARK: - Properties
     
-    public let radians: Double
+    private(set) var radians: Double
     public var degrees: Double {
         return self.radians * 180.0 / .pi
     }
@@ -60,41 +60,55 @@ public struct SMAngle: SMClonable, Equatable {
         self.radians = angle
     }
     
-    public init(_ original: SMAngle) {
+    public required init(_ original: SMAngle) {
         self.radians = original.radians
+    }
+    
+    // MARK: - Functions
+    
+    public func normalize() {
+        var result = self.radians.truncatingRemainder(dividingBy: (2.0 * .pi))
+        if SM.isLessZero(result) {
+            result += (2.0 * .pi)
+        }
+        self.radians = result
+    }
+    
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "SMAngle: \(self.degrees.rounded(decimalPlaces: decimalPlaces)) deg"
     }
     
     // MARK: - Operations
     
-    static func + (lhs: SMAngle, rhs: SMAngle) -> SMAngle {
+    public static func + (lhs: SMAngle, rhs: SMAngle) -> SMAngle {
         return SMAngle(radians: lhs.radians + rhs.radians)
     }
 
-    static func += (lhs: inout SMAngle, rhs: SMAngle) {
+    public static func += (lhs: inout SMAngle, rhs: SMAngle) {
         lhs = lhs + rhs
     }
 
-    static func - (lhs: SMAngle, rhs: SMAngle) -> SMAngle {
+    public static func - (lhs: SMAngle, rhs: SMAngle) -> SMAngle {
         return SMAngle(radians: lhs.radians - rhs.radians)
     }
 
-    static func -= (lhs: inout SMAngle, rhs: SMAngle) {
+    public static func -= (lhs: inout SMAngle, rhs: SMAngle) {
         lhs = lhs - rhs
     }
 
-    static func * (lhs: SMAngle, rhs: Double) -> SMAngle {
+    public static func * (lhs: SMAngle, rhs: Double) -> SMAngle {
         return SMAngle(radians: lhs.radians * rhs)
     }
 
-    static func *= (lhs: inout SMAngle, rhs: Double) {
+    public static func *= (lhs: inout SMAngle, rhs: Double) {
         lhs = lhs * rhs
     }
 
-    static func / (lhs: SMAngle, rhs: Double) -> SMAngle {
+    public static func / (lhs: SMAngle, rhs: Double) -> SMAngle {
         return SMAngle(radians: lhs.radians / rhs)
     }
 
-    static func /= (lhs: inout SMAngle, rhs: Double) {
+    public static func /= (lhs: inout SMAngle, rhs: Double) {
         lhs = lhs / rhs
     }
     

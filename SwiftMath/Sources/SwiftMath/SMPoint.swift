@@ -63,6 +63,10 @@ public class SMPoint: SMClonable, Equatable {
         return result
     }
     
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "SMPoint: (\(self.x.rounded(decimalPlaces: decimalPlaces)), \(self.y.rounded(decimalPlaces: decimalPlaces)))"
+    }
+    
     // MARK: - Operations
 
     public static func + (left: SMPoint, right: SMPoint) -> SMPoint {
