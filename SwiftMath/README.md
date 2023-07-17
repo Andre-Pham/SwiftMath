@@ -1,3 +1,5 @@
 # SwiftMath
 
-A description of this package.
+A package used for basic math in Swift.
+
+Uses the Cartesian coordinate system.
