@@ -7,7 +7,7 @@
 
 import Foundation
 
-class SMSize: SMClonable {
+public class SMSize: SMClonable {
     
     // MARK: - Properties
     
@@ -16,12 +16,12 @@ class SMSize: SMClonable {
     
     // MARK: - Constructors
     
-    init(width: Double, height: Double) {
+    public init(width: Double, height: Double) {
         self.width = width
         self.height = height
     }
     
-    required init(_ original: SMSize) {
+    public required init(_ original: SMSize) {
         self.width = original.width
         self.height = original.height
     }
@@ -32,7 +32,7 @@ class SMSize: SMClonable {
         return CGSize(width: self.width, height: self.height)
     }
     
-    init(_ cgSize: CGSize) {
+    public init(_ cgSize: CGSize) {
         self.width = cgSize.width
         self.height = cgSize.height
     }

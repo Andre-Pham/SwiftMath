@@ -8,7 +8,7 @@
 import Foundation
 import CoreGraphics
 
-class SMRect: SMClonable, Equatable {
+public class SMRect: SMClonable, Equatable {
     
     // MARK: - Properties
     
@@ -54,40 +54,40 @@ class SMRect: SMClonable, Equatable {
     }
     /// If the rectangle is valid
     public var isValid: Bool {
-        return isGreaterZero(self.area)
+        return SM.isGreaterZero(self.area)
     }
     
     // MARK: - Constructors
     
-    init(origin: SMPoint, end: SMPoint) {
+    public init(origin: SMPoint, end: SMPoint) {
         self.origin = origin.clone()
         self.end = end.clone()
     }
     
-    convenience init(origin: SMPoint, width: Double, height: Double) {
+    public convenience init(origin: SMPoint, width: Double, height: Double) {
         self.init(origin: origin, end: origin + SMPoint(x: width, y: height))
     }
     
-    required init(_ original: SMRect) {
+    public required init(_ original: SMRect) {
         self.origin = original.origin.clone()
         self.end = original.end.clone()
     }
     
     // MARK: - Functions
     
-    func union(_ other: SMRect) -> SMRect {
+    public func union(_ other: SMRect) -> SMRect {
         return SMRect(self.cgRect.union(other.cgRect))
     }
     
-    func intersection(_ other: SMRect) -> SMRect {
+    public func intersection(_ other: SMRect) -> SMRect {
         return SMRect(self.cgRect.intersection(other.cgRect))
     }
     
-    func intersects(with other: SMRect) -> Bool {
+    public func intersects(with other: SMRect) -> Bool {
         return self.cgRect.intersects(other.cgRect)
     }
     
-    func scale(toAspectFillSize size: SMSize) -> SMRect {
+    public func scale(toAspectFillSize size: SMSize) -> SMRect {
         let aspectRatio = size.width / size.height
         let rectRatio = self.width / self.height
         var scale: CGFloat = 1.0
@@ -105,7 +105,7 @@ class SMRect: SMClonable, Equatable {
         return SMRect(origin: SMPoint(x: x, y: y), width: scaledWidth, height: scaledHeight)
     }
     
-    func scale(toAspectFitSize size: SMSize) -> SMRect {
+    public func scale(toAspectFitSize size: SMSize) -> SMRect {
         let aspectRatio = size.width / size.height
         let rectRatio = self.width / self.height
         var scale: CGFloat = 1.0
@@ -123,14 +123,14 @@ class SMRect: SMClonable, Equatable {
         return SMRect(origin: SMPoint(x: x, y: y), width: scaledWidth, height: scaledHeight)
     }
     
-    func offset(by point: SMPoint) {
+    public func offset(by point: SMPoint) {
         self.origin += point
         self.end += point
     }
     
     // MARK: - Operations
     
-    static func == (lhs: SMRect, rhs: SMRect) -> Bool {
+    public static func == (lhs: SMRect, rhs: SMRect) -> Bool {
         return lhs.origin == rhs.origin && lhs.end == rhs.end
     }
     
@@ -140,7 +140,7 @@ class SMRect: SMClonable, Equatable {
         return CGRect(origin: self.origin.cgPoint, size: CGSize(width: self.width, height: self.height))
     }
     
-    init(_ cgRect: CGRect) {
+    public init(_ cgRect: CGRect) {
         self.origin = SMPoint(cgRect.origin)
         var end = cgRect.origin
         end.x += cgRect.size.width

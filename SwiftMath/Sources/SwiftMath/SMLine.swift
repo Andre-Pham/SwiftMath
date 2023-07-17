@@ -7,7 +7,7 @@
 
 import Foundation
 
-class SMLine: SMClonable {
+public class SMLine: SMClonable {
     
     // MARK: - Properties
     
@@ -34,12 +34,12 @@ class SMLine: SMClonable {
     
     // MARK: - Constructors
     
-    init(origin: SMPoint, end: SMPoint) {
+    public init(origin: SMPoint, end: SMPoint) {
         self.origin = origin.clone()
         self.end = end.clone()
     }
     
-    required init(_ original: SMLine) {
+    public required init(_ original: SMLine) {
         self.origin = original.origin.clone()
         self.end = original.end.clone()
     }
