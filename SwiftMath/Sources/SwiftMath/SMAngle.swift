@@ -90,6 +90,15 @@ public class SMAngle: SMClonable, Equatable {
         self.radians = result
     }
     
+    /// Checks if this angle is equivalent to another (expressed on a unit circle).
+    /// Example:
+    /// ``` let angle1 = SMAngle(degrees: 90)
+    ///     let angle2 = SMAngle(degrees: -270)
+    ///     angle1.isEquivalent(to: angle2) -> True
+    /// ```
+    /// - Parameters:
+    ///   - angle: The angle to compare against
+    /// - Returns: True if the two angles are equivalent on the unit circle
     public func isEquivalent(to angle: SMAngle) -> Bool {
         return self.normalized == angle.normalized
     }
