@@ -28,7 +28,10 @@ public class SMLine: SMClonable {
         return sqrt(dx * dx + dy * dy)
     }
     /// The slope of the line
-    public var gradient: Double {
+    public var gradient: Double? {
+        guard !SM.isEqual(self.origin.x, self.end.x) else {
+            return nil
+        }
         return (self.end.y - self.origin.y) / (self.end.x - self.origin.x)
     }
     
@@ -45,5 +48,21 @@ public class SMLine: SMClonable {
     }
     
     // MARK: - Functions
+    
+    public static func + (left: SMLine, right: SMPoint) -> SMLine {
+        return SMLine(origin: left.origin + right, end: left.end + right)
+    }
+
+    public static func += (left: inout SMLine, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMLine, right: SMPoint) -> SMLine {
+        return SMLine(origin: left.origin - right, end: left.end - right)
+    }
+
+    public static func -= (left: inout SMLine, right: SMPoint) {
+        left = left - right
+    }
     
 }

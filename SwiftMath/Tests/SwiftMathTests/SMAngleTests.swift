@@ -26,5 +26,10 @@ final class SMAngleTests: XCTestCase {
         let angle0 = SMAngle(point1: SMPoint(), vertex: SMPoint(), point2: SMPoint())
         XCTAssertEqual(angle0.degrees, 0.0)
     }
+    
+    func testNormalization() throws {
+        let angle = SMAngle(degrees: -45.0)
+        XCTAssertEqual(angle.normalized.degrees, 315.0)
+    }
 
 }

@@ -11,9 +11,15 @@ public class SMAngle: SMClonable, Equatable {
     
     // MARK: - Properties
     
-    private(set) var radians: Double
+    public var radians: Double
     public var degrees: Double {
         return self.radians * 180.0 / .pi
+    }
+    /// The angle normalized such that it falls within the range [0, 2π)
+    public var normalized: SMAngle {
+        let result = self.clone()
+        result.normalize()
+        return result
     }
     
     // MARK: - Constructors
@@ -32,6 +38,10 @@ public class SMAngle: SMClonable, Equatable {
     
     public init(degrees: Float) {
         self.radians = Double(degrees * .pi / 180.0)
+    }
+    
+    public init() {
+        self.radians = 0.0
     }
     
     /// Create an angle by calculating the counter-clockwise angle from `point1` to `point2` around `vertex`
@@ -66,12 +76,22 @@ public class SMAngle: SMClonable, Equatable {
     
     // MARK: - Functions
     
+    /// Normalize the current angle such that it falls within the range [0, 2π).
+    /// Example:
+    /// ``` var angle = SMAngle(radians: 3.0 * .pi)
+    ///     angle.normalize()
+    ///     angle.radians -> .pi
+    /// ```
     public func normalize() {
         var result = self.radians.truncatingRemainder(dividingBy: (2.0 * .pi))
         if SM.isLessZero(result) {
             result += (2.0 * .pi)
         }
         self.radians = result
+    }
+    
+    public func isEquivalent(to angle: SMAngle) -> Bool {
+        return self.normalized == angle.normalized
     }
     
     public func toString(decimalPlaces: Int = 2) -> String {
