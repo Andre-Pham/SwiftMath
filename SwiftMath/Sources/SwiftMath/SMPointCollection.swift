@@ -7,7 +7,7 @@
 
 import Foundation
 
-class SMPointCollection {
+public class SMPointCollection: SMClonable {
     
     private(set) var points = [SMPoint]()
     public var minXPoint: SMPoint {
