@@ -49,6 +49,12 @@ public class SMLine: SMClonable {
     
     // MARK: - Functions
     
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "SMLine: \(self.origin.toString()) -> \(self.end.toString())"
+    }
+    
+    // MARK: - Operations
+    
     public static func + (left: SMLine, right: SMPoint) -> SMLine {
         return SMLine(origin: left.origin + right, end: left.end + right)
     }
