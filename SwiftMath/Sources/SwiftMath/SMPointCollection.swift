@@ -57,5 +57,40 @@ public class SMPointCollection: SMClonable {
     
     // MARK: - Functions
     
+    public func add(_ point: SMPoint) {
+        self.points.append(point.clone())
+    }
+    
+    public func remove(at index: Int) -> SMPoint? {
+        guard index < self.points.endIndex else {
+            return nil
+        }
+        return self.points.remove(at: index)
+    }
+    
+    public func closestPoint(to otherPoint: SMPoint) -> SMPoint? {
+        guard !self.points.isEmpty else {
+            return nil
+        }
+        if self.points.count == 1 {
+            return self.points.first
+        }
+        return self.points.min { $0.length(to: otherPoint) < $1.length(to: otherPoint) }
+    }
+    
+    public func furthestPoint(to otherPoint: SMPoint) -> SMPoint? {
+        guard !self.points.isEmpty else {
+            return nil
+        }
+        if self.points.count == 1 {
+            return self.points.first
+        }
+        return self.points.max { $0.length(to: otherPoint) < $1.length(to: otherPoint) }
+    }
+    
+    public func sortedByDistance(to otherPoint: SMPoint) -> [SMPoint] {
+        return self.points.sorted { $0.length(to: otherPoint) < $1.length(to: otherPoint) }
+    }
+    
 }
 

@@ -128,6 +128,15 @@ public class SMRect: SMClonable, Equatable {
         self.end += point
     }
     
+    public func contains(point: SMPoint) -> Bool {
+        return (
+            SM.isLessOrEqual(point.x, self.maxX)
+            && SM.isGreaterOrEqual(point.x, self.minX)
+            && SM.isLessOrEqual(point.y, self.maxY)
+            && SM.isGreaterOrEqual(point.y, self.minY)
+        )
+    }
+    
     // MARK: - Operations
     
     public static func == (lhs: SMRect, rhs: SMRect) -> Bool {

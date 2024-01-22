@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMLine: SMClonable {
+public class SMLine: SMClonable, Equatable {
     
     // MARK: - Properties
     
@@ -34,6 +34,26 @@ public class SMLine: SMClonable {
         }
         return (self.end.y - self.origin.y) / (self.end.x - self.origin.x)
     }
+    /// If the line is vertical
+    public var isVertical: Bool {
+        return self.gradient == nil
+    }
+    /// If the line is horizontal
+    public var isHorizontal: Bool {
+        return SM.isEqual(self.origin.y, self.end.y)
+    }
+    /// If the line is valid (can be drawn)
+    public var isValid: Bool {
+        return self.origin != self.end
+    }
+    /// The point collection of this line
+    public var pointCollection: SMPointCollection {
+        return SMPointCollection(points: self.origin, self.end)
+    }
+    /// This line, flipped
+    public var flipped: SMLine {
+        return SMLine(origin: self.end.clone(), end: self.origin.clone())
+    }
     
     // MARK: - Constructors
     
@@ -48,6 +68,209 @@ public class SMLine: SMClonable {
     }
     
     // MARK: - Functions
+    
+    /// Checks if two lines are parallel.
+    /// If either lines are invalid, they are not parallel.
+    /// - Parameters:
+    ///   - line: The line to compare
+    /// - Returns: True if the two lines are parallel
+    public func isParallel(to line: SMLine) -> Bool {
+        guard self.isValid && line.isValid else {
+            return false
+        }
+        return self.gradient == line.gradient
+    }
+    
+    /// Checks if two lines intercept infinitely (overlap).
+    /// If either lines are invalid (zero length), there isn't infinite intercepts, hence no overlap.
+    /// - Parameters:
+    ///   - line: The line to compare
+    /// - Returns: True if there are infinite intercept points
+    public func overlaps(with line: SMLine) -> Bool {
+        // They must be parallel to overlap
+        guard self.isParallel(to: line) else {
+            return false
+        }
+        // If they intercept, there's only a single intercept point - they don't overlap
+        if self.intersects(line: line) {
+            return false
+        }
+        // If they overlap, it's guaranteed at least one end point is in the other line
+        return (
+            self.intersects(point: line.origin) 
+            || self.intersects(point: line.end)
+            || line.intersects(point: self.origin)
+            || line.intersects(point: self.end)
+        )
+    }
+    
+    /// Checks if a point lies on the line (inclusive).
+    /// Intersection is still valid if the line is invalid (zero length).
+    /// - Parameters:
+    ///   - point: The point to check intersection
+    /// - Returns: True if the point lies on the line (inclusive)
+    public func intersects(point: SMPoint) -> Bool {
+        if let gradient = self.gradient {
+            // Non-vertical lines
+            let expectedY = gradient*(point.x - self.origin.x) + self.origin.y
+            let existsOnInfiniteLine = SM.isEqual(expectedY, point.y)
+            let existsInBoundingBox = self.pointCollection.boundingBox.contains(point: point)
+            return existsInBoundingBox && existsOnInfiniteLine
+        } else {
+            // Vertical lines
+            let maxY = self.pointCollection.maxY
+            let minY = self.pointCollection.minY
+            return (
+                SM.isEqual(self.origin.x, point.x)
+                && SM.isLessOrEqual(point.y, maxY)
+                && SM.isGreaterOrEqual(point.y, minY)
+            )
+        }
+    }
+    
+    /// Calculates the intersection point of two lines if they intersect, or nil if they don't intersect or are overlapping (infinite intersections).
+    /// Intersection is still valid with invalid (zero length) lines.
+    /// - Parameters:
+    ///   - line: The line to compare
+    /// - Returns: The point at which the two lines intersect, or nil if they don't intersect or are overlapping (infinite intersections)
+    public func intersection(with line: SMLine) -> SMPoint? {
+        // If these are both point lines
+        if !self.isValid && !line.isValid {
+            if self.origin == line.origin {
+                return self.origin.clone()
+            } else {
+                return nil
+            }
+        }
+        // If just this is a point line
+        if !self.isValid {
+            if line.intersects(point: self.origin) {
+                return self.origin.clone()
+            } else {
+                return nil
+            }
+        }
+        // If just the other line is a point line
+        if !line.isValid {
+            if self.intersects(point: line.origin) {
+                return line.origin.clone()
+            } else {
+                return nil
+            }
+        }
+        // If both are valid lines
+        if self.gradient == nil {
+            if line.gradient == nil {
+                // Both lines are vertical and parallel
+                return nil
+            } else {
+                // Only self is vertical
+                let x = self.origin.x
+                let lineYIntercept = line.origin.y - (line.gradient!*line.origin.x)
+                let y = line.gradient!*x + lineYIntercept
+                let point = SMPoint(x: x, y: y)
+                return self.intersects(point: point) ? point : nil
+            }
+        } else if line.gradient == nil {
+            // Only other line is vertical, calculate intersection
+            let x = line.origin.x
+            let yIntercept = self.origin.y - (self.gradient!*self.origin.x)
+            let y = self.gradient!*x + yIntercept
+            let point = SMPoint(x: x, y: y)
+            return self.intersects(point: point) ? point : nil
+        }
+        // Calculate y-intercepts
+        let b1 = self.origin.y - (self.gradient!*self.origin.x)
+        let b2 = line.origin.y - (line.gradient!*line.origin.x)
+        // Check if the lines are parallel
+        if self.gradient == line.gradient {
+            if let touchingPoint = self.touchingPoint(with: line) {
+                return touchingPoint
+            } else {
+                return nil
+            }
+        }
+        let x = (b2 - b1) / (self.gradient! - line.gradient!)
+        let y = self.gradient!*x + b1
+        let point = SMPoint(x: x, y: y)
+        return self.intersects(point: point) ? point : nil
+    }
+    
+    /// Checks if two lines intersect.
+    /// Returns false if they don't intersect or are overlapping (infinite intersections).
+    /// Intersection is still valid with invalid (zero length) lines.
+    /// - Parameters:
+    ///   - line: The line to compare
+    /// - Returns: True if the lines intersect at a single point
+    public func intersects(line: SMLine) -> Bool {
+        return self.intersection(with: line) != nil
+    }
+    
+    /// Checks if two lines intersect at their end points (without overlapping).
+    /// If the lines intersect at their end points and either or both are invalid lines (zero length), it still counts as they are intersecting at their end points without overlapping.
+    /// - Parameters:
+    ///   - line: The line to compare
+    /// - Returns: The point at which they touch, or nil if they don't
+    public func touchingPoint(with line: SMLine) -> SMPoint? {
+        var touchingOrigin = false
+        var touchingEnd = false
+        if self.origin == line.origin || self.origin == line.end {
+            touchingOrigin = true
+        }
+        if self.end == line.origin || self.end == line.end {
+            touchingEnd = true
+        }
+        if touchingOrigin && touchingEnd {
+            if !self.isValid {
+                return self.origin.clone()
+            } else if !line.isValid {
+                return line.origin.clone()
+            } else {
+                // They're overlapping
+                return nil
+            }
+        } else if touchingOrigin {
+            if self.gradient == line.gradient {
+                if self.origin == line.end {
+                    if line.pointCollection.boundingBox.contains(point: self.end) || self.pointCollection.boundingBox.contains(point: line.origin) {
+                        return nil
+                    }
+                } else if self.origin == line.origin {
+                    if line.pointCollection.boundingBox.contains(point: self.end) || self.pointCollection.boundingBox.contains(point: line.end) {
+                        return nil
+                    }
+                }
+            }
+            return self.origin.clone()
+        } else if touchingEnd {
+            if self.gradient == line.gradient {
+                if self.end == line.origin {
+                    if line.pointCollection.boundingBox.contains(point: self.origin) || self.pointCollection.boundingBox.contains(point: line.end) {
+                        return nil
+                    }
+                } else if self.end == line.end {
+                    if line.pointCollection.boundingBox.contains(point: self.origin) || self.pointCollection.boundingBox.contains(point: line.origin) {
+                        return nil
+                    }
+                }
+            }
+            return self.end.clone()
+        }
+        return nil
+    }
+    
+    public func touches(line: SMLine) -> Bool {
+        return self.touchingPoint(with: line) != nil
+    }
+    
+    public func matchesGeometry(of line: SMLine) -> Bool {
+        return self == line || self.flipped == line
+    }
+    
+    public func isCollinear(with line: SMLine) -> Bool {
+        // TODO
+        fatalError()
+    }
     
     public func toString(decimalPlaces: Int = 2) -> String {
         return "SMLine: \(self.origin.toString()) -> \(self.end.toString())"
@@ -69,6 +292,10 @@ public class SMLine: SMClonable {
 
     public static func -= (left: inout SMLine, right: SMPoint) {
         left = left - right
+    }
+    
+    public static func == (lhs: SMLine, rhs: SMLine) -> Bool {
+        return lhs.origin == rhs.origin && lhs.end == rhs.end
     }
     
 }

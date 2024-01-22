@@ -29,6 +29,10 @@ public class SMPoint: SMClonable, Equatable {
         self.init(x: Double(x), y: Double(y))
     }
     
+    public convenience init(x: Int, y: Int) {
+        self.init(x: Double(x), y: Double(y))
+    }
+    
     public required init(_ original: SMPoint) {
         self.x = original.x
         self.y = original.y
