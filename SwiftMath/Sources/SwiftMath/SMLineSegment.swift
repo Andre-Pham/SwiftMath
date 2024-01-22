@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMLineSegment: SMClonable, Equatable {
+public class SMLineSegment: SMLinear, SMClonable, Equatable {
     
     // MARK: - Properties
     
@@ -27,25 +27,6 @@ public class SMLineSegment: SMClonable, Equatable {
         let dy = self.end.y - self.origin.y
         return sqrt(dx * dx + dy * dy)
     }
-    /// The slope of the line segment
-    public var gradient: Double? {
-        guard !SM.isEqual(self.origin.x, self.end.x) else {
-            return nil
-        }
-        return (self.end.y - self.origin.y) / (self.end.x - self.origin.x)
-    }
-    /// If the line segment is vertical
-    public var isVertical: Bool {
-        return self.gradient == nil
-    }
-    /// If the line segment is horizontal
-    public var isHorizontal: Bool {
-        return SM.isEqual(self.origin.y, self.end.y)
-    }
-    /// If the line segment is valid (can be drawn)
-    public var isValid: Bool {
-        return self.origin != self.end
-    }
     /// The point collection of this line segment
     public var pointCollection: SMPointCollection {
         return SMPointCollection(points: self.origin, self.end)
@@ -53,6 +34,10 @@ public class SMLineSegment: SMClonable, Equatable {
     /// This line segment, flipped
     public var flipped: SMLineSegment {
         return SMLineSegment(origin: self.end.clone(), end: self.origin.clone())
+    }
+    /// This line, infinite instead of a segment
+    public var asInfiniteLine: SMLine {
+        return SMLine(point: self.origin.clone(), direction: self.end.clone())
     }
     
     // MARK: - Constructors
@@ -73,18 +58,6 @@ public class SMLineSegment: SMClonable, Equatable {
     }
     
     // MARK: - Functions
-    
-    /// Checks if two line segments are parallel.
-    /// If either line segments are invalid, they are not parallel.
-    /// - Parameters:
-    ///   - line: The line to compare
-    /// - Returns: True if the two lines are parallel
-    public func isParallel(to line: SMLineSegment) -> Bool {
-        guard self.isValid && line.isValid else {
-            return false
-        }
-        return self.gradient == line.gradient
-    }
     
     /// Checks if two line segments intercept infinitely (overlap).
     /// If either line segments are invalid (zero length), there isn't infinite intercepts, hence no overlap.
@@ -138,7 +111,7 @@ public class SMLineSegment: SMClonable, Equatable {
     /// - Parameters:
     ///   - line segment: The line segment to compare
     /// - Returns: The point at which the two line segments intersect, or nil if they don't intersect or are overlapping (infinite intersections)
-    public func intersection(with line: SMLineSegment) -> SMPoint? {
+    public func intersection(with line: SMLinear) -> SMPoint? {
         // If these are both point lines
         if !self.isValid && !line.isValid {
             if self.origin == line.origin {
@@ -189,7 +162,8 @@ public class SMLineSegment: SMClonable, Equatable {
         let b2 = line.origin.y - (line.gradient!*line.origin.x)
         // Check if the lines are parallel
         if self.gradient == line.gradient {
-            if let touchingPoint = self.touchingPoint(with: line) {
+            if let line = line as? Self,
+               let touchingPoint = self.touchingPoint(with: line) {
                 return touchingPoint
             } else {
                 return nil
@@ -199,16 +173,6 @@ public class SMLineSegment: SMClonable, Equatable {
         let y = self.gradient!*x + b1
         let point = SMPoint(x: x, y: y)
         return self.intersects(point: point) ? point : nil
-    }
-    
-    /// Checks if two line segments intersect.
-    /// Returns false if they don't intersect or are overlapping (infinite intersections).
-    /// Intersection is still valid with invalid (zero length) line segments.
-    /// - Parameters:
-    ///   - line segment: The line segment to compare
-    /// - Returns: True if the line segments intersect at a single point
-    public func intersects(line: SMLineSegment) -> Bool {
-        return self.intersection(with: line) != nil
     }
     
     /// Checks if two line segments intersect at their end points (without overlapping).
@@ -273,8 +237,21 @@ public class SMLineSegment: SMClonable, Equatable {
     }
     
     public func isCollinear(with line: SMLineSegment) -> Bool {
-        // TODO
-        fatalError()
+        if !self.isValid && !line.isValid {
+            return self.origin == line.origin
+        } else if !self.isValid {
+            return line.intersects(point: self.origin)
+        } else if !line.isValid {
+            return self.intersects(point: line.origin)
+        }
+        return self.asInfiniteLine == line.asInfiniteLine
+    }
+    
+    public func isCollinear(with line: SMLine) -> Bool {
+        guard self.isValid else {
+            return line.intersects(point: self.origin)
+        }
+        return self.isParallel(to: line) && line.intersects(point: self.origin)
     }
     
     public func toString(decimalPlaces: Int = 2) -> String {

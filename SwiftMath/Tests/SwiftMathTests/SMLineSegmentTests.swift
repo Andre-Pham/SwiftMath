@@ -79,7 +79,7 @@ final class SMLineSegmentTests: XCTestCase {
         XCTAssertFalse(pointLine.isParallel(to: pointLine))
         // Case 7: Extremely close but not quite parallel lines
         let almostParallelLine1 = SMLineSegment(origin: SMPoint(x: 0.0, y: 0.0), end: SMPoint(x: 1000.0, y: 1000.0))
-        let almostParallelLine2 = SMLineSegment(origin: SMPoint(x: 0.0, y: 0.0), end: SMPoint(x: 1000.0, y: 1000.0001))
+        let almostParallelLine2 = SMLineSegment(origin: SMPoint(x: 0.0, y: 0.0), end: SMPoint(x: 1000.0, y: 1000.1))
         XCTAssertFalse(almostParallelLine1.isParallel(to: almostParallelLine2))
     }
 
@@ -214,6 +214,46 @@ final class SMLineSegmentTests: XCTestCase {
         XCTAssertEqual(line.origin, SMPoint(x: 1, y: 1))
         dump(line.end)
         XCTAssertEqual(line.end, SMPoint(x: -9, y: 1))
+    }
+    
+    func testCollinearLineSegments() throws {
+        // Case 1: Two identical line segments
+        let line1 = SMLineSegment(origin: SMPoint(x: 0, y: 0), end: SMPoint(x: 10, y: 10))
+        let line2 = SMLineSegment(origin: SMPoint(x: 0, y: 0), end: SMPoint(x: 10, y: 10))
+        XCTAssertTrue(line1.isCollinear(with: line2))
+        // Case 2: Two line segments on the same line but not overlapping
+        let line3 = SMLineSegment(origin: SMPoint(x: -10, y: -10), end: SMPoint(x: -5, y: -5))
+        XCTAssertTrue(line1.isCollinear(with: line3))
+        // Case 3: Two perpendicular line segments
+        let line4 = SMLineSegment(origin: SMPoint(x: 0, y: 0), end: SMPoint(x: 0, y: 10))
+        XCTAssertFalse(line1.isCollinear(with: line4))
+        // Case 4: Two parallel but not collinear line segments
+        let line5 = SMLineSegment(origin: SMPoint(x: 0, y: 1), end: SMPoint(x: 10, y: 11))
+        XCTAssertFalse(line1.isCollinear(with: line5))
+        // Case 5: Collinear but one line segment is a point
+        let pointLine = SMLineSegment(origin: SMPoint(x: 5, y: 5), end: SMPoint(x: 5, y: 5))
+        XCTAssertTrue(line1.isCollinear(with: pointLine))
+        // Case 6: Non-collinear, intersecting line segments
+        let line6 = SMLineSegment(origin: SMPoint(x: -10, y: 10), end: SMPoint(x: 10, y: -10))
+        XCTAssertFalse(line1.isCollinear(with: line6))
+    }
+    
+    func testCollinearLine() throws {
+        // Case 1: Line segment and line are collinear
+        let lineSegment1 = SMLineSegment(origin: SMPoint(x: 0, y: 0), end: SMPoint(x: 5, y: 5))
+        let line1 = SMLine(point: SMPoint(x: -5, y: -5), direction: SMPoint(x: 10, y: 10))
+        XCTAssertTrue(lineSegment1.isCollinear(with: line1))
+        // Case 2: Line segment and line are parallel but not collinear
+        let line2 = SMLine(point: SMPoint(x: 0, y: 1), direction: SMPoint(x: 5, y: 6))
+        XCTAssertFalse(lineSegment1.isCollinear(with: line2))
+        // Case 3: Line segment and line are perpendicular
+        let line3 = SMLine(point: SMPoint(x: 0, y: 0), direction: SMPoint(x: 0, y: 5))
+        XCTAssertFalse(lineSegment1.isCollinear(with: line3))
+        // Case 4: Line segment is a point, and point lies on the line
+        let pointSegment = SMLineSegment(origin: SMPoint(x: 2, y: 2), end: SMPoint(x: 2, y: 2))
+        XCTAssertTrue(pointSegment.isCollinear(with: line1))
+        // Case 5: Line segment is a point, and point does not lie on the line
+        XCTAssertFalse(pointSegment.isCollinear(with: line3))
     }
 
 }
