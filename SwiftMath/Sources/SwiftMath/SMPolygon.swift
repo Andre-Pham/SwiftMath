@@ -10,15 +10,15 @@ import Foundation
 public class SMPolygon: SMClonable {
     
     private(set) var orderedPoints = [SMPoint]()
-    public var lineSegments: [SMLine] {
+    public var lineSegments: [SMLineSegment] {
         guard self.orderedPoints.count > 1 else {
             return []
         }
-        var result = [SMLine]()
+        var result = [SMLineSegment]()
         for index in self.orderedPoints.indices.dropLast() {
-            result.append(SMLine(origin: self.orderedPoints[index], end: self.orderedPoints[index + 1]))
+            result.append(SMLineSegment(origin: self.orderedPoints[index], end: self.orderedPoints[index + 1]))
         }
-        result.append(SMLine(origin: self.orderedPoints.last!, end: self.orderedPoints.first!))
+        result.append(SMLineSegment(origin: self.orderedPoints.last!, end: self.orderedPoints.first!))
         return result
     }
     public var isValid: Bool {

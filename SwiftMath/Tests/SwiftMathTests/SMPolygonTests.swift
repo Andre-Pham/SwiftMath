@@ -29,8 +29,8 @@ final class SMPolygonTests: XCTestCase {
         // Test that the first and last line segment are correct for a square
         let firstLine = polygon.lineSegments.first
         let lastLine = polygon.lineSegments.last
-        XCTAssertEqual(firstLine, SMLine(origin: SMPoint(x: 1.0, y: 1.0), end: SMPoint(x: 2.0, y: 1.0)))
-        XCTAssertEqual(lastLine, SMLine(origin: SMPoint(x: 1.0, y: 2.0), end: SMPoint(x: 1.0, y: 1.0)))
+        XCTAssertEqual(firstLine, SMLineSegment(origin: SMPoint(x: 1.0, y: 1.0), end: SMPoint(x: 2.0, y: 1.0)))
+        XCTAssertEqual(lastLine, SMLineSegment(origin: SMPoint(x: 1.0, y: 2.0), end: SMPoint(x: 1.0, y: 1.0)))
     }
     
     func testIsValid() throws {

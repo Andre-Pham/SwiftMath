@@ -29,8 +29,8 @@ public class SMArc: SMClonable {
         return SMPoint(x: x, y: y)
     }
     /// The straight line between the start point and end point of the arc
-    public var chord: SMLine {
-        return SMLine(origin: self.startPoint, end: self.endPoint)
+    public var chord: SMLineSegment {
+        return SMLineSegment(origin: self.startPoint, end: self.endPoint)
     }
     public var centralAngle: SMAngle {
         return (self.endAngle - self.startAngle).normalized

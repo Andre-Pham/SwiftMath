@@ -68,7 +68,7 @@ public class SMPoint: SMClonable, Equatable {
     }
     
     public func length(to point: SMPoint) -> Double {
-        return SMLine(origin: self, end: point).length
+        return SMLineSegment(origin: self, end: point).length
     }
     
     public func toString(decimalPlaces: Int = 2) -> String {
