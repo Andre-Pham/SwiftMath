@@ -62,6 +62,11 @@ public class SMLineSegment: SMClonable, Equatable {
         self.end = end.clone()
     }
     
+    public convenience init(origin: SMPoint, angle: SMAngle, length: Double) {
+        let arc = SMArc(center: origin, radius: length, startAngle: SMAngle(degrees: 0.0), endAngle: angle)
+        self.init(origin: origin, end: arc.endPoint)
+    }
+    
     public required init(_ original: SMLineSegment) {
         self.origin = original.origin.clone()
         self.end = original.end.clone()

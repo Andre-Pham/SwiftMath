@@ -40,6 +40,10 @@ public class SMAngle: SMClonable, Equatable {
         self.radians = Double(degrees * .pi / 180.0)
     }
     
+    public convenience init(degrees: Int) {
+        self.init(degrees: Double(degrees))
+    }
+    
     public init() {
         self.radians = 0.0
     }

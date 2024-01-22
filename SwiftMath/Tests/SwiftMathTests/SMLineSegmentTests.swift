@@ -208,5 +208,12 @@ final class SMLineSegmentTests: XCTestCase {
         let overlappingLine = SMLineSegment(origin: SMPoint(x: 1.0, y: 1.0), end: SMPoint(x: 1.5, y: 1.5))
         XCTAssertNil(line1.touchingPoint(with: overlappingLine))
     }
+    
+    func testAngleInit() throws {
+        let line = SMLineSegment(origin: SMPoint(x: 1.0, y: 1.0), angle: SMAngle(degrees: 180), length: 10.0)
+        XCTAssertEqual(line.origin, SMPoint(x: 1, y: 1))
+        dump(line.end)
+        XCTAssertEqual(line.end, SMPoint(x: -9, y: 1))
+    }
 
 }
