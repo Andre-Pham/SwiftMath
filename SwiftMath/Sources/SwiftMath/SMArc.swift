@@ -60,4 +60,14 @@ public class SMArc: SMClonable {
         self.endAngle += angle
     }
     
+    // MARK: - Transformations
+    
+    public func translate(by point: SMPoint) {
+        self.center += point
+    }
+    
+    public func rotate(around center: SMPoint, by angle: SMAngle) {
+        self.center.rotate(around: center, by: angle)
+    }
+    
 }

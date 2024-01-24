@@ -67,4 +67,27 @@ public class SMPolyline: SMClonable {
         return self.orderedPoints.remove(at: index)
     }
     
+    public func intersects(point: SMPoint) -> Bool {
+        for segment in self.lineSegments {
+            if segment.intersects(point: point) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    // MARK: - Transformations
+    
+    public func translate(by point: SMPoint) {
+        for index in self.orderedPoints.indices {
+            self.orderedPoints[index] += point
+        }
+    }
+    
+    public func rotate(around center: SMPoint, by angle: SMAngle) {
+        for index in self.orderedPoints.indices {
+            self.orderedPoints[index].rotate(around: center, by: angle)
+        }
+    }
+    
 }

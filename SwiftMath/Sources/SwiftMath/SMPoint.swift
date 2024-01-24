@@ -56,17 +56,6 @@ public class SMPoint: SMClonable, Equatable {
         self.y = yRotated + center.y
     }
     
-    /// Creates a new point from this point rotated counter-clockwise around a given `center` by a certain `angle`
-    /// - Parameters:
-    ///   - center: The center point to rotate around
-    ///   - angle: The angle to rotate by
-    /// - Returns: A new point rotated counter-clockwise
-    public func rotated(around center: SMPoint, by angle: SMAngle) -> SMPoint {
-        let result = self.clone()
-        result.rotate(around: center, by: angle)
-        return result
-    }
-    
     public func length(to point: SMPoint) -> Double {
         return SMLineSegment(origin: self, end: point).length
     }

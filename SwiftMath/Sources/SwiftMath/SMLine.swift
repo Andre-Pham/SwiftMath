@@ -72,6 +72,18 @@ public class SMLine: SMLinear, SMClonable, Equatable {
     public func toString() -> String {
         return "SMLine: Point \(self.origin.toString()), Direction \(self.end.toString())"
     }
+    
+    // MARK: - Transformations
+    
+    public func translate(by point: SMPoint) {
+        self.origin += point
+        self.end += point
+    }
+    
+    public func rotate(around center: SMPoint, by angle: SMAngle) {
+        self.origin.rotate(around: center, by: angle)
+        self.end.rotate(around: center, by: angle)
+    }
 
     // MARK: - Operations
 

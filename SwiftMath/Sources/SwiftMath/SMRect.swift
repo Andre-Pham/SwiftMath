@@ -123,11 +123,10 @@ public class SMRect: SMClonable, Equatable {
         return SMRect(origin: SMPoint(x: x, y: y), width: scaledWidth, height: scaledHeight)
     }
     
-    public func offset(by point: SMPoint) {
-        self.origin += point
-        self.end += point
-    }
-    
+    /// If a point is contained inside of this rect (including on an edge).
+    /// - Parameters:
+    ///   - point: The point to check
+    /// - Returns: True if the point is contained inside (including on the edge)
     public func contains(point: SMPoint) -> Bool {
         return (
             SM.isLessOrEqual(point.x, self.maxX)
@@ -135,6 +134,52 @@ public class SMRect: SMClonable, Equatable {
             && SM.isLessOrEqual(point.y, self.maxY)
             && SM.isGreaterOrEqual(point.y, self.minY)
         )
+    }
+    
+    /// If a point is enclosed inside of this rect (NOT including on an edge).
+    /// - Parameters:
+    ///   - point: The point to check
+    /// - Returns: True if the point is enclosed inside (NOT including on the edge)
+    public func encloses(point: SMPoint) -> Bool {
+        return (
+            SM.isLessOrEqual(point.x, self.maxX)
+            && SM.isGreaterOrEqual(point.x, self.minX)
+            && SM.isLessOrEqual(point.y, self.maxY)
+            && SM.isGreaterOrEqual(point.y, self.minY)
+        )
+    }
+    
+    /// If a rectangle is contained inside of this rect (including overlapping edges).
+    /// - Parameters:
+    ///   - point: The point to check
+    /// - Returns: True if the rectangle is contained inside (including overlapping edges)
+    public func contains(rect: SMRect) -> Bool {
+        return (
+            SM.isLessOrEqual(rect.maxX, self.maxX)
+            && SM.isGreaterOrEqual(rect.minX, self.minX)
+            && SM.isLessOrEqual(rect.maxY, self.maxY)
+            && SM.isGreaterOrEqual(rect.minY, self.minY)
+        )
+    }
+    
+    /// If a rectangle is enclosed inside of this rect (NOT including overlapping edges).
+    /// - Parameters:
+    ///   - point: The point to check
+    /// - Returns: True if the rectangle is enclosed inside (NOT including overlapping edges)
+    public func encloses(rect: SMRect) -> Bool {
+        return (
+            SM.isLess(rect.maxX, self.maxX)
+            && SM.isGreater(rect.minX, self.minX)
+            && SM.isLess(rect.maxY, self.maxY)
+            && SM.isGreater(rect.minY, self.minY)
+        )
+    }
+    
+    // MARK: - Transformations
+    
+    public func translate(by point: SMPoint) {
+        self.origin += point
+        self.end += point
     }
     
     // MARK: - Operations
