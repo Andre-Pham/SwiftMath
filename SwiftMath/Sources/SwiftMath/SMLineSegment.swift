@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMLineSegment: SMLinear, SMClonable, Equatable {
+public class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     
     // MARK: - Properties
     
@@ -15,6 +15,14 @@ public class SMLineSegment: SMLinear, SMClonable, Equatable {
     public var origin: SMPoint
     /// The end of the line segment
     public var end: SMPoint
+    /// This geometry's vertices (ordered)
+    public var vertices: [SMPoint] {
+        return [self.origin.clone(), self.end.clone()]
+    }
+    /// This geometry's edges (ordered)
+    public var edges: [SMLineSegment] {
+        return [self.clone()]
+    }
     /// The line segment midpoint
     public var midPoint: SMPoint {
         let midX = (self.origin.x + self.end.x)/2.0
@@ -256,6 +264,18 @@ public class SMLineSegment: SMLinear, SMClonable, Equatable {
     
     public func toString(decimalPlaces: Int = 2) -> String {
         return "SMLine: \(self.origin.toString()) -> \(self.end.toString())"
+    }
+    
+    // MARK: - Transformations
+    
+    public func translate(by point: SMPoint) {
+        self.origin += point
+        self.end += point
+    }
+    
+    public func rotate(around center: SMPoint, by angle: SMAngle) {
+        self.origin.rotate(around: center, by: angle)
+        self.end.rotate(around: center, by: angle)
     }
     
     // MARK: - Operations

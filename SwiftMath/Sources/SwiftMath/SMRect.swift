@@ -8,7 +8,7 @@
 import Foundation
 import CoreGraphics
 
-public class SMRect: SMClonable, Equatable {
+public class SMRect: SMGeometry, SMClonable, Equatable {
     
     // MARK: - Properties
     
@@ -16,6 +16,25 @@ public class SMRect: SMClonable, Equatable {
     public var origin: SMPoint
     /// The top right of the rectangle
     public var end: SMPoint
+    /// This geometry's vertices (ordered)
+    public var vertices: [SMPoint] {
+        return [
+            self.origin.clone(),                            // Bottom left
+            self.origin + SMPoint(x: 0.0, y: self.height),  // Top left
+            self.end.clone(),                               // Top right
+            self.origin + SMPoint(x: self.width, y: 0.0)    // Bottom right
+        ]
+    }
+    /// This geometry's edges (ordered)
+    public var edges: [SMLineSegment] {
+        let vertices = self.vertices
+        return [
+            SMLineSegment(origin: vertices[0], end: vertices[1]),
+            SMLineSegment(origin: vertices[1], end: vertices[2]),
+            SMLineSegment(origin: vertices[2], end: vertices[3]),
+            SMLineSegment(origin: vertices[3], end: vertices[0])
+        ]
+    }
     /// Min x of the rectangle
     public var minX: Double {
         return self.origin.x
@@ -34,7 +53,7 @@ public class SMRect: SMClonable, Equatable {
     }
     /// The center of the rectangle
     public var center: SMPoint {
-        return SMPoint(x: (self.maxX - self.minX)/2.0, y: (self.maxY - self.minY)/2.0)
+        return SMPoint(x: (self.width)/2.0, y: (self.height)/2.0)
     }
     /// The rectangle width
     public var width: Double {
@@ -54,7 +73,7 @@ public class SMRect: SMClonable, Equatable {
     }
     /// If the rectangle is valid
     public var isValid: Bool {
-        return SM.isGreaterZero(self.area)
+        return SM.isLess(self.minY, self.maxY) && SM.isLess(self.minX, self.maxX)
     }
     
     // MARK: - Constructors
@@ -62,6 +81,16 @@ public class SMRect: SMClonable, Equatable {
     public init(origin: SMPoint, end: SMPoint) {
         self.origin = origin.clone()
         self.end = end.clone()
+    }
+    
+    public init(minX: Double, maxX: Double, minY: Double, maxY: Double) {
+        self.origin = SMPoint(x: minX, y: minY)
+        self.end = SMPoint(x: maxX, y: maxY)
+    }
+    
+    public init(center: SMPoint, width: Double, height: Double) {
+        self.origin = center - SMPoint(x: width/2.0, y: height/2.0)
+        self.end = center + SMPoint(x: width/2.0, y: height/2.0)
     }
     
     public convenience init(origin: SMPoint, width: Double, height: Double) {
@@ -180,6 +209,15 @@ public class SMRect: SMClonable, Equatable {
     public func translate(by point: SMPoint) {
         self.origin += point
         self.end += point
+    }
+    
+    /// Rotates the center of this rectangle around a point
+    public func rotate(around center: SMPoint, by angle: SMAngle) {
+        let rectCenter = self.center
+        rectCenter.rotate(around: center, by: angle)
+        let newRect = SMRect(center: rectCenter, width: self.width, height: self.height)
+        self.origin = newRect.origin
+        self.end = newRect.end
     }
     
     // MARK: - Operations

@@ -7,44 +7,46 @@
 
 import Foundation
 
-public class SMPolygon: SMClonable {
+public class SMPolygon: SMMutatableGeometry, SMClonable {
     
-    public private(set) var orderedPoints = [SMPoint]()
-    public var lineSegments: [SMLineSegment] {
-        guard self.orderedPoints.count > 1 else {
+    /// This geometry's vertices (ordered)
+    public var vertices = [SMPoint]()
+    /// This geometry's edges (ordered)
+    public var edges: [SMLineSegment] {
+        guard self.vertices.count > 1 else {
             return []
         }
         var result = [SMLineSegment]()
-        for index in self.orderedPoints.indices.dropLast() {
-            result.append(SMLineSegment(origin: self.orderedPoints[index], end: self.orderedPoints[index + 1]))
+        for index in self.vertices.indices.dropLast() {
+            result.append(SMLineSegment(origin: self.vertices[index], end: self.vertices[index + 1]))
         }
-        result.append(SMLineSegment(origin: self.orderedPoints.last!, end: self.orderedPoints.first!))
+        result.append(SMLineSegment(origin: self.vertices.last!, end: self.vertices.first!))
         return result
     }
     public var isValid: Bool {
         // Must at least be a triangle
-        guard self.orderedPoints.count > 2 else {
+        guard self.vertices.count > 2 else {
             return false
         }
-        let lineSegments = self.lineSegments
-        if !lineSegments.allSatisfy({ $0.isValid }) {
-            // One or more line segments are invalid
+        let edges = self.edges
+        if !edges.allSatisfy({ $0.isValid }) {
+            // One or more edges are invalid
             return false
         }
-        for index1 in lineSegments.indices {
-            for index2 in lineSegments.indices {
+        for index1 in edges.indices {
+            for index2 in edges.indices {
                 guard index1 != index2 else {
                     continue
                 }
-                let linesAreAdjacent = abs(index1 - index2) == 1 || abs(index1 - index2) == (lineSegments.count - 1)
-                let line1 = lineSegments[index1]
-                let line2 = lineSegments[index2]
-                if !linesAreAdjacent && line1.intersects(line: line2) {
-                    // Lines are not adjacent yet they intersect
+                let edgesAreAdjacent = abs(index1 - index2) == 1 || abs(index1 - index2) == (edges.count - 1)
+                let edge1 = edges[index1]
+                let edge2 = edges[index2]
+                if !edgesAreAdjacent && edge1.intersects(line: edge2) {
+                    // Edges are not adjacent yet they intersect
                     return false
                 }
-                if line1.overlaps(with: line2) {
-                    // Lines overlap
+                if edge1.overlaps(with: edge2) {
+                    // Edges overlap
                     return false
                 }
             }
@@ -57,14 +59,14 @@ public class SMPolygon: SMClonable {
         }
         // Shoelace formula
         var sum = 0.0
-        for i in self.orderedPoints.indices {
-            let current = self.orderedPoints[i]
-            let next = self.orderedPoints[(i + 1)%self.orderedPoints.count]
+        for i in self.vertices.indices {
+            let current = self.vertices[i]
+            let next = self.vertices[(i + 1)%self.vertices.count]
             sum += (current.x * next.y) - (next.x * current.y)
         }
         // Closing the loop: adding the product of the last and the first point
-        let last = self.orderedPoints.last!
-        let first = self.orderedPoints.first!
+        let last = self.vertices.last!
+        let first = self.vertices.first!
         sum += (last.x * first.y) - (first.x * last.y)
         return 0.5 * abs(sum)
     }
@@ -72,72 +74,58 @@ public class SMPolygon: SMClonable {
         guard self.isValid else {
             return nil
         }
-        var totalLength = self.orderedPoints.last!.length(to: self.orderedPoints.first!)
-        for index in self.orderedPoints.indices.dropLast() {
-            totalLength += self.orderedPoints[index].length(to: self.orderedPoints[index + 1])
+        var totalLength = self.vertices.last!.length(to: self.vertices.first!)
+        for index in self.vertices.indices.dropLast() {
+            totalLength += self.vertices[index].length(to: self.vertices[index + 1])
         }
         return totalLength
     }
-    public var pointCollection: SMPointCollection {
-        return SMPointCollection(points: self.orderedPoints)
-    }
     public var isClockwise: Bool {
         // https://stackoverflow.com/a/1165943
-        return SM.isGreaterZero(self.lineSegments.reduce(0.0, { $0 + ($1.end.x - $1.origin.x) * ($1.end.y + $1.origin.y) }))
+        return SM.isGreaterZero(self.edges.reduce(0.0, { $0 + ($1.end.x - $1.origin.x) * ($1.end.y + $1.origin.y) }))
     }
     public var isAnticlockwise: Bool {
         // https://stackoverflow.com/a/1165943
-        return SM.isLessZero(self.lineSegments.reduce(0.0, { $0 + ($1.end.x - $1.origin.x) * ($1.end.y + $1.origin.y) }))
+        return SM.isLessZero(self.edges.reduce(0.0, { $0 + ($1.end.x - $1.origin.x) * ($1.end.y + $1.origin.y) }))
     }
     
     // MARK: - Constructors
     
-    public init(orderedPoints: [SMPoint]) {
-        self.orderedPoints = orderedPoints
+    public init(vertices: [SMPoint]) {
+        self.vertices = vertices
     }
     
-    public convenience init(orderedPoints: SMPoint...) {
-        self.init(orderedPoints: orderedPoints)
+    public convenience init(vertices: SMPoint...) {
+        self.init(vertices: vertices)
     }
     
     public required init(_ original: SMPolygon) {
-        self.orderedPoints = original.orderedPoints.clone()
+        self.vertices = original.vertices.clone()
     }
     
     // MARK: - Functions
-    
-    public func add(_ point: SMPoint) {
-        self.orderedPoints.append(point.clone())
-    }
-    
-    public func remove(at index: Int) -> SMPoint? {
-        guard index < self.orderedPoints.endIndex else {
-            return nil
-        }
-        return self.orderedPoints.remove(at: index)
-    }
     
     public func contains(point: SMPoint, checkEdges: Bool = true, validatePolygon: Bool = false) -> Bool {
         guard validatePolygon || self.isValid else {
             return false
         }
-        guard self.pointCollection.boundingBox.contains(point: point) else {
+        guard self.boundingBox.contains(point: point) else {
             return false
         }
         if checkEdges {
-            for edge in self.lineSegments {
+            for edge in self.edges {
                 if edge.intersects(point: point) {
                     return true
                 }
             }
         }
         // https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
-        let nvert = self.orderedPoints.count
+        let nvert = self.vertices.count
         var c = false
         for i in 0..<nvert {
             let j = (i == 0) ? nvert - 1 : i - 1
-            if ((self.orderedPoints[i].y > point.y) != (self.orderedPoints[j].y > point.y)) &&
-                (point.x < (self.orderedPoints[j].x - self.orderedPoints[i].x) * (point.y - self.orderedPoints[i].y) / (self.orderedPoints[j].y - self.orderedPoints[i].y) + self.orderedPoints[i].x) {
+            if ((self.vertices[i].y > point.y) != (self.vertices[j].y > point.y)) &&
+                (point.x < (self.vertices[j].x - self.vertices[i].x) * (point.y - self.vertices[i].y) / (self.vertices[j].y - self.vertices[i].y) + self.vertices[i].x) {
                 c = !c
             }
         }
@@ -148,10 +136,10 @@ public class SMPolygon: SMClonable {
         guard validatePolygon || self.isValid else {
             return false
         }
-        guard self.pointCollection.boundingBox.encloses(point: point) else {
+        guard self.boundingBox.encloses(point: point) else {
             return false
         }
-        for edge in self.lineSegments {
+        for edge in self.edges {
             if edge.intersects(point: point) {
                 return false
             }
@@ -159,17 +147,17 @@ public class SMPolygon: SMClonable {
         return self.contains(point: point, checkEdges: false, validatePolygon: false)
     }
     
-    public func contains(polygon: SMPolygon, checkEdges: Bool = true, validatePolygon: Bool = false) -> Bool {
+    public func contains(geometry: SMGeometry, checkEdges: Bool = true, validatePolygon: Bool = false) -> Bool {
         guard validatePolygon || self.isValid else {
             return false
         }
-        guard self.pointCollection.boundingBox.contains(rect: polygon.pointCollection.boundingBox) else {
+        guard self.boundingBox.contains(rect: geometry.boundingBox) else {
             return false
         }
-        guard !polygon.pointCollection.boundingBox.encloses(rect: self.pointCollection.boundingBox) else {
+        guard !geometry.boundingBox.encloses(rect: self.boundingBox) else {
             return false
         }
-        for vertex in polygon.orderedPoints {
+        for vertex in geometry.vertices {
             if !self.contains(point: vertex, checkEdges: checkEdges, validatePolygon: false) {
                 return false
             }
@@ -177,17 +165,17 @@ public class SMPolygon: SMClonable {
         return true
     }
     
-    public func encloses(polygon: SMPolygon, validatePolygon: Bool = false) -> Bool {
+    public func encloses(geometry: SMGeometry, validatePolygon: Bool = false) -> Bool {
         guard validatePolygon || self.isValid else {
             return false
         }
-        guard self.pointCollection.boundingBox.encloses(rect: polygon.pointCollection.boundingBox) else {
+        guard self.boundingBox.encloses(rect: geometry.boundingBox) else {
             return false
         }
-        guard !polygon.pointCollection.boundingBox.contains(rect: self.pointCollection.boundingBox) else {
+        guard !geometry.boundingBox.contains(rect: self.boundingBox) else {
             return false
         }
-        for vertex in polygon.orderedPoints {
+        for vertex in geometry.vertices {
             if !self.encloses(point: vertex) {
                 return false
             }
@@ -195,55 +183,18 @@ public class SMPolygon: SMClonable {
         return true
     }
     
-    public func intersects(point: SMPoint) -> Bool {
-        for segment in self.lineSegments {
-            if segment.intersects(point: point) {
-                return true
-            }
-        }
-        return false
-    }
-    
-    public func overlaps(polygon: SMPolygon) -> Bool {
-        guard self.pointCollection.boundingBox.intersects(with: polygon.pointCollection.boundingBox) else {
-            return false
-        }
-        for lineSegment in self.lineSegments {
-            for otherLineSegment in polygon.lineSegments {
-                if lineSegment.intersects(line: otherLineSegment) {
-                    return true
-                }
-            }
-        }
-        return false
-    }
-    
     public func orderClockwise() {
         guard self.isAnticlockwise else {
             return
         }
-        self.orderedPoints = self.orderedPoints.reversed()
+        self.vertices = self.vertices.reversed()
     }
     
     public func orderAnticlockwise() {
         guard self.isClockwise else {
             return
         }
-        self.orderedPoints = self.orderedPoints.reversed()
-    }
-    
-    // MARK: - Transformations
-    
-    public func translate(by point: SMPoint) {
-        for index in self.orderedPoints.indices {
-            self.orderedPoints[index] += point
-        }
-    }
-    
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
-        for index in self.orderedPoints.indices {
-            self.orderedPoints[index].rotate(around: center, by: angle)
-        }
+        self.vertices = self.vertices.reversed()
     }
     
 }
