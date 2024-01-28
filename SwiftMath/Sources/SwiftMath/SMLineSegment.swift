@@ -155,7 +155,7 @@ public class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
                 let lineYIntercept = line.origin.y - (line.gradient!*line.origin.x)
                 let y = line.gradient!*x + lineYIntercept
                 let point = SMPoint(x: x, y: y)
-                return self.intersects(point: point) ? point : nil
+                return (self.intersects(point: point) && line.intersects(point: point)) ? point : nil
             }
         } else if line.gradient == nil {
             // Only other line is vertical, calculate intersection
@@ -163,7 +163,7 @@ public class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
             let yIntercept = self.origin.y - (self.gradient!*self.origin.x)
             let y = self.gradient!*x + yIntercept
             let point = SMPoint(x: x, y: y)
-            return self.intersects(point: point) ? point : nil
+            return (self.intersects(point: point) && line.intersects(point: point)) ? point : nil
         }
         // Calculate y-intercepts
         let b1 = self.origin.y - (self.gradient!*self.origin.x)
@@ -180,7 +180,7 @@ public class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
         let x = (b2 - b1) / (self.gradient! - line.gradient!)
         let y = self.gradient!*x + b1
         let point = SMPoint(x: x, y: y)
-        return self.intersects(point: point) ? point : nil
+        return (self.intersects(point: point) && line.intersects(point: point)) ? point : nil
     }
     
     /// Checks if two line segments intersect at their end points (without overlapping).

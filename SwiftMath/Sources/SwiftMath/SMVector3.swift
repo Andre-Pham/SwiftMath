@@ -116,8 +116,7 @@ public class SMVector3: SMClonable, Equatable {
 
     public static func / (vector: SMVector3, scalar: Double) -> SMVector3 {
         guard !SM.isZero(scalar) else {
-            print("Error: Division by zero.")
-            return vector
+            fatalError("Division by zero is illegal")
         }
         return SMVector3(x: vector.x / scalar, y: vector.y / scalar, z: vector.z / scalar)
     }

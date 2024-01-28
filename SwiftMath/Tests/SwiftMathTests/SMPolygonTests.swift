@@ -127,7 +127,7 @@ final class SMPolygonTests: XCTestCase {
         XCTAssertFalse(polygon.contains(point: SMPoint(x: 0.0, y: 5.0)))
         // Test for a polygon with intersecting lines (invalid, hence all points should be outside)
         polygon = SMPolygon(vertices: [SMPoint(x: 0.0, y: 0.0), SMPoint(x: 1.0, y: 1.0), SMPoint(x: 1.0, y: 0.0), SMPoint(x: 0.0, y: 1.0)])
-        XCTAssertFalse(polygon.contains(point: SMPoint(x: 0.5, y: 0.5)))
+        XCTAssertFalse(polygon.contains(point: SMPoint(x: 0.5, y: 0.5), validatePolygon: true))
     }
     
     func testContainsPolygon() throws {
@@ -135,18 +135,36 @@ final class SMPolygonTests: XCTestCase {
         let outerPolygon = SMPolygon(vertices: [SMPoint(x: 0.0, y: 0.0), SMPoint(x: 5.0, y: 0.0), SMPoint(x: 5.0, y: 5.0), SMPoint(x: 0.0, y: 5.0)])
         let innerPolygon = SMPolygon(vertices: [SMPoint(x: 1.0, y: 1.0), SMPoint(x: 4.0, y: 1.0), SMPoint(x: 4.0, y: 4.0), SMPoint(x: 1.0, y: 4.0)])
         XCTAssertTrue(outerPolygon.contains(geometry: innerPolygon))
+        XCTAssertTrue(outerPolygon.encloses(geometry: innerPolygon))
         // Case 2: A polygon partially overlapping another
         let partiallyOverlappingPolygon = SMPolygon(vertices: [SMPoint(x: 3.0, y: 3.0), SMPoint(x: 6.0, y: 3.0), SMPoint(x: 6.0, y: 6.0), SMPoint(x: 3.0, y: 6.0)])
         XCTAssertFalse(outerPolygon.contains(geometry: partiallyOverlappingPolygon))
+        XCTAssertFalse(outerPolygon.encloses(geometry: partiallyOverlappingPolygon))
         // Case 3: A polygon completely outside another
         let outsidePolygon = SMPolygon(vertices: [SMPoint(x: 6.0, y: 6.0), SMPoint(x: 7.0, y: 6.0), SMPoint(x: 7.0, y: 7.0), SMPoint(x: 6.0, y: 7.0)])
         XCTAssertFalse(outerPolygon.contains(geometry: outsidePolygon))
+        XCTAssertFalse(outerPolygon.encloses(geometry: outsidePolygon))
         // Case 4: Polygons with one inside the other, but sharing an edge
         let edgeSharingPolygon = SMPolygon(vertices: [SMPoint(x: 0.0, y: 0.0), SMPoint(x: 5.0, y: 0.0), SMPoint(x: 5.0, y: 5.0)])
         XCTAssertTrue(outerPolygon.contains(geometry: edgeSharingPolygon))
+        XCTAssertFalse(outerPolygon.encloses(geometry: edgeSharingPolygon))
         // Case 5: Invalid polygon
         let invalidPolygon = SMPolygon(vertices: [SMPoint(x: 1.0, y: 1.0)]) // Invalid as it's not a polygon
         XCTAssertTrue(outerPolygon.contains(geometry: invalidPolygon))
+        XCTAssertTrue(outerPolygon.encloses(geometry: invalidPolygon))
+        // Case 6: Sticking out polygon
+        let vShapePolygon = SMPolygon(vertices: SMPoint(x: -10, y: 0), SMPoint(x: 10, y: 0), SMPoint(x: 10, y: 10), SMPoint(x: 0, y: 5), SMPoint(x: -10, y: 10))
+        let vIntersectPolygon = SMPolygon(vertices: SMPoint(x: -5, y: 2), SMPoint(x: 5, y: 2), SMPoint(x: 5, y: 6), SMPoint(x: -5, y: 6))
+        XCTAssertFalse(vShapePolygon.contains(geometry: vIntersectPolygon))
+        XCTAssertFalse(vShapePolygon.encloses(geometry: vIntersectPolygon))
+        // Case 7: Touching polygons
+        let touchingPolygon = SMPolygon(vertices: [SMPoint(x: 1.0, y: 1.0), SMPoint(x: 4.0, y: 1.0), SMPoint(x: 5.0, y: 2.5), SMPoint(x: 4.0, y: 4.0), SMPoint(x: 1.0, y: 4.0)])
+        XCTAssertTrue(outerPolygon.contains(geometry: touchingPolygon, checkEdges: true))
+        XCTAssertFalse(outerPolygon.encloses(geometry: touchingPolygon))
+        // Case 8: Extruding polygons
+        let extrudingPolygon = SMPolygon(vertices: [SMPoint(x: 1.0, y: 1.0), SMPoint(x: 4.0, y: 1.0), SMPoint(x: 5.0, y: 2.0), SMPoint(x: 6.0, y: 2.5), SMPoint(x: 4.0, y: 3.0), SMPoint(x: 4.0, y: 4.0), SMPoint(x: 1.0, y: 4.0)])
+        XCTAssertFalse(outerPolygon.contains(geometry: extrudingPolygon, checkEdges: true))
+        XCTAssertFalse(outerPolygon.encloses(geometry: extrudingPolygon))
     }
     
     func testClockwise() throws {

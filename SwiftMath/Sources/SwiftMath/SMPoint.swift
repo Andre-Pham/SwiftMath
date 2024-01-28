@@ -92,8 +92,7 @@ public class SMPoint: SMClonable, Equatable {
 
     public static func / (point: SMPoint, scalar: Double) -> SMPoint {
         guard !SM.isZero(scalar) else {
-            print("Error: Division by zero.")
-            return point
+            fatalError("Division by zero is illegal")
         }
         return SMPoint(x: point.x / scalar, y: point.y / scalar)
     }

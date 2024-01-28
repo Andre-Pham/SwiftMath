@@ -106,7 +106,7 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
     // MARK: - Functions
     
     public func contains(point: SMPoint, checkEdges: Bool = true, validatePolygon: Bool = false) -> Bool {
-        guard validatePolygon || self.isValid else {
+        guard !validatePolygon || self.isValid else {
             return false
         }
         guard self.boundingBox.contains(point: point) else {
@@ -133,7 +133,7 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
     }
     
     public func encloses(point: SMPoint, validatePolygon: Bool = false) -> Bool {
-        guard validatePolygon || self.isValid else {
+        guard !validatePolygon || self.isValid else {
             return false
         }
         guard self.boundingBox.encloses(point: point) else {
@@ -148,7 +148,7 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
     }
     
     public func contains(geometry: SMGeometry, checkEdges: Bool = true, validatePolygon: Bool = false) -> Bool {
-        guard validatePolygon || self.isValid else {
+        guard !validatePolygon || self.isValid else {
             return false
         }
         guard self.boundingBox.contains(rect: geometry.boundingBox) else {
@@ -157,8 +157,15 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
         guard !geometry.boundingBox.encloses(rect: self.boundingBox) else {
             return false
         }
+        // Check if all points are inside
         for vertex in geometry.vertices {
             if !self.contains(point: vertex, checkEdges: checkEdges, validatePolygon: false) {
+                return false
+            }
+        }
+        // Check for intersections that aren't touching
+        for edge in geometry.edges {
+            if self.intersects(geometry: edge) && !self.intersects(point: edge.origin) && !self.intersects(point: edge.end) {
                 return false
             }
         }
@@ -166,7 +173,7 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
     }
     
     public func encloses(geometry: SMGeometry, validatePolygon: Bool = false) -> Bool {
-        guard validatePolygon || self.isValid else {
+        guard !validatePolygon || self.isValid else {
             return false
         }
         guard self.boundingBox.encloses(rect: geometry.boundingBox) else {
@@ -175,8 +182,15 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
         guard !geometry.boundingBox.contains(rect: self.boundingBox) else {
             return false
         }
+        // Check if all points are enclosed
         for vertex in geometry.vertices {
-            if !self.encloses(point: vertex) {
+            if !self.encloses(point: vertex, validatePolygon: false) {
+                return false
+            }
+        }
+        // Check for intersections
+        for edge in geometry.edges {
+            if self.intersects(geometry: edge) {
                 return false
             }
         }

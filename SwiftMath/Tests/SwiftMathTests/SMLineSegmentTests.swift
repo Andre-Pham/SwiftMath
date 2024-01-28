@@ -179,6 +179,9 @@ final class SMLineSegmentTests: XCTestCase {
         let pointLine3 = SMLineSegment(origin: SMPoint(x: 1, y: 1), end: SMPoint(x: 1, y: 1))
         let pointLine4 = SMLineSegment(origin: SMPoint(x: 2, y: 2), end: SMPoint(x: 2, y: 2))
         XCTAssertNil(pointLine3.intersection(with: pointLine4))
+        let line3 = SMLineSegment(origin: SMPoint(x: -10, y: 0), end: SMPoint(x: 10, y: 0))
+        let line4 = SMLineSegment(origin: SMPoint(x: 10, y: 10), end: SMPoint(x: 0, y: 5))
+        XCTAssertFalse(line3.intersects(line: line4))
     }
     
     func testTouchingPointWithLine() throws {
