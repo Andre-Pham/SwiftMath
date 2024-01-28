@@ -35,10 +35,6 @@ public class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
         let dy = self.end.y - self.origin.y
         return sqrt(dx * dx + dy * dy)
     }
-    /// The point collection of this line segment
-    public var pointCollection: SMPointCollection {
-        return SMPointCollection(points: self.origin, self.end)
-    }
     /// This line segment, flipped
     public var flipped: SMLineSegment {
         return SMLineSegment(origin: self.end.clone(), end: self.origin.clone())
@@ -100,12 +96,13 @@ public class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
             // Non-vertical line segments
             let expectedY = gradient*(point.x - self.origin.x) + self.origin.y
             let existsOnInfiniteLine = SM.isEqual(expectedY, point.y)
-            let existsInBoundingBox = self.pointCollection.boundingBox.contains(point: point)
+            let existsInBoundingBox = self.boundingBoxContains(point: point)
             return existsInBoundingBox && existsOnInfiniteLine
         } else {
             // Vertical line segments
-            let maxY = self.pointCollection.maxY
-            let minY = self.pointCollection.minY
+            guard let maxY, let minY else {
+                return false
+            }
             return (
                 SM.isEqual(self.origin.x, point.x)
                 && SM.isLessOrEqual(point.y, maxY)
@@ -209,11 +206,11 @@ public class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
         } else if touchingOrigin {
             if self.gradient == line.gradient {
                 if self.origin == line.end {
-                    if line.pointCollection.boundingBox.contains(point: self.end) || self.pointCollection.boundingBox.contains(point: line.origin) {
+                    if line.boundingBoxContains(point: self.end) || self.boundingBoxContains(point: line.origin) {
                         return nil
                     }
                 } else if self.origin == line.origin {
-                    if line.pointCollection.boundingBox.contains(point: self.end) || self.pointCollection.boundingBox.contains(point: line.end) {
+                    if line.boundingBoxContains(point: self.end) || self.boundingBoxContains(point: line.end) {
                         return nil
                     }
                 }
@@ -222,11 +219,11 @@ public class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
         } else if touchingEnd {
             if self.gradient == line.gradient {
                 if self.end == line.origin {
-                    if line.pointCollection.boundingBox.contains(point: self.origin) || self.pointCollection.boundingBox.contains(point: line.end) {
+                    if line.boundingBoxContains(point: self.origin) || self.boundingBoxContains(point: line.end) {
                         return nil
                     }
                 } else if self.end == line.end {
-                    if line.pointCollection.boundingBox.contains(point: self.origin) || self.pointCollection.boundingBox.contains(point: line.origin) {
+                    if line.boundingBoxContains(point: self.origin) || self.boundingBoxContains(point: line.origin) {
                         return nil
                     }
                 }

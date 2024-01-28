@@ -109,7 +109,7 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
         guard !validatePolygon || self.isValid else {
             return false
         }
-        guard self.boundingBox.contains(point: point) else {
+        guard self.boundingBoxContains(point: point) else {
             return false
         }
         if checkEdges {
@@ -136,7 +136,7 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
         guard !validatePolygon || self.isValid else {
             return false
         }
-        guard self.boundingBox.encloses(point: point) else {
+        guard self.boundingBoxEncloses(point: point) else {
             return false
         }
         for edge in self.edges {
@@ -151,10 +151,10 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
         guard !validatePolygon || self.isValid else {
             return false
         }
-        guard self.boundingBox.contains(rect: geometry.boundingBox) else {
+        guard self.boundingBoxContainsBoundingBox(of: geometry) else {
             return false
         }
-        guard !geometry.boundingBox.encloses(rect: self.boundingBox) else {
+        guard !geometry.boundingBoxEnclosesBoundingBox(of: self) else {
             return false
         }
         // Check if all points are inside
@@ -176,10 +176,10 @@ public class SMPolygon: SMMutatableGeometry, SMClonable {
         guard !validatePolygon || self.isValid else {
             return false
         }
-        guard self.boundingBox.encloses(rect: geometry.boundingBox) else {
+        guard self.boundingBoxEnclosesBoundingBox(of: geometry) else {
             return false
         }
-        guard !geometry.boundingBox.contains(rect: self.boundingBox) else {
+        guard !geometry.boundingBoxContainsBoundingBox(of: self) else {
             return false
         }
         // Check if all points are enclosed

@@ -18,12 +18,23 @@ public class SMRect: SMGeometry, SMClonable, Equatable {
     public var end: SMPoint
     /// This geometry's vertices (ordered)
     public var vertices: [SMPoint] {
-        return [
-            self.origin.clone(),                            // Bottom left
-            self.origin + SMPoint(x: 0.0, y: self.height),  // Top left
-            self.end.clone(),                               // Top right
-            self.origin + SMPoint(x: self.width, y: 0.0)    // Bottom right
-        ]
+        return [self.bottomLeft, self.topLeft, self.topRight, self.bottomRight]
+    }
+    /// The top left point
+    public var topLeft: SMPoint {
+        return self.origin + SMPoint(x: 0.0, y: self.height)
+    }
+    /// The top right point
+    public var topRight: SMPoint {
+        return self.end.clone()
+    }
+    /// The bottom left point
+    public var bottomLeft: SMPoint {
+        return self.origin.clone()
+    }
+    /// The bottom right point
+    public var bottomRight: SMPoint {
+        return self.origin + SMPoint(x: self.width, y: 0.0)
     }
     /// This geometry's edges (ordered)
     public var edges: [SMLineSegment] {
@@ -104,16 +115,67 @@ public class SMRect: SMGeometry, SMClonable, Equatable {
     
     // MARK: - Functions
     
+    /// Calculates the smallest rectangle that completely encompasses both of the input rectangles.
+    /// - Parameters:
+    ///   - other: The other rectangle to form a union
+    /// - Returns: The union of the two rectangles
     public func union(_ other: SMRect) -> SMRect {
         return SMRect(self.cgRect.union(other.cgRect))
     }
     
-    public func intersection(_ other: SMRect) -> SMRect {
+    /// Calculates the smallest rectangle with a valid area that represents the overlap between the two input rectangles.
+    /// - Parameters:
+    ///   - other: The other rectangle to form an overlapping rectangle
+    /// - Returns: The union of the two rectangles
+    public func overlap(_ other: SMRect) -> SMRect? {
+        guard self.cgRect.intersects(other.cgRect) else {
+            return nil
+        }
         return SMRect(self.cgRect.intersection(other.cgRect))
     }
     
+    /// Calculates if there is an intersecting point between two rectangles (doesn't count overlapping edges).
+    /// - Parameters:
+    ///   - other: The other rectangle to check
+    /// - Returns: True if the rectangles intersect without their edges overlapping
     public func intersects(with other: SMRect) -> Bool {
-        return self.cgRect.intersects(other.cgRect)
+        if self.overlap(other) != nil {
+            return true
+        }
+        return (
+            self.topRight == other.bottomLeft
+            || self.bottomLeft == other.topRight
+            || self.topLeft == other.bottomRight
+            || self.bottomRight == other.topLeft
+        )
+    }
+    
+    /// Calculates if two rectangles touch edges without overlapping.
+    /// - Parameters:
+    ///   - other: The other rectangle to check
+    /// - Returns: True if the rectangles touch without overlapping
+    public func touches(_ other: SMRect) -> Bool {
+        for edge in self.edges {
+            for otherEdge in other.edges {
+                if edge.overlaps(with: otherEdge) {
+                    return true
+                }
+            }
+        }
+        return (
+            self.topRight == other.bottomLeft
+            || self.bottomLeft == other.topRight
+            || self.topLeft == other.bottomRight
+            || self.bottomRight == other.topLeft
+        )
+    }
+    
+    /// Checks if this rectangle has some spatial relationship (intersection, containment, overlap, etc.) with another rectangle.
+    /// - Parameters:
+    ///   - other: The other rectangle to compare against
+    /// - Returns: True if the two rectangles are spatially related
+    public func relates(to other: SMRect) -> Bool {
+        return self.intersects(with: other) || self.touches(other)
     }
     
     public func scale(toAspectFillSize size: SMSize) -> SMRect {
@@ -202,6 +264,38 @@ public class SMRect: SMGeometry, SMClonable, Equatable {
             && SM.isLess(rect.maxY, self.maxY)
             && SM.isGreater(rect.minY, self.minY)
         )
+    }
+    
+    public func contains(geometry: SMGeometry) -> Bool {
+        guard self.isValid else {
+            return false
+        }
+        guard let geometryBoundingBox = geometry.boundingBox,
+              self.contains(rect: geometryBoundingBox) else {
+            return false
+        }
+        for vertex in geometry.vertices {
+            if !self.contains(point: vertex) {
+                return false
+            }
+        }
+        return true
+    }
+    
+    public func encloses(geometry: SMGeometry) -> Bool {
+        guard self.isValid else {
+            return false
+        }
+        guard let geometryBoundingBox = geometry.boundingBox,
+              self.encloses(rect: geometryBoundingBox) else {
+            return false
+        }
+        for vertex in geometry.vertices {
+            if !self.encloses(point: vertex) {
+                return false
+            }
+        }
+        return true
     }
     
     // MARK: - Transformations
