@@ -169,6 +169,9 @@ extension SMGeometry {
     ///   - geometry: The other geometry to compare against
     /// - Returns: True if the two geometries are spatially related
     public func relates(to geometry: SMGeometry) -> Bool {
+        guard self.boundingBoxRelatesToBoundingBox(of: geometry) else {
+            return false
+        }
         if self.intersects(geometry: geometry) {
             return true
         }
