@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import SwiftMath
+@testable import SwiftMath
 
 final class SMPointTests: XCTestCase {
 

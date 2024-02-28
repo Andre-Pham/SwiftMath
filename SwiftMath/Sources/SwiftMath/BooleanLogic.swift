@@ -7,11 +7,11 @@
 
 import Foundation
 
-public let doublePrecision: Double = 1e-5
-public let floatPrecision: Float = 1e-5
-public let cgFloatPrecision: CGFloat = 1e-5
+internal let doublePrecision: Double = 1e-5
+internal let floatPrecision: Float = 1e-5
+internal let cgFloatPrecision: CGFloat = 1e-5
 
-public enum SM {
+internal enum SM {
     
     // MARK: - Double
 

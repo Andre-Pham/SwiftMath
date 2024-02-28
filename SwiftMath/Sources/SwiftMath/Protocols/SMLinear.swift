@@ -48,7 +48,7 @@ extension SMLinear {
     /// - Parameters:
     ///   - line: The line to compare
     /// - Returns: True if the two lines are parallel
-    public func isParallel(to line: SMLinear, precision: Double = doublePrecision) -> Bool {
+    public func isParallel(to line: SMLinear, precision: Double = 1e-5) -> Bool {
         guard self.isValid && line.isValid else {
             return false
         }

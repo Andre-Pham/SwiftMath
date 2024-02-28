@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import SwiftMath
+@testable import SwiftMath
 
 final class SMPolygonTests: XCTestCase {
 
@@ -209,6 +209,16 @@ final class SMPolygonTests: XCTestCase {
         let reversedTriangle1 = triangle1.clone()
         reversedTriangle1.reverse()
         XCTAssertTrue(triangle1.matchesGeometry(of: reversedTriangle1))
+    }
+    
+    func testRemoveRedundantPoints() throws {
+        let cleanPolygon = SMPolygon(vertices: SMPoint(), SMPoint(x: 1, y: 1))
+        let cleaned = cleanPolygon.clone()
+        cleaned.removeRedundantPoints()
+        XCTAssertTrue(cleaned.matchesGeometry(of: cleanPolygon))
+        cleaned.insert(SMPoint(x: 0.5, y: 0.5), at: 1)
+        cleaned.removeRedundantPoints()
+        XCTAssertTrue(cleaned.matchesGeometry(of: cleanPolygon))
     }
 
 }
