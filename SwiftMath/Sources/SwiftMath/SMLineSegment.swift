@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
+open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     
     // MARK: - Properties
     

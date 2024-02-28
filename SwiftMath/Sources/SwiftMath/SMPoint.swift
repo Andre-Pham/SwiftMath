@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMPoint: SMClonable, Equatable {
+open class SMPoint: SMClonable, Equatable {
     
     // MARK: - Properties
     

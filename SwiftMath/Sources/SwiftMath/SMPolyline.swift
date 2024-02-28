@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMPolyline: SMMutatableGeometry, SMClonable {
+open class SMPolyline: SMMutatableGeometry, SMClonable {
     
     /// This geometry's vertices (ordered)
     public var vertices = [SMPoint]()

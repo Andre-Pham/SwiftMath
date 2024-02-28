@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMSize: SMClonable {
+open class SMSize: SMClonable {
     
     // MARK: - Properties
     

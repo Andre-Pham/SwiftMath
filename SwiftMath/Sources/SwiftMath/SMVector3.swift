@@ -8,7 +8,7 @@
 import Foundation
 import SceneKit
 
-public class SMVector3: SMClonable, Equatable {
+open class SMVector3: SMClonable, Equatable {
     
     // MARK: - Properties
     

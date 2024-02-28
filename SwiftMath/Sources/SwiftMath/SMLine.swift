@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMLine: SMLinear, SMClonable, Equatable {
+open class SMLine: SMLinear, SMClonable, Equatable {
 
     // MARK: - Properties
     

@@ -8,7 +8,7 @@
 import Foundation
 import CoreGraphics
 
-public class SMRect: SMGeometry, SMClonable, Equatable {
+open class SMRect: SMGeometry, SMClonable, Equatable {
     
     // MARK: - Properties
     

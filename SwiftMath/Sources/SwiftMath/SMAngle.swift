@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMAngle: SMClonable, Equatable {
+open class SMAngle: SMClonable, Equatable {
     
     // MARK: - Properties
     

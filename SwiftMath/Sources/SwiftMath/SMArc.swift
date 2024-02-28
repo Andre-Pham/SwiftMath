@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents a segment of a circle's perimeter, defined by two points on the circumference and the path between them along the circle.
-public class SMArc: SMClonable {
+open class SMArc: SMClonable {
     
     public var center: SMPoint
     public var radius: Double

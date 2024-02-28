@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SMPolygon: SMMutatableGeometry, SMClonable {
+open class SMPolygon: SMMutatableGeometry, SMClonable {
     
     /// This geometry's vertices (ordered)
     public var vertices = [SMPoint]()
