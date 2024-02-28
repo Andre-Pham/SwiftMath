@@ -194,5 +194,21 @@ final class SMPolygonTests: XCTestCase {
         XCTAssertFalse(invalidPolygon.isClockwise)
         XCTAssertFalse(invalidPolygon.isAnticlockwise)
     }
+    
+    func testEquivalent() throws {
+        let polygon1 = SMPolygon(vertices: SMPoint(), SMPoint(x: 1, y: 1))
+        let polygon2 = SMPolygon(vertices: SMPoint(x: 1, y: 1), SMPoint())
+        let polygon3 = SMPolygon(vertices: SMPoint(), SMPoint(x: 1.1, y: 1))
+        XCTAssertTrue(polygon1.matchesGeometry(of: polygon2))
+        XCTAssertFalse(polygon1.matchesGeometry(of: polygon3))
+        
+        let triangle1 = SMPolygon(vertices: SMPoint(x: 0, y: 0), SMPoint(x: 1, y: 0), SMPoint(x: 1, y: 1))
+        let triangle2 = SMPolygon(vertices: SMPoint(x: 1, y: 0), SMPoint(x: 1, y: 1), SMPoint(x: 0, y: 0))
+        XCTAssertTrue(triangle1.matchesGeometry(of: triangle2))
+        
+        let reversedTriangle1 = triangle1.clone()
+        reversedTriangle1.reverse()
+        XCTAssertTrue(triangle1.matchesGeometry(of: reversedTriangle1))
+    }
 
 }

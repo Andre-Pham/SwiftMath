@@ -185,4 +185,60 @@ extension SMGeometry {
         return false
     }
     
+    /// Checks if all edges and points in this geometry is shared by another geometry
+    /// - Parameters:
+    ///   - geometry: The other geometry to compare against
+    /// - Returns: True if both geometries are equivalent by comparison of points
+    public func matchesGeometry(of geometry: SMGeometry) -> Bool {
+        guard self.vertices.count == geometry.vertices.count else {
+            return false
+        }
+        if self.vertices.count == 1 {
+            return self.vertices.first! == geometry.vertices.first!
+        }
+        let sortedFromBottomLeft = self.vertices.sorted(by: { $0.x < $1.x }).sorted(by: { $0.y < $1.y })
+        let comparison = geometry.vertices.sorted(by: { $0.x < $1.x }).sorted(by: { $0.y < $1.y })
+        guard sortedFromBottomLeft == comparison else {
+            return false
+        }
+        // At this stage, every point in this geometry exists in the other geometry, and vice versa
+        var matchingEdgeIndices = [Int]()
+        // It's known the number of edges is greater than 0, since we check if there's only one vertex and both geometries have the same number of vertices
+        let edges = self.edges
+        let otherEdges = geometry.edges
+        for (otherEdgeIndex, otherEdge) in otherEdges.enumerated() {
+            if edges[0].matchesGeometry(of: otherEdge) {
+                matchingEdgeIndices.append(otherEdgeIndex)
+            }
+        }
+        for otherEdgeIndex in matchingEdgeIndices {
+            var allMatch = true
+            for index in 0..<self.vertices.count - 1 {
+                if !edges[index].matchesGeometry(of: otherEdges[(index + otherEdgeIndex)%self.vertices.count]) {
+                    allMatch = false
+                }
+            }
+            if allMatch {
+                return true
+            }
+        }
+        // If the edges are reversed
+        for otherEdgeIndex in matchingEdgeIndices {
+            var allMatch = true
+            for index in 0..<self.vertices.count - 1 {
+                var matchingIndex = (otherEdgeIndex - index)%self.vertices.count
+                if matchingIndex < 0 {
+                    matchingIndex += self.vertices.count
+                }
+                if !edges[index].matchesGeometry(of: otherEdges[matchingIndex]) {
+                    allMatch = false
+                }
+            }
+            if allMatch {
+                return true
+            }
+        }
+        return false
+    }
+    
 }

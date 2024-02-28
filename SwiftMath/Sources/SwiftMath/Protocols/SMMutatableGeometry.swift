@@ -15,6 +15,10 @@ public protocol SMMutatableGeometry: AnyObject, SMGeometry {
 }
 extension SMMutatableGeometry {
     
+    public func reverse() {
+        self.vertices = self.vertices.reversed()
+    }
+    
     public func add(_ point: SMPoint) {
         self.vertices.append(point.clone())
     }
