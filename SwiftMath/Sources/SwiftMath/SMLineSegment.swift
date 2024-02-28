@@ -63,6 +63,44 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     
     // MARK: - Functions
     
+    /// Extend or contract the line's length by a certain amount. Adjusts the line's end.
+    /// If the length is negative and has a magnitude greater than the line's original length, the end point continues moving in the collinear direction it was travelling from being contracted.
+    /// - Parameters:
+    ///   - length: The length to extend (+) or contract (-) by
+    public func adjustLength(by length: Double) {
+        guard self.isValid else {
+            // An invalid line with zero length cannot have its length adjusted
+            // (what direction would it go?)
+            return
+        }
+        let translation = self.origin.clone()
+        self.translate(by: translation * -1)
+        let proportion = (length + self.length)/self.length
+        self.end *= proportion
+        self.translate(by: translation)
+    }
+    
+    /// Set the line's length. Adjusts the line's end.
+    /// Setting a negative length is valid - the end point extends in the opposite direction.
+    /// - Parameters:
+    ///   - length: The new length (negative to go in the opposite direction from the origin point)
+    public func setLength(to length: Double) {
+        guard self.isValid else {
+            // An invalid line with zero length cannot have its length adjusted
+            // (what direction would it go?)
+            return
+        }
+        guard !SM.isZero(length) else {
+            self.end = self.origin.clone()
+            return
+        }
+        let translation = self.origin.clone()
+        self.translate(by: translation * -1)
+        let proportion = length/self.length
+        self.end *= proportion
+        self.translate(by: translation)
+    }
+    
     /// Checks if two line segments intercept infinitely (overlap).
     /// If either line segments are invalid (zero length), there isn't infinite intercepts, hence no overlap.
     /// - Parameters:

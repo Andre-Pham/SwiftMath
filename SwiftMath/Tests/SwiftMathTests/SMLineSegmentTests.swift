@@ -258,5 +258,77 @@ final class SMLineSegmentTests: XCTestCase {
         // Case 5: Line segment is a point, and point does not lie on the line
         XCTAssertFalse(pointSegment.isCollinear(with: line3))
     }
+    
+    func testAdjustLength() throws {
+        // Case 1: Regular line extended positive
+        var line = SMLineSegment(origin: SMPoint(x: 2, y: 5), end: SMPoint(x: 3, y: 7))
+        var length = line.length
+        line.adjustLength(by: 10.0)
+        XCTAssertTrue(SM.isEqual(line.length, length + 10.0))
+        XCTAssertTrue(line.origin == SMPoint(x: 2, y: 5))
+        // Case 2: Regular line extended negative
+        line = SMLineSegment(origin: SMPoint(x: 2, y: 5), end: SMPoint(x: 3, y: 7))
+        length = line.length
+        line.adjustLength(by: -1.0)
+        XCTAssertTrue(SM.isEqual(line.length, length - 1.0))
+        XCTAssertTrue(line.origin == SMPoint(x: 2, y: 5))
+        // Case 3: Backwards line extended positive
+        line = SMLineSegment(origin: SMPoint(x: 3, y: 7), end: SMPoint(x: 2, y: 5))
+        length = line.length
+        line.adjustLength(by: 10.0)
+        XCTAssertTrue(SM.isEqual(line.length, length + 10.0))
+        XCTAssertTrue(line.origin == SMPoint(x: 3, y: 7))
+        // Case 4: Backwards line extended negative
+        line = SMLineSegment(origin: SMPoint(x: 3, y: 7), end: SMPoint(x: 2, y: 5))
+        length = line.length
+        line.adjustLength(by: -1.0)
+        XCTAssertTrue(SM.isEqual(line.length, length - 1.0))
+        XCTAssertTrue(line.origin == SMPoint(x: 3, y: 7))
+        // Case 5: Invalid line
+        line = SMLineSegment(origin: SMPoint(), end: SMPoint())
+        line.adjustLength(by: 1.0)
+        XCTAssertTrue(SM.isEqual(line.length, 0.0))
+        XCTAssertTrue(line.origin == SMPoint())
+        // Case 6: adjusted length > line.length
+        line = SMLineSegment(origin: SMPoint(x: 2, y: 5), end: SMPoint(x: 3, y: 7))
+        length = line.length
+        line.adjustLength(by: -(length + 5.0))
+        XCTAssertTrue(SM.isEqual(line.length, 5.0))
+        XCTAssertTrue(line.origin == SMPoint(x: 2, y: 5))
+    }
+    
+    func testSetLength() throws {
+        // Case 1: Regular line set to a longer length
+        var line = SMLineSegment(origin: SMPoint(x: 1, y: 2), end: SMPoint(x: 4, y: 6))
+        var newLength = 10.0
+        line.setLength(to: newLength)
+        XCTAssertTrue(SM.isEqual(line.length, newLength))
+        XCTAssertTrue(line.origin == SMPoint(x: 1, y: 2))
+        // Case 2: Regular line set to a shorter length
+        line = SMLineSegment(origin: SMPoint(x: 1, y: 2), end: SMPoint(x: 4, y: 6))
+        newLength = 3.0
+        line.setLength(to: newLength)
+        XCTAssertTrue(SM.isEqual(line.length, newLength))
+        XCTAssertTrue(line.origin == SMPoint(x: 1, y: 2))
+        // Case 3: Line set to a negative length (should extend in opposite direction)
+        line = SMLineSegment(origin: SMPoint(x: 1, y: 2), end: SMPoint(x: 4, y: 6))
+        newLength = -5.0
+        line.setLength(to: newLength)
+        XCTAssertTrue(SM.isEqual(line.length, 5.0)) // Length is positive even if set to negative
+        XCTAssertTrue(line.origin == SMPoint(x: 1, y: 2))
+        // Case 4: Invalid line (zero length)
+        line = SMLineSegment(origin: SMPoint(), end: SMPoint())
+        newLength = 10.0
+        line.setLength(to: newLength)
+        XCTAssertTrue(SM.isEqual(line.length, 0.0)) // Length remains 0 as line is invalid
+        XCTAssertTrue(line.origin == SMPoint())
+        // Case 5: Setting length to zero
+        line = SMLineSegment(origin: SMPoint(x: 1, y: 2), end: SMPoint(x: 4, y: 6))
+        newLength = 0.0
+        line.setLength(to: newLength)
+        XCTAssertTrue(SM.isEqual(line.length, 0.0))
+        XCTAssertTrue(line.origin == SMPoint(x: 1, y: 2))
+    }
+
 
 }

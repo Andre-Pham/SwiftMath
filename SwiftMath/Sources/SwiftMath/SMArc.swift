@@ -12,11 +12,24 @@ open class SMArc: SMClonable {
     
     public var center: SMPoint
     public var radius: Double
-    public var startAngle: SMAngle
-    public var endAngle: SMAngle
+    private var _startAngle: SMAngle
+    public var startAngle: SMAngle {
+        get { return self._startAngle.normalized }
+        set { self._startAngle = newValue }
+    }
+    private var _endAngle: SMAngle
+    public var endAngle: SMAngle {
+        get { return self._endAngle.normalized }
+        set { self._endAngle = newValue }
+    }
     public var length: Double {
-        let angleDifference = self.endAngle - self.startAngle
-        return self.radius*angleDifference.radians
+        let reference = self.clone()
+        reference.rotate(by: reference.startAngle * -1)
+        let angleDifference = reference.endAngle - reference.startAngle
+        return reference.radius*angleDifference.radians
+    }
+    public var circumference: Double {
+        return 2.0 * .pi * self.radius
     }
     public var startPoint: SMPoint {
         let x = self.center.x + self.radius * cos(self.startAngle.radians)
@@ -33,21 +46,23 @@ open class SMArc: SMClonable {
         return SMLineSegment(origin: self.startPoint, end: self.endPoint)
     }
     public var centralAngle: SMAngle {
-        return (self.endAngle - self.startAngle).normalized
+        let reference = self.clone()
+        reference.rotate(by: reference.startAngle * -1)
+        return (reference.endAngle - reference.startAngle).normalized
     }
     
     public init(center: SMPoint = SMPoint(), radius: Double, startAngle: SMAngle, endAngle: SMAngle) {
         self.center = center
         self.radius = radius
-        self.startAngle = startAngle
-        self.endAngle = endAngle
+        self._startAngle = startAngle
+        self._endAngle = endAngle
     }
     
     public required init(_ original: SMArc) {
         self.center = original.center.clone()
         self.radius = original.radius
-        self.startAngle = original.startAngle.clone()
-        self.endAngle = original.endAngle.clone()
+        self._startAngle = original._startAngle.clone()
+        self._endAngle = original._endAngle.clone()
     }
     
     // MARK: - Functions
@@ -58,6 +73,51 @@ open class SMArc: SMClonable {
     public func rotate(by angle: SMAngle) {
         self.startAngle += angle
         self.endAngle += angle
+    }
+    
+    /// Extend or contract the arc's length by a certain amount. Adjusts the arc's end.
+    /// If the length is negative and has a magnitude greater than the arc's original length, the arc begins extending in the opposite direction.
+    /// - Parameters:
+    ///   - length: The length to extend (+) or contract (-) by
+    public func adjustLength(by length: Double) {
+        if SM.isLessZero(self.length + length) {
+            if SM.isGreater(abs(length), self.circumference) {
+                // WARNING: Recursion is used here
+                self.adjustLength(by: length.truncatingRemainder(dividingBy: self.circumference))
+            } else {
+                let length = self.circumference + (self.length + length).truncatingRemainder(dividingBy: self.circumference)
+                let rotation = self.startAngle.clone()
+                self.rotate(by: rotation * -1)
+                self.endAngle = SMAngle(radians: length/self.radius)
+                let temp = self.startAngle
+                self.startAngle = self.endAngle
+                self.endAngle = temp
+                self.rotate(by: rotation)
+            }
+        } else {
+            self.setLength(to: self.length + length)
+        }
+    }
+    
+    /// Set the arc's length. Adjusts the arc's end.
+    /// Setting a negative length is valid - the end angle continues in the opposite direction.
+    /// - Parameters:
+    ///   - length: The new length (negative to go in the opposite direction from the origin point)
+    public func setLength(to length: Double) {
+        let length = length.truncatingRemainder(dividingBy: self.circumference)
+        guard !SM.isZero(length) else {
+            self.endAngle = self.startAngle.clone()
+            return
+        }
+        let rotation = self.startAngle.clone()
+        self.rotate(by: rotation * -1)
+        if SM.isLessZero(length) {
+            self.endAngle = SMAngle(radians: abs(length)/self.radius)
+            self.rotate(by: self.centralAngle * -1)
+        } else {
+            self.endAngle = SMAngle(radians: length/self.radius)
+        }
+        self.rotate(by: rotation)
     }
     
     // MARK: - Transformations
