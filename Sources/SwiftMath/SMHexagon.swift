@@ -71,6 +71,40 @@ open class SMHexagon: SMGeometry, SMClonable, Equatable {
         self.sideLength = original.sideLength
     }
     
+    // MARK: - Functions
+    
+    public func setWidth(to width: Double) {
+        guard SM.isGreaterZero(width) else {
+            self.sideLength = 0.0
+            return
+        }
+        if self.flatTop {
+            self.sideLength = width/(2.0*0.86603)
+        } else {
+            self.sideLength = width/2.0
+        }
+    }
+    
+    public func widen(by length: Double) {
+        self.setWidth(to: length + self.width)
+    }
+    
+    public func setHeight(to height: Double) {
+        guard SM.isGreaterZero(height) else {
+            self.sideLength = 0.0
+            return
+        }
+        if self.flatTop {
+            self.sideLength = width/2.0
+        } else {
+            self.sideLength = width/(2.0*0.86603)
+        }
+    }
+    
+    public func heighten(by height: Double) {
+        self.setHeight(to: height + self.height)
+    }
+    
     // MARK: - Transformations
     
     public func translate(by point: SMPoint) {
