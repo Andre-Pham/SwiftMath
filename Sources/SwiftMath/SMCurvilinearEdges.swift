@@ -118,17 +118,16 @@ open class SMCurvilinearEdges: SMClonable {
     
     public var cgPath: CGPath {
         let path = CGMutablePath()
-        for edge in self.assortedArcEdges {
-            path.addPath(edge.cgPath)
-        }
-        for edge in self.assortedQuadEdges {
-            path.addPath(edge.cgPath)
-        }
-        for edge in self.assortedBezierEdges {
-            path.addPath(edge.cgPath)
-        }
-        for edge in self.assortedLinearEdges {
-            path.addPath(edge.cgPath)
+        for edgeIndex in 0..<self.edgeCount {
+            if let arc = self.arcEdges[edgeIndex] {
+                path.addPath(arc.cgPath)
+            } else if let quad = self.quadEdges[edgeIndex] {
+                path.addPath(quad.cgPath)
+            } else if let bezier = self.bezierEdges[edgeIndex] {
+                path.addPath(bezier.cgPath)
+            } else if let linear = self.linearEdges[edgeIndex] {
+                path.addPath(linear.cgPath)
+            }
         }
         return path
     }
