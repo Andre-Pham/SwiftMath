@@ -16,6 +16,7 @@ public protocol SMGeometry {
     
     func translate(by point: SMPoint)
     func rotate(around center: SMPoint, by angle: SMAngle)
+    func scale(from point: SMPoint, by factor: Double)
     
 }
 extension SMGeometry {

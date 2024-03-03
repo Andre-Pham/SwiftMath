@@ -73,4 +73,12 @@ extension SMMutableGeometry {
         }
     }
     
+    public func scale(from point: SMPoint, by factor: Double) {
+        self.translate(by: point * -1)
+        for index in self.vertices.indices {
+            self.vertices[index] *= factor
+        }
+        self.translate(by: point)
+    }
+    
 }
