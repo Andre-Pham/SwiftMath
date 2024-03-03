@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     
@@ -333,6 +334,22 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     
     public static func == (lhs: SMLineSegment, rhs: SMLineSegment) -> Bool {
         return lhs.origin == rhs.origin && lhs.end == rhs.end
+    }
+    
+    // MARK: - Core Graphics
+    
+    public var cgPath: CGPath {
+        var path = CGMutablePath()
+        path.move(to: self.origin.cgPoint)
+        path.addLine(to: self.end.cgPoint)
+        return path
+    }
+    
+    public var cgPathValidated: CGPath? {
+        guard self.isValid else {
+            return nil
+        }
+        return self.cgPath
     }
     
 }

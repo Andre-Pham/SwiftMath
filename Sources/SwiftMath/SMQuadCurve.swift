@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 open class SMQuadCurve: SMClonable {
     
@@ -30,6 +31,29 @@ open class SMQuadCurve: SMClonable {
         self.origin = original.origin.clone()
         self.controlPoint = original.controlPoint.clone()
         self.end = original.end.clone()
+    }
+    
+    // MARK: - Transformations
+    
+    public func translate(by point: SMPoint) {
+        self.origin += point
+        self.end += point
+        self.controlPoint += point
+    }
+    
+    public func rotate(around center: SMPoint, by angle: SMAngle) {
+        self.origin.rotate(around: center, by: angle)
+        self.end.rotate(around: center, by: angle)
+        self.controlPoint.rotate(around: center, by: angle)
+    }
+    
+    // MARK: - Core Graphics
+    
+    public var cgPath: CGPath {
+        var path = CGMutablePath()
+        path.move(to: self.origin.cgPoint)
+        path.addQuadCurve(to: self.end.cgPoint, control: self.controlPoint.cgPoint)
+        return path
     }
     
 }

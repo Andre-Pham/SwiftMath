@@ -1,5 +1,5 @@
 //
-//  SMMutatableGeometry.swift
+//  SMMutableGeometry.swift
 //
 //
 //  Created by Andre Pham on 24/1/2024.
@@ -7,13 +7,13 @@
 
 import Foundation
 
-public protocol SMMutatableGeometry: AnyObject, SMGeometry {
+public protocol SMMutableGeometry: AnyObject, SMGeometry {
     
     /// This geometry's vertices (ordered)
     var vertices: [SMPoint] { get set }
     
 }
-extension SMMutatableGeometry {
+extension SMMutableGeometry {
     
     public func reverse() {
         self.vertices = self.vertices.reversed()

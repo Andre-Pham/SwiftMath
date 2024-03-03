@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import CoreGraphics
 
-open class SMPolygon: SMMutatableGeometry, SMClonable {
+open class SMPolygon: SMMutableGeometry, SMClonable {
     
     /// This geometry's vertices (ordered)
     public var vertices = [SMPoint]()
@@ -209,6 +210,26 @@ open class SMPolygon: SMMutatableGeometry, SMClonable {
             return
         }
         self.vertices = self.vertices.reversed()
+    }
+    
+    // MARK: - Core Graphics
+    
+    public var cgPath: CGPath {
+        var path = CGMutablePath()
+        guard let first = self.vertices.first else {
+            return path
+        }
+        path.move(to: first.cgPoint)
+        path.addLines(between: self.vertices.dropFirst().map({ $0.cgPoint }))
+        path.closeSubpath()
+        return path
+    }
+    
+    public var cgPathValidated: CGPath? {
+        guard self.isValid else {
+            return nil
+        }
+        return self.cgPath
     }
     
 }

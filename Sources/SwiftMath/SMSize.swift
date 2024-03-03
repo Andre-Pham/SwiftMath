@@ -11,8 +11,14 @@ open class SMSize: SMClonable {
     
     // MARK: - Properties
     
+    /// The size's width
     public var width: Double
+    /// The size's height
     public var height: Double
+    /// If the size is valid
+    public var isValid: Bool {
+        return SM.isGreaterZero(self.width) && SM.isGreaterZero(self.height)
+    }
     
     // MARK: - Constructors
     
@@ -30,6 +36,13 @@ open class SMSize: SMClonable {
     
     public var cgSize: CGSize {
         return CGSize(width: self.width, height: self.height)
+    }
+    
+    public var cgSizeValidated: CGSize? {
+        guard self.isValid else {
+            return nil
+        }
+        return self.cgSize
     }
     
     public init(_ cgSize: CGSize) {

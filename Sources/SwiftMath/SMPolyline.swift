@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import CoreGraphics
 
-open class SMPolyline: SMMutatableGeometry, SMClonable {
+open class SMPolyline: SMMutableGeometry, SMClonable {
     
     /// This geometry's vertices (ordered)
     public var vertices = [SMPoint]()
@@ -53,6 +54,23 @@ open class SMPolyline: SMMutatableGeometry, SMClonable {
         self.vertices = original.vertices.clone()
     }
     
-    // MARK: - Functions
+    // MARK: - Core Graphics
+    
+    public var cgPath: CGPath {
+        var path = CGMutablePath()
+        guard let first = self.vertices.first else {
+            return path
+        }
+        path.move(to: first.cgPoint)
+        path.addLines(between: self.vertices.dropFirst().map({ $0.cgPoint }))
+        return path
+    }
+    
+    public var cgPathValidated: CGPath? {
+        guard self.isValid else {
+            return nil
+        }
+        return self.cgPath
+    }
     
 }

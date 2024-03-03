@@ -326,6 +326,13 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         return CGRect(origin: self.origin.cgPoint, size: CGSize(width: self.width, height: self.height))
     }
     
+    public var cgRectValidated: CGRect? {
+        guard self.isValid else {
+            return nil
+        }
+        return self.cgRect
+    }
+    
     public init(_ cgRect: CGRect) {
         self.origin = SMPoint(cgRect.origin)
         var end = cgRect.origin
