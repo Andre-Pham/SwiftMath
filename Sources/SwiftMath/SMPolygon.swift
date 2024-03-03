@@ -215,7 +215,7 @@ open class SMPolygon: SMMutableGeometry, SMClonable {
     // MARK: - Core Graphics
     
     public var cgPath: CGPath {
-        var path = CGMutablePath()
+        let path = CGMutablePath()
         guard let first = self.vertices.first else {
             return path
         }

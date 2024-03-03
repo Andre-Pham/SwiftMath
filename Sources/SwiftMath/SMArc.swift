@@ -184,6 +184,13 @@ open class SMArc: SMClonable {
         self.center.rotate(around: center, by: angle)
     }
     
+    public func scale(from point: SMPoint, by factor: Double) {
+        self.translate(by: point * -1)
+        self.center *= factor
+        self.radius *= factor
+        self.translate(by: point)
+    }
+    
     // MARK: - Core Graphics
     
     public var cgPath: CGPath {

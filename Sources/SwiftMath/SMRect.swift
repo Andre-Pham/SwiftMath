@@ -314,6 +314,13 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         self.end = newRect.end
     }
     
+    public func scale(from point: SMPoint, by factor: Double) {
+        self.translate(by: point * -1)
+        self.origin *= factor
+        self.end *= factor
+        self.translate(by: point)
+    }
+    
     // MARK: - Operations
     
     public static func == (lhs: SMRect, rhs: SMRect) -> Bool {

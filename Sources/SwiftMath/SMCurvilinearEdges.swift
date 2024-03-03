@@ -117,7 +117,7 @@ open class SMCurvilinearEdges: SMClonable {
     // MARK: - Core Graphics
     
     public var cgPath: CGPath {
-        var path = CGMutablePath()
+        let path = CGMutablePath()
         for edge in self.assortedArcEdges {
             path.addPath(edge.cgPath)
         }

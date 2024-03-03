@@ -314,6 +314,13 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
         self.end.rotate(around: center, by: angle)
     }
     
+    public func scale(from point: SMPoint, by factor: Double) {
+        self.translate(by: point * -1)
+        self.origin *= factor
+        self.end *= factor
+        self.translate(by: point)
+    }
+    
     // MARK: - Operations
     
     public static func + (left: SMLineSegment, right: SMPoint) -> SMLineSegment {
@@ -339,7 +346,7 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     // MARK: - Core Graphics
     
     public var cgPath: CGPath {
-        var path = CGMutablePath()
+        let path = CGMutablePath()
         path.move(to: self.origin.cgPoint)
         path.addLine(to: self.end.cgPoint)
         return path

@@ -53,10 +53,19 @@ open class SMBezierCurve: SMClonable {
         self.endControlPoint.rotate(around: center, by: angle)
     }
     
+    public func scale(from point: SMPoint, by factor: Double) {
+        self.translate(by: point * -1)
+        self.origin *= factor
+        self.end *= factor
+        self.originControlPoint *= factor
+        self.endControlPoint *= factor
+        self.translate(by: point)
+    }
+    
     // MARK: - Core Graphics
     
     public var cgPath: CGPath {
-        var path = CGMutablePath()
+        let path = CGMutablePath()
         path.move(to: self.origin.cgPoint)
         path.addCurve(to: self.end.cgPoint, control1: self.originControlPoint.cgPoint, control2: self.endControlPoint.cgPoint)
         return path
