@@ -46,8 +46,19 @@ extension SMGeometry {
         return self.maxYPoint?.y
     }
     public var boundingBox: SMRect? {
-        guard let minX, let minY, let maxX, let maxY else {
+        let vertices = self.vertices
+        guard !vertices.isEmpty else {
             return nil
+        }
+        var minX = vertices.first!.x
+        var maxX = vertices.first!.x
+        var minY = vertices.first!.y
+        var maxY = vertices.first!.y
+        for vertex in vertices.dropFirst() {
+            minX = min(vertex.x, minX)
+            maxX = max(vertex.x, maxX)
+            minY = min(vertex.y, minY)
+            maxY = max(vertex.y, maxX)
         }
         return SMRect(
             origin: SMPoint(x: minX, y: minY),
@@ -55,12 +66,13 @@ extension SMGeometry {
         )
     }
     public var averagePoint: SMPoint? {
-        guard !self.vertices.isEmpty else {
+        let vertices = self.vertices
+        guard !vertices.isEmpty else {
             return nil
         }
         return SMPoint(
-            x: self.vertices.map({ $0.x }).reduce(0.0, +)/Double(self.vertices.count),
-            y: self.vertices.map({ $0.y }).reduce(0.0, +)/Double(self.vertices.count)
+            x: vertices.map({ $0.x }).reduce(0.0, +)/Double(vertices.count),
+            y: vertices.map({ $0.y }).reduce(0.0, +)/Double(vertices.count)
         )
     }
     
@@ -191,14 +203,16 @@ extension SMGeometry {
     ///   - geometry: The other geometry to compare against
     /// - Returns: True if both geometries are equivalent by comparison of points
     public func matchesGeometry(of geometry: SMGeometry) -> Bool {
-        guard self.vertices.count == geometry.vertices.count else {
+        let vertices = self.vertices
+        let otherVertices = geometry.vertices
+        guard vertices.count == otherVertices.count else {
             return false
         }
-        if self.vertices.count == 1 {
-            return self.vertices.first! == geometry.vertices.first!
+        if vertices.count == 1 {
+            return vertices.first! == otherVertices.first!
         }
-        let sortedFromBottomLeft = self.vertices.sorted(by: { $0.x < $1.x }).sorted(by: { $0.y < $1.y })
-        let comparison = geometry.vertices.sorted(by: { $0.x < $1.x }).sorted(by: { $0.y < $1.y })
+        let sortedFromBottomLeft = vertices.sorted(by: { $0.x < $1.x }).sorted(by: { $0.y < $1.y })
+        let comparison = otherVertices.sorted(by: { $0.x < $1.x }).sorted(by: { $0.y < $1.y })
         guard sortedFromBottomLeft == comparison else {
             return false
         }
@@ -214,8 +228,8 @@ extension SMGeometry {
         }
         for otherEdgeIndex in matchingEdgeIndices {
             var allMatch = true
-            for index in 0..<self.vertices.count - 1 {
-                if !edges[index].matchesGeometry(of: otherEdges[(index + otherEdgeIndex)%self.vertices.count]) {
+            for index in 0..<vertices.count - 1 {
+                if !edges[index].matchesGeometry(of: otherEdges[(index + otherEdgeIndex)%vertices.count]) {
                     allMatch = false
                 }
             }
@@ -226,10 +240,10 @@ extension SMGeometry {
         // If the edges are reversed
         for otherEdgeIndex in matchingEdgeIndices {
             var allMatch = true
-            for index in 0..<self.vertices.count - 1 {
-                var matchingIndex = (otherEdgeIndex - index)%self.vertices.count
+            for index in 0..<vertices.count - 1 {
+                var matchingIndex = (otherEdgeIndex - index)%vertices.count
                 if matchingIndex < 0 {
-                    matchingIndex += self.vertices.count
+                    matchingIndex += vertices.count
                 }
                 if !edges[index].matchesGeometry(of: otherEdges[matchingIndex]) {
                     allMatch = false
