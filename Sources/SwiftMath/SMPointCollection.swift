@@ -35,8 +35,19 @@ open class SMPointCollection: SMClonable {
         return self.maxYPoint?.y
     }
     public var boundingBox: SMRect? {
-        guard let minX, let minY, let maxX, let maxY else {
+        let vertices = self.points
+        guard !vertices.isEmpty else {
             return nil
+        }
+        var minX = vertices.first!.x
+        var maxX = vertices.first!.x
+        var minY = vertices.first!.y
+        var maxY = vertices.first!.y
+        for vertex in vertices.dropFirst() {
+            minX = min(vertex.x, minX)
+            maxX = max(vertex.x, maxX)
+            minY = min(vertex.y, minY)
+            maxY = max(vertex.y, maxX)
         }
         return SMRect(
             origin: SMPoint(x: minX, y: minY),
