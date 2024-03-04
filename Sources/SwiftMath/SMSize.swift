@@ -15,6 +15,10 @@ open class SMSize: SMClonable {
     public var width: Double
     /// The size's height
     public var height: Double
+    /// The size's area
+    public var area: Double {
+        return self.width*self.height
+    }
     /// If the size is valid
     public var isValid: Bool {
         return SM.isGreaterZero(self.width) && SM.isGreaterZero(self.height)
