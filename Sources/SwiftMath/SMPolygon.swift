@@ -220,7 +220,7 @@ open class SMPolygon: SMMutableGeometry, SMClonable {
             return path
         }
         path.move(to: first.cgPoint)
-        path.addLines(between: self.vertices.dropFirst().map({ $0.cgPoint }))
+        path.addLines(between: self.vertices.map({ $0.cgPoint }))
         path.closeSubpath()
         return path
     }
