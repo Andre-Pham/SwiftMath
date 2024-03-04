@@ -139,7 +139,7 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
     ///   - other: The other rectangle to check
     /// - Returns: True if the rectangles intersect without their edges overlapping
     public func intersects(with other: SMRect) -> Bool {
-        if self.overlap(other) != nil {
+        if self.overlap(other) != nil && !self.contains(rect: other) && !other.contains(rect: self) {
             return true
         }
         return (
@@ -175,7 +175,7 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
     ///   - other: The other rectangle to compare against
     /// - Returns: True if the two rectangles are spatially related
     public func relates(to other: SMRect) -> Bool {
-        return self.intersects(with: other) || self.touches(other)
+        return self.intersects(with: other) || self.touches(other) || self.encloses(rect: other) || other.encloses(rect: self)
     }
     
     public func scale(toAspectFillSize size: SMSize) -> SMRect {

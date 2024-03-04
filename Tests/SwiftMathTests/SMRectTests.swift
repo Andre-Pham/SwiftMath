@@ -43,6 +43,12 @@ final class SMRectTests: XCTestCase {
         rect2 = rect1.clone()
         rect2.translate(by: SMPoint(x: 4.0, y: 5.0))
         XCTAssertTrue(rect1.intersects(with: rect2))
+        // Case 5: Enclosed
+        rect2 = SMRect(minX: 1.0, maxX: 2.0, minY: 1.0, maxY: 2.0)
+        XCTAssertFalse(rect1.intersects(with: rect2))
+        // Case 6: Containing
+        rect2 = SMRect(minX: 0.0, maxX: 2.0, minY: 1.0, maxY: 2.0)
+        XCTAssertFalse(rect1.intersects(with: rect2))
     }
 
     func testRelates() throws {
@@ -59,6 +65,12 @@ final class SMRectTests: XCTestCase {
         // Case 4: Intersecting
         rect2 = rect1.clone()
         rect2.translate(by: SMPoint(x: 4.0, y: 5.0))
+        XCTAssertTrue(rect1.relates(to: rect2))
+        // Case 5: Enclosed
+        rect2 = SMRect(minX: 1.0, maxX: 2.0, minY: 1.0, maxY: 2.0)
+        XCTAssertTrue(rect1.relates(to: rect2))
+        // Case 6: Containing
+        rect2 = SMRect(minX: 0.0, maxX: 2.0, minY: 1.0, maxY: 2.0)
         XCTAssertTrue(rect1.relates(to: rect2))
     }
 
