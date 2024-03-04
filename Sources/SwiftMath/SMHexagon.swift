@@ -25,11 +25,11 @@ open class SMHexagon: SMGeometry, SMClonable, Equatable {
     }
     /// The hexagon height
     public var height: Double {
-        return self.flatTop ? 2.0*self.sideLength : 2.0*self.inradius
+        return self.flatTop ? 2.0*self.inradius : 2.0*self.sideLength
     }
     /// The hexagon width
     public var width: Double {
-        return self.flatTop ? 2.0*self.inradius : 2.0*self.sideLength
+        return self.flatTop ? 2.0*self.sideLength : 2.0*self.inradius
     }
     /// The hexagon's polygon representation (starting with top right edge, going counter-clockwise)
     public var polygon: SMPolygon {
