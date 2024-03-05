@@ -19,13 +19,23 @@ open class SMLine: SMLinear, SMClonable, Equatable {
     // MARK: - Constructors
 
     public init(point: SMPoint, direction: SMPoint) {
-        self.origin = point
-        self.end = direction
+        self.origin = point.clone()
+        self.end = direction.clone()
     }
     
-    public convenience init(origin: SMPoint, angle: SMAngle, length: Double) {
-        let arc = SMArc(center: origin, radius: length, startAngle: SMAngle(degrees: 0.0), endAngle: angle)
-        self.init(point: origin, direction: arc.endPoint)
+    public convenience init(point: SMPoint, angle: SMAngle) {
+        let arc = SMArc(center: point, radius: 1.0, startAngle: SMAngle(degrees: 0.0), endAngle: angle)
+        self.init(point: point.clone(), direction: arc.endPoint)
+    }
+    
+    public convenience init(point: SMPoint, gradient: Double?) {
+        let end = point.clone()
+        if let gradient {
+            end.translate(by: SMPoint(x: 1.0, y: gradient)) // rise / run
+        } else {
+            end.translate(by: SMPoint(x: 0.0, y: 1.0))
+        }
+        self.init(point: point.clone(), direction: end)
     }
     
     public required init(_ original: SMLine) {

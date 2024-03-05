@@ -21,6 +21,13 @@ open class SMAngle: SMClonable, Equatable {
         result.normalize()
         return result
     }
+    /// The gradient (slope) equivalent (nil is undefined)
+    public var gradient: Double? {
+        if SM.isEqual(self.normalized.radians, .pi / 2.0) {
+            return nil
+        }
+        return tan(self.radians)
+    }
     
     // MARK: - Constructors
     
@@ -40,8 +47,16 @@ open class SMAngle: SMClonable, Equatable {
         self.radians = Double(degrees * .pi / 180.0)
     }
     
-    public convenience init(degrees: Int) {
-        self.init(degrees: Double(degrees))
+    public init(degrees: Int) {
+        self.radians = Double(degrees) * .pi / 180.0
+    }
+    
+    public init(gradient: Double?) {
+        if let gradient {
+            self.radians = atan(gradient)
+        } else {
+            self.radians = .pi / 2.0
+        }
     }
     
     public init() {

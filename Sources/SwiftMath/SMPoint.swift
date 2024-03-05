@@ -40,6 +40,21 @@ open class SMPoint: SMClonable, Equatable {
     
     // MARK: - Functions
     
+    public func length(to point: SMPoint) -> Double {
+        return SMLineSegment(origin: self, end: point).length
+    }
+    
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "SMPoint: (\(self.x.rounded(decimalPlaces: decimalPlaces)), \(self.y.rounded(decimalPlaces: decimalPlaces)))"
+    }
+    
+    // MARK: - Transformations
+    
+    public func translate(by point: SMPoint) {
+        self.x += point.x
+        self.y += point.y
+    }
+    
     /// Rotates this point counter-clockwise around a given `center` by a certain `angle`
     /// - Parameters:
     ///   - center: The center point to rotate around
@@ -56,12 +71,11 @@ open class SMPoint: SMClonable, Equatable {
         self.y = yRotated + center.y
     }
     
-    public func length(to point: SMPoint) -> Double {
-        return SMLineSegment(origin: self, end: point).length
-    }
-    
-    public func toString(decimalPlaces: Int = 2) -> String {
-        return "SMPoint: (\(self.x.rounded(decimalPlaces: decimalPlaces)), \(self.y.rounded(decimalPlaces: decimalPlaces)))"
+    public func scale(from point: SMPoint, by factor: Double) {
+        self.translate(by: point * -1)
+        self.x *= factor
+        self.y *= factor
+        self.translate(by: point)
     }
     
     // MARK: - Operations
