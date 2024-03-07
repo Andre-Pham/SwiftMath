@@ -42,6 +42,14 @@ extension SMLinear {
     public var isValid: Bool {
         return self.origin != self.end
     }
+    /// The x-axis intercept
+    public var xAxisIntercept: SMPoint? {
+        return self.intersection(with: SMLine(point: SMPoint(), direction: SMPoint(x: 1.0, y: 0.0)))
+    }
+    /// The x-axis intercept
+    public var yAxisIntercept: SMPoint? {
+        return self.intersection(with: SMLine(point: SMPoint(), direction: SMPoint(x: 0.0, y: 1.0)))
+    }
     
     /// Checks if two lines are parallel.
     /// If either line segments are invalid, they are not parallel.

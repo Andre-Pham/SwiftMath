@@ -23,6 +23,16 @@ open class SMEllipse: SMClonable, Equatable {
     public var isCircle: Bool {
         return SM.isEqual(self.boundingBox.width, self.boundingBox.height)
     }
+    public var area: Double {
+        return .pi*self.boundingBox.width*self.boundingBox.height/4.0
+    }
+    public var circumference: Double {
+        let a = self.maxRadius
+        let b = self.minRadius
+        // Ramanujan's approximation for the circumference of an ellipse
+        return .pi * (3*(a + b) - sqrt((3*a + b) * (a + 3*b)))
+    }
+
     
     public init(boundingBox: SMRect) {
         self.boundingBox = boundingBox
