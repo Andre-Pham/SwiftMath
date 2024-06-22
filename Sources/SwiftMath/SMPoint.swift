@@ -45,7 +45,7 @@ open class SMPoint: SMClonable, Equatable {
     }
     
     public func toString(decimalPlaces: Int = 2) -> String {
-        return "SMPoint: (\(self.x.rounded(decimalPlaces: decimalPlaces)), \(self.y.rounded(decimalPlaces: decimalPlaces)))"
+        return "(\(self.x.rounded(decimalPlaces: decimalPlaces)), \(self.y.rounded(decimalPlaces: decimalPlaces)))"
     }
     
     // MARK: - Transformations

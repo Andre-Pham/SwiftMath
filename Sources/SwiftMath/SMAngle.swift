@@ -123,7 +123,7 @@ open class SMAngle: SMClonable, Equatable {
     }
     
     public func toString(decimalPlaces: Int = 2) -> String {
-        return "SMAngle: \(self.degrees.rounded(decimalPlaces: decimalPlaces)) deg"
+        return "\(self.degrees.rounded(decimalPlaces: decimalPlaces)) deg"
     }
     
     // MARK: - Operations

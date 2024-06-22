@@ -79,8 +79,8 @@ open class SMLine: SMLinear, SMClonable, Equatable {
 
     // MARK: - Functions
     
-    public func toString() -> String {
-        return "SMLine: Point \(self.origin.toString()), Direction \(self.end.toString())"
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "Line through \(self.origin.toString(decimalPlaces: decimalPlaces)) -> \(self.end.toString(decimalPlaces: decimalPlaces))"
     }
     
     // MARK: - Transformations

@@ -326,6 +326,10 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         return true
     }
     
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "Left: \(self.minX.rounded(decimalPlaces: decimalPlaces))\nRight: \(self.maxX.rounded(decimalPlaces: decimalPlaces))\nTop: \(self.maxY.rounded(decimalPlaces: decimalPlaces))\nBottom: \(self.minY.rounded(decimalPlaces: decimalPlaces))\nWidth: \(self.width.rounded(decimalPlaces: decimalPlaces))\nHeight: \(self.height.rounded(decimalPlaces: decimalPlaces))"
+    }
+    
     // MARK: - Transformations
     
     public func translate(by point: SMPoint) {

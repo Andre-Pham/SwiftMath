@@ -303,7 +303,7 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     }
     
     public func toString(decimalPlaces: Int = 2) -> String {
-        return "SMLine: \(self.origin.toString()) -> \(self.end.toString())"
+        return "\(self.origin.toString(decimalPlaces: decimalPlaces)) -> \(self.end.toString(decimalPlaces: decimalPlaces))"
     }
     
     // MARK: - Transformations
