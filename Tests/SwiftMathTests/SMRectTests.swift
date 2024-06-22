@@ -73,5 +73,14 @@ final class SMRectTests: XCTestCase {
         rect2 = SMRect(minX: 0.0, maxX: 2.0, minY: 1.0, maxY: 2.0)
         XCTAssertTrue(rect1.relates(to: rect2))
     }
+    
+    func testExpansion() throws {
+        let rect = SMRect(minX: 200, maxX: 400, minY: 200, maxY: 300)
+        rect.expand(left: 20, right: 10, top: 5, bottom: 100)
+        XCTAssertEqual(rect.minX, 200 - 20)
+        XCTAssertEqual(rect.minY, 200 - 100)
+        XCTAssertEqual(rect.maxX, 400 + 10)
+        XCTAssertEqual(rect.maxY, 300 + 5)
+    }
 
 }
