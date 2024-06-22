@@ -69,7 +69,7 @@ extension SMGeometry {
             minX = min(vertex.x, minX)
             maxX = max(vertex.x, maxX)
             minY = min(vertex.y, minY)
-            maxY = max(vertex.y, maxX)
+            maxY = max(vertex.y, maxY)
         }
         return SMRect(
             origin: SMPoint(x: minX, y: minY),
