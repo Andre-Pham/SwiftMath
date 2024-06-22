@@ -318,10 +318,10 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
         self.end.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, by factor: Double) {
+    public func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
-        self.origin *= factor
-        self.end *= factor
+        self.origin *= scale
+        self.end *= scale
         self.translate(by: point)
     }
     

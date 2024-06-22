@@ -116,10 +116,10 @@ open class SMHexagon: SMGeometry, SMClonable, Equatable {
         self.center.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, by factor: Double) {
+    public func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
-        self.center *= factor
-        self.sideLength *= factor
+        self.center *= scale
+        self.sideLength *= scale
         self.translate(by: point)
     }
     

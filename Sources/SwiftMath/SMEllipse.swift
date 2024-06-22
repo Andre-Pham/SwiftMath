@@ -54,7 +54,7 @@ open class SMEllipse: SMClonable, Equatable {
     }
     
     public func scale(from point: SMPoint, by factor: Double) {
-        self.boundingBox.scale(from: point, by: factor)
+        self.boundingBox.scale(from: point, scale: factor)
     }
     
     // MARK: - Operations

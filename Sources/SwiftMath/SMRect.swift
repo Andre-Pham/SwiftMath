@@ -178,7 +178,10 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         return self.intersects(with: other) || self.touches(other) || self.encloses(rect: other) || other.encloses(rect: self)
     }
     
-    public func scale(toAspectFillSize size: SMSize) -> SMRect {
+    /// Scale this rect from the center to fill the given size whilst maintaining the same aspect ratio.
+    /// - Parameters:
+    ///   - size: The size to scale to (to fill)
+    public func scale(toAspectFillSize size: SMSize) {
         let aspectRatio = size.width / size.height
         let rectRatio = self.width / self.height
         var scale: CGFloat = 1.0
@@ -193,10 +196,14 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         let scaledHeight = self.height * scale
         let x = self.origin.x - (scaledWidth - self.width) / 2
         let y = self.origin.y - (scaledHeight - self.height) / 2
-        return SMRect(origin: SMPoint(x: x, y: y), width: scaledWidth, height: scaledHeight)
+        self.origin = SMPoint(x: x, y: y)
+        self.end = SMPoint(x: x + scaledWidth, y: y + scaledHeight)
     }
     
-    public func scale(toAspectFitSize size: SMSize) -> SMRect {
+    /// Scale this rect from the center to fit the given size whilst maintaining the same aspect ratio.
+    /// - Parameters:
+    ///   - size: The size to scale to (to fit)
+    public func scale(toAspectFitSize size: SMSize) {
         let aspectRatio = size.width / size.height
         let rectRatio = self.width / self.height
         var scale: CGFloat = 1.0
@@ -211,7 +218,28 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         let scaledHeight = self.height * scale
         let x = self.origin.x + (self.width - scaledWidth) / 2
         let y = self.origin.y + (self.height - scaledHeight) / 2
-        return SMRect(origin: SMPoint(x: x, y: y), width: scaledWidth, height: scaledHeight)
+        self.origin = SMPoint(x: x, y: y)
+        self.end = SMPoint(x: x + scaledWidth, y: y + scaledHeight)
+    }
+    
+    /// Expand each side away from the center of the rect by specified magnitudes.
+    /// - Parameters:
+    ///   - left: The amount of horizontal translation the left side of the rect receives (away from the center)
+    ///   - right: The amount of horizontal translation the right side of the rect receives (away from the center)
+    ///   - top: The amount of vertical translation the top side of the rect receives (away from the center)
+    ///   - bottom: The amount of vertical translation the bottom side of the rect receives (away from the center)
+    public func expand(left: Double = 0.0, right: Double = 0.0, top: Double = 0.0, bottom: Double = 0.0) {
+        self.origin.x -= left
+        self.origin.y -= bottom
+        self.end.x += right
+        self.end.y += top
+    }
+    
+    /// Expand each side away from the center by a certain magnitude.
+    /// - Parameters:
+    ///   - amount: The amount of translation each side of the rect receives (away from the center)
+    public func expandAllSides(by amount: Double) {
+        self.expand(left: amount, right: amount, top: amount, bottom: amount)
     }
     
     /// If a point is contained inside of this rect (including on an edge).
@@ -314,10 +342,10 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         self.end = newRect.end
     }
     
-    public func scale(from point: SMPoint, by factor: Double) {
+    public func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
-        self.origin *= factor
-        self.end *= factor
+        self.origin *= scale
+        self.end *= scale
         self.translate(by: point)
     }
     
