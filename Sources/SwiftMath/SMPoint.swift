@@ -78,6 +78,18 @@ open class SMPoint: SMClonable, Equatable, Hashable {
         self.translate(by: point)
     }
     
+    public func translateX(_ amount: Double) {
+        self.translate(by: SMPoint(x: amount, y: 0.0))
+    }
+    
+    public func translateY(_ amount: Double) {
+        self.translate(by: SMPoint(x: 0.0, y: amount))
+    }
+    
+    public func translate(x: Double, y: Double) {
+        self.translate(by: SMPoint(x: x, y: y))
+    }
+    
     // MARK: - Operations
 
     public static func + (left: SMPoint, right: SMPoint) -> SMPoint {
