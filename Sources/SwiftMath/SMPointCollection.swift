@@ -91,6 +91,10 @@ open class SMPointCollection: SMClonable {
         return self.points.remove(at: index)
     }
     
+    public func containsPoint(_ otherPoint: SMPoint) -> Bool {
+        return self.points.contains(otherPoint)
+    }
+    
     public func closestPoint(to otherPoint: SMPoint) -> SMPoint? {
         guard !self.points.isEmpty else {
             return nil
