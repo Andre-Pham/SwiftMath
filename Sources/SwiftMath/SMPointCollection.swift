@@ -115,6 +115,28 @@ open class SMPointCollection: SMClonable {
         return self.points.max { $0.length(to: otherPoint) < $1.length(to: otherPoint) }
     }
     
+    public func duplicatedPoints() -> [SMPoint: Int] {
+        var seenPoints = Set<SMPoint>()
+        var duplicatedPoints = [SMPoint: Int]()
+        for point in self.points {
+            if seenPoints.contains(point) {
+                if duplicatedPoints[point] != nil {
+                    duplicatedPoints[point]! += 1
+                } else {
+                    duplicatedPoints[point.clone()] = 1
+                }
+            } else {
+                seenPoints.insert(point)
+            }
+        }
+        return duplicatedPoints
+    }
+    
+    public func countDuplicatedPoints() -> Int {
+        let uniquePoints = Set<SMPoint>(self.points)
+        return self.points.count - uniquePoints.count
+    }
+    
     public func sortedByDistance(to otherPoint: SMPoint) -> [SMPoint] {
         return self.points.sorted { $0.length(to: otherPoint) < $1.length(to: otherPoint) }
     }

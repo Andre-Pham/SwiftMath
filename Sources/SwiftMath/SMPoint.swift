@@ -7,7 +7,7 @@
 
 import Foundation
 
-open class SMPoint: SMClonable, Equatable {
+open class SMPoint: SMClonable, Equatable, Hashable {
     
     // MARK: - Properties
     
@@ -117,6 +117,13 @@ open class SMPoint: SMClonable, Equatable {
 
     public static func == (lhs: SMPoint, rhs: SMPoint) -> Bool {
         return SM.isEqual(lhs.x, rhs.x) && SM.isEqual(lhs.y, rhs.y)
+    }
+    
+    // MARK: - Hashable
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(self.x)
+        hasher.combine(self.y)
     }
     
     // MARK: - Core Graphics
