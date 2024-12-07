@@ -313,6 +313,10 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
         self.end += point
     }
     
+    public func translateCenter(to point: SMPoint) {
+        self.translate(by: point - self.midPoint)
+    }
+    
     public func rotate(around center: SMPoint, by angle: SMAngle) {
         self.origin.rotate(around: center, by: angle)
         self.end.rotate(around: center, by: angle)

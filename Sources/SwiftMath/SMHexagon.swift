@@ -111,6 +111,10 @@ open class SMHexagon: SMGeometry, SMClonable, Equatable {
         self.center += point
     }
     
+    public func translateCenter(to point: SMPoint) {
+        self.center = point.clone()
+    }
+    
     /// Rotates the center of this hexagon around a point
     public func rotate(around center: SMPoint, by angle: SMAngle) {
         self.center.rotate(around: center, by: angle)

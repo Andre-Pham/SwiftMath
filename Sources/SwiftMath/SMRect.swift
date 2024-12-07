@@ -337,6 +337,10 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         self.end += point
     }
     
+    public func translateCenter(to point: SMPoint) {
+        self.translate(by: point - self.center)
+    }
+    
     /// Rotates the center of this rectangle around a point
     public func rotate(around center: SMPoint, by angle: SMAngle) {
         let rectCenter = self.center

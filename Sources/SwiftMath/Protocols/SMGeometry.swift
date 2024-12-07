@@ -18,6 +18,10 @@ public protocol SMGeometry {
     /// - Parameters:
     ///   - point: A point, by which its x translates horizontally and its y translates vertically
     func translate(by point: SMPoint)
+    /// Translate the geometry's center to a point.
+    /// - Parameters:
+    ///   - point: The point the center of the geometry will be translated to
+    func translateCenter(to point: SMPoint)
     /// Rotate the geometry counter-clockwise around a given center by a given angle.
     /// - Parameters:
     ///   - center: The center to rotate around

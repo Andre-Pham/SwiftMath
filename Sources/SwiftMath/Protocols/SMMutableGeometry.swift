@@ -67,6 +67,13 @@ extension SMMutableGeometry {
         }
     }
     
+    public func translateCenter(to point: SMPoint) {
+        guard let center = self.boundingBox?.center else {
+            return
+        }
+        self.translate(by: point - center)
+    }
+    
     public func rotate(around center: SMPoint, by angle: SMAngle) {
         for index in self.vertices.indices {
             self.vertices[index].rotate(around: center, by: angle)
