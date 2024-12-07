@@ -37,31 +37,31 @@ final class SMArcTests: XCTestCase {
         // Extend the arc
         testArc = arc.clone()
         testArc.adjustLength(by: 2.0)
-        XCTAssertTrue(SM.isEqual(testArc.length, originalLength + 2.0))
+        XCTAssertTrue(testArc.length.isEqual(to: originalLength + 2.0))
         XCTAssertTrue(testArc.startAngle == arc.startAngle)
         
         // Contract the arc
         testArc = arc.clone()
         testArc.adjustLength(by: -2.0)
-        XCTAssertTrue(SM.isEqual(testArc.length, originalLength - 2.0))
+        XCTAssertTrue(testArc.length.isEqual(to: originalLength - 2.0))
         XCTAssertTrue(testArc.startAngle == arc.startAngle)
         
         // Extend further than possible
         testArc = arc.clone()
         testArc.adjustLength(by: testArc.circumference + 1.0)
-        XCTAssertTrue(SM.isEqual(testArc.length, originalLength + 1.0))
+        XCTAssertTrue(testArc.length.isEqual(to: originalLength + 1.0))
         XCTAssertTrue(testArc.startAngle == arc.startAngle)
         
         // Negative adjustment is greater than the original length, inverting the arc
         testArc = arc.clone()
         testArc.adjustLength(by: -10.0)
-        XCTAssertTrue(SM.isEqual(testArc.length, abs(originalLength - 10.0)))
+        XCTAssertTrue(testArc.length.isEqual(to: abs(originalLength - 10.0)))
         XCTAssertTrue(testArc.endAngle == arc.startAngle)
         
         // Contract further than possible
         testArc = arc.clone()
         testArc.adjustLength(by: -testArc.circumference - 1.0)
-        XCTAssertTrue(SM.isEqual(testArc.length, originalLength - 1.0))
+        XCTAssertTrue(testArc.length.isEqual(to: originalLength - 1.0))
         XCTAssertTrue(testArc.startAngle == arc.startAngle)
     }
     
@@ -75,25 +75,25 @@ final class SMArcTests: XCTestCase {
         // Set the arc to a new length
         testArc = arc.clone()
         testArc.setLength(to: 1.0)
-        XCTAssertTrue(SM.isEqual(testArc.length, 1.0))
+        XCTAssertTrue(testArc.length.isEqual(to: 1.0))
         XCTAssertTrue(testArc.startAngle == arc.startAngle)
         
         // Set the arc to an impossible new length
         testArc = arc.clone()
         testArc.setLength(to: testArc.circumference + 1.0)
-        XCTAssertTrue(SM.isEqual(testArc.length, 1.0))
+        XCTAssertTrue(testArc.length.isEqual(to: 1.0))
         XCTAssertTrue(testArc.startAngle == arc.startAngle)
         
         // Set the arc to a negative length
         testArc = arc.clone()
         testArc.setLength(to: -1.0)
-        XCTAssertTrue(SM.isEqual(testArc.length, 1.0))
+        XCTAssertTrue(testArc.length.isEqual(to: 1.0))
         XCTAssertTrue(testArc.endAngle == arc.startAngle)
         
         // Set the arc to an impossible negative length
         testArc = arc.clone()
         testArc.setLength(to: -testArc.circumference - 1.0)
-        XCTAssertTrue(SM.isEqual(testArc.length, 1.0))
+        XCTAssertTrue(testArc.length.isEqual(to: 1.0))
         XCTAssertTrue(testArc.endAngle == arc.startAngle)
     }
 

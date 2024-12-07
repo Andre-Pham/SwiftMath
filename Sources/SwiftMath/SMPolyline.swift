@@ -24,7 +24,7 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
         return result
     }
     public var isValid: Bool {
-        return SM.isGreaterZero(self.length)
+        return self.length.isGreaterThanZero()
     }
     public var length: Double {
         guard self.vertices.count > 1 else {

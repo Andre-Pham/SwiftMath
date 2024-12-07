@@ -45,7 +45,7 @@ extension SMMutableGeometry {
             let point3 = self.vertices[index + 2]
             let length1 = point1.length(to: point2) + point2.length(to: point3)
             let length2 = point1.length(to: point3)
-            if SM.isEqual(length1, length2) {
+            if length1.isEqual(to: length2) {
                 pointIndicesToRemove.append(index + 1)
             }
         }

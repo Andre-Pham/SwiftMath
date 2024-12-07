@@ -93,7 +93,7 @@ final class SMPolygonTests: XCTestCase {
         XCTAssertEqual(polygon.perimeter, 4.0)
         // Test for a complex polygon (valid, perimeter should be non-nil and correct)
         polygon = SMPolygon(vertices: [SMPoint(x: 0.0, y: 0.0), SMPoint(x: 1.0, y: 0.0), SMPoint(x: 1.0, y: 1.0), SMPoint(x: 0.5, y: 1.5), SMPoint(x: 0.0, y: 1.0)])
-        XCTAssert(SM.isEqual(polygon.perimeter!, 4.41421))
+        XCTAssert(polygon.perimeter!.isEqual(to: 4.41421))
         // Test for a polygon with intersecting lines (invalid, hence perimeter should be nil)
         polygon = SMPolygon(vertices: [SMPoint(x: 0.0, y: 0.0), SMPoint(x: 1.0, y: 1.0), SMPoint(x: 1.0, y: 0.0), SMPoint(x: 0.0, y: 1.0)])
         XCTAssertNil(polygon.perimeter)

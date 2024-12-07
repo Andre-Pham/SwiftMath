@@ -117,7 +117,7 @@ open class SMPoint: SMClonable, Equatable, Hashable {
     }
 
     public static func / (point: SMPoint, scalar: Double) -> SMPoint {
-        guard !SM.isZero(scalar) else {
+        guard !scalar.isZero() else {
             fatalError("Division by zero is illegal")
         }
         return SMPoint(x: point.x / scalar, y: point.y / scalar)
@@ -128,7 +128,7 @@ open class SMPoint: SMClonable, Equatable, Hashable {
     }
 
     public static func == (lhs: SMPoint, rhs: SMPoint) -> Bool {
-        return SM.isEqual(lhs.x, rhs.x) && SM.isEqual(lhs.y, rhs.y)
+        return lhs.x.isEqual(to: rhs.x) && lhs.y.isEqual(to: rhs.y)
     }
     
     // MARK: - Hashable

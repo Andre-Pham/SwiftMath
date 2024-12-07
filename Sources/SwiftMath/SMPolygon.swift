@@ -83,11 +83,11 @@ open class SMPolygon: SMMutableGeometry, SMClonable {
     }
     public var isClockwise: Bool {
         // https://stackoverflow.com/a/1165943
-        return SM.isGreaterZero(self.edges.reduce(0.0, { $0 + ($1.end.x - $1.origin.x) * ($1.end.y + $1.origin.y) }))
+        return (self.edges.reduce(0.0, { $0 + ($1.end.x - $1.origin.x) * ($1.end.y + $1.origin.y) })).isGreaterThanZero()
     }
     public var isAnticlockwise: Bool {
         // https://stackoverflow.com/a/1165943
-        return SM.isLessZero(self.edges.reduce(0.0, { $0 + ($1.end.x - $1.origin.x) * ($1.end.y + $1.origin.y) }))
+        return (self.edges.reduce(0.0, { $0 + ($1.end.x - $1.origin.x) * ($1.end.y + $1.origin.y) })).isLessThanZero()
     }
     
     // MARK: - Constructors

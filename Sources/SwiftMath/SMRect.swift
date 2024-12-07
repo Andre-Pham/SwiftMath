@@ -84,7 +84,7 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
     }
     /// If the rectangle is valid
     public var isValid: Bool {
-        return SM.isLess(self.minY, self.maxY) && SM.isLess(self.minX, self.maxX)
+        return self.minY.isLess(than: self.maxY) && self.minX.isLess(than: self.maxY)
     }
     
     // MARK: - Constructors
@@ -248,10 +248,10 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
     /// - Returns: True if the point is contained inside (including on the edge)
     public func contains(point: SMPoint) -> Bool {
         return (
-            SM.isLessOrEqual(point.x, self.maxX)
-            && SM.isGreaterOrEqual(point.x, self.minX)
-            && SM.isLessOrEqual(point.y, self.maxY)
-            && SM.isGreaterOrEqual(point.y, self.minY)
+            point.x.isLessOrEqual(to: self.maxX)
+            && point.x.isGreaterOrEqual(to: self.minX)
+            && point.y.isLessOrEqual(to: self.maxY)
+            && point.y.isGreaterOrEqual(to: self.minY)
         )
     }
     
@@ -261,10 +261,10 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
     /// - Returns: True if the point is enclosed inside (NOT including on the edge)
     public func encloses(point: SMPoint) -> Bool {
         return (
-            SM.isLessOrEqual(point.x, self.maxX)
-            && SM.isGreaterOrEqual(point.x, self.minX)
-            && SM.isLessOrEqual(point.y, self.maxY)
-            && SM.isGreaterOrEqual(point.y, self.minY)
+            point.x.isLess(than: self.maxX)
+            && point.x.isGreater(than: self.minX)
+            && point.y.isLess(than: self.maxY)
+            && point.y.isGreater(than: self.minY)
         )
     }
     
@@ -274,10 +274,10 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
     /// - Returns: True if the rectangle is contained inside (including overlapping edges)
     public func contains(rect: SMRect) -> Bool {
         return (
-            SM.isLessOrEqual(rect.maxX, self.maxX)
-            && SM.isGreaterOrEqual(rect.minX, self.minX)
-            && SM.isLessOrEqual(rect.maxY, self.maxY)
-            && SM.isGreaterOrEqual(rect.minY, self.minY)
+            rect.maxX.isLessOrEqual(to: self.maxX)
+            && rect.minX.isGreaterOrEqual(to: self.minX)
+            && rect.maxY.isLessOrEqual(to: self.maxY)
+            && rect.minY.isGreaterOrEqual(to: self.minY)
         )
     }
     
@@ -287,10 +287,10 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
     /// - Returns: True if the rectangle is enclosed inside (NOT including overlapping edges)
     public func encloses(rect: SMRect) -> Bool {
         return (
-            SM.isLess(rect.maxX, self.maxX)
-            && SM.isGreater(rect.minX, self.minX)
-            && SM.isLess(rect.maxY, self.maxY)
-            && SM.isGreater(rect.minY, self.minY)
+            rect.maxX.isLess(than: self.maxX)
+            && rect.minX.isGreater(than: self.minX)
+            && rect.maxY.isLess(than: self.maxY)
+            && rect.minY.isGreater(than: self.minY)
         )
     }
     

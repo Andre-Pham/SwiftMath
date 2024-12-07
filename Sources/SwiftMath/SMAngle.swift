@@ -23,7 +23,7 @@ open class SMAngle: SMClonable, Equatable {
     }
     /// The gradient (slope) equivalent (nil is undefined)
     public var gradient: Double? {
-        if SM.isEqual(self.normalized.radians, .pi / 2.0) {
+        if self.normalized.radians.isEqual(to: .pi / 2.0) {
             return nil
         }
         return tan(self.radians)
@@ -83,7 +83,7 @@ open class SMAngle: SMClonable, Equatable {
         // Calculate the angle from point1 to point2 in counter-clockwise direction
         var angle = angle1 - angle2
         // Adjust the angle to be within the range [0, 2π]
-        if SM.isLessZero(angle) {
+        if angle.isLessThanZero() {
             angle += 2 * .pi
         }
         self.radians = angle
@@ -103,7 +103,7 @@ open class SMAngle: SMClonable, Equatable {
     /// ```
     public func normalize() {
         var result = self.radians.truncatingRemainder(dividingBy: (2.0 * .pi))
-        if SM.isLessZero(result) {
+        if result.isLessThanZero() {
             result += (2.0 * .pi)
         }
         self.radians = result
@@ -161,7 +161,7 @@ open class SMAngle: SMClonable, Equatable {
     }
     
     public static func == (lhs: SMAngle, rhs: SMAngle) -> Bool {
-        return SM.isEqual(lhs.radians, rhs.radians)
+        return lhs.radians.isEqual(to: rhs.radians)
     }
     
 }

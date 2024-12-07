@@ -74,7 +74,7 @@ open class SMHexagon: SMGeometry, SMClonable, Equatable {
     // MARK: - Functions
     
     public func setWidth(to width: Double) {
-        guard SM.isGreaterZero(width) else {
+        guard width.isGreaterThanZero() else {
             self.sideLength = 0.0
             return
         }
@@ -90,7 +90,7 @@ open class SMHexagon: SMGeometry, SMClonable, Equatable {
     }
     
     public func setHeight(to height: Double) {
-        guard SM.isGreaterZero(height) else {
+        guard height.isGreaterThanZero() else {
             self.sideLength = 0.0
             return
         }
@@ -126,7 +126,7 @@ open class SMHexagon: SMGeometry, SMClonable, Equatable {
     // MARK: - Operations
     
     public static func == (lhs: SMHexagon, rhs: SMHexagon) -> Bool {
-        return lhs.flatTop == rhs.flatTop && lhs.center == rhs.center && SM.isEqual(lhs.sideLength, rhs.sideLength)
+        return lhs.flatTop == rhs.flatTop && lhs.center == rhs.center && lhs.sideLength.isEqual(to: rhs.sideLength)
     }
     
     // MARK: - Core Graphics

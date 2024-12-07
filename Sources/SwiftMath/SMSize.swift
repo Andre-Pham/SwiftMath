@@ -21,7 +21,7 @@ open class SMSize: SMClonable {
     }
     /// If the size is valid
     public var isValid: Bool {
-        return SM.isGreaterZero(self.width) && SM.isGreaterZero(self.height)
+        return self.width.isGreaterThanZero() && self.height.isGreaterThanZero()
     }
     
     // MARK: - Constructors

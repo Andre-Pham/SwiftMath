@@ -46,7 +46,7 @@ open class SMVector3: SMClonable, Equatable {
     /// Normalizes this vector
     public func normalize() {
         let mag = self.magnitude
-        if !SM.isZero(mag) {
+        if !mag.isZero() {
             self.x /= mag
             self.y /= mag
             self.z /= mag
@@ -115,7 +115,7 @@ open class SMVector3: SMClonable, Equatable {
     }
 
     public static func / (vector: SMVector3, scalar: Double) -> SMVector3 {
-        guard !SM.isZero(scalar) else {
+        guard !scalar.isZero() else {
             fatalError("Division by zero is illegal")
         }
         return SMVector3(x: vector.x / scalar, y: vector.y / scalar, z: vector.z / scalar)
@@ -126,7 +126,7 @@ open class SMVector3: SMClonable, Equatable {
     }
 
     public static func == (lhs: SMVector3, rhs: SMVector3) -> Bool {
-        return SM.isEqual(lhs.x, rhs.x) && SM.isEqual(lhs.y, rhs.y) && SM.isEqual(lhs.z, rhs.z)
+        return lhs.x.isEqual(to: rhs.x) && lhs.y.isEqual(to: rhs.y) && lhs.z.isEqual(to: rhs.z)
     }
     
     // MARK: - SceneKit

@@ -21,7 +21,7 @@ open class SMEllipse: SMClonable, Equatable {
         return max(self.boundingBox.width, self.boundingBox.height)/2.0
     }
     public var isCircle: Bool {
-        return SM.isEqual(self.boundingBox.width, self.boundingBox.height)
+        return self.boundingBox.width.isEqual(to: self.boundingBox.height)
     }
     public var area: Double {
         return .pi*self.boundingBox.width*self.boundingBox.height/4.0

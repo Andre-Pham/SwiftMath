@@ -33,7 +33,7 @@ open class SMArc: SMClonable {
     }
     /// If the arc forms a full circle (requires fullArcWhenZeroCentralAngle to be true)
     public var isFullCircle: Bool {
-        return self.fullArcWhenZeroCentralAngle && SM.isEqual(self.startAngle.radians, self.endAngle.radians)
+        return self.fullArcWhenZeroCentralAngle && self.startAngle.radians.isEqual(to: self.endAngle.radians)
     }
     /// The length of the arc's line
     public var length: Double {
@@ -83,8 +83,10 @@ open class SMArc: SMClonable {
         let angles = [SMAngle(degrees: 0), SMAngle(degrees: 90), SMAngle(degrees: 180), SMAngle(degrees: 270)]
         for angle in angles {
             // Check if the arc passes through this angle
-            let isBetween = SM.isLessOrEqual(self.startAngle.radians, angle.radians) && SM.isLessOrEqual(angle.radians, self.endAngle.radians)
-            let crosses = SM.isGreater(self.startAngle.radians, self.endAngle.radians) && (SM.isGreaterOrEqual(angle.radians, self.startAngle.radians) || SM.isLessOrEqual(angle.radians, self.endAngle.radians))
+            let isBetween = self.startAngle.radians.isLessOrEqual(to: angle.radians) && angle.radians.isLessOrEqual(to: self.endAngle.radians)
+            let crosses = self.startAngle.radians.isGreater(than: self.endAngle.radians)
+                && angle.radians.isGreaterOrEqual(to: self.startAngle.radians)
+                || angle.radians.isLessOrEqual(to: self.endAngle.radians)
             if isBetween || crosses {
                 let x = self.center.x + self.radius * cos(angle.radians)
                 let y = self.center.y + self.radius * sin(angle.radians)
@@ -134,8 +136,8 @@ open class SMArc: SMClonable {
     /// - Parameters:
     ///   - length: The length to extend (+) or contract (-) by
     public func adjustLength(by length: Double) {
-        if SM.isLessZero(self.length + length) {
-            if SM.isGreater(abs(length), self.circumference) {
+        if (self.length + length).isLessThanZero() {
+            if abs(length).isGreater(than: self.circumference) {
                 // WARNING: Recursion is used here
                 self.adjustLength(by: length.truncatingRemainder(dividingBy: self.circumference))
             } else {
@@ -159,13 +161,13 @@ open class SMArc: SMClonable {
     ///   - length: The new length (negative to go in the opposite direction from the origin point)
     public func setLength(to length: Double) {
         let length = length.truncatingRemainder(dividingBy: self.circumference)
-        guard !SM.isZero(length) else {
+        guard !length.isZero() else {
             self.endAngle = self.startAngle.clone()
             return
         }
         let rotation = self.startAngle.clone()
         self.rotate(by: rotation * -1)
-        if SM.isLessZero(length) {
+        if length.isLessThanZero() {
             self.endAngle = SMAngle(radians: abs(length)/self.radius)
             self.rotate(by: self.centralAngle * -1)
         } else {

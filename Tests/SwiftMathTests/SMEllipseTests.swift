@@ -12,9 +12,9 @@ final class SMEllipseTests: XCTestCase {
 
     func testCircumference() throws {
         let ellipse = SMEllipse(boundingBox: SMRect(center: SMPoint(), width: 20, height: 10))
-        XCTAssertTrue(SM.isEqual(ellipse.circumference, 48.44, precision: 1e-2))
+        XCTAssertTrue(ellipse.circumference.isEqual(to: 48.44, precision: 1e-2))
         let empty = SMEllipse(boundingBox: SMRect(minX: 0, maxX: 0, minY: 0, maxY: 0))
-        XCTAssertTrue(SM.isZero(empty.circumference))
+        XCTAssertTrue(empty.circumference.isZero())
     }
 
 }

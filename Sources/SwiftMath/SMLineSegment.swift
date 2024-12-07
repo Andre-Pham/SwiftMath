@@ -95,7 +95,7 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
             // (what direction would it go?)
             return
         }
-        guard !SM.isZero(length) else {
+        guard !length.isZero() else {
             self.end = self.origin.clone()
             return
         }
@@ -138,7 +138,7 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
         if let gradient = self.gradient {
             // Non-vertical line segments
             let expectedY = gradient*(point.x - self.origin.x) + self.origin.y
-            let existsOnInfiniteLine = SM.isEqual(expectedY, point.y)
+            let existsOnInfiniteLine = expectedY.isEqual(to: point.y)
             let existsInBoundingBox = self.boundingBoxContains(point: point)
             return existsInBoundingBox && existsOnInfiniteLine
         } else {
@@ -147,9 +147,9 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
                 return false
             }
             return (
-                SM.isEqual(self.origin.x, point.x)
-                && SM.isLessOrEqual(point.y, maxY)
-                && SM.isGreaterOrEqual(point.y, minY)
+                self.origin.x.isEqual(to: point.x)
+                && point.y.isLessOrEqual(to: maxY)
+                && point.y.isGreaterOrEqual(to: minY)
             )
         }
     }

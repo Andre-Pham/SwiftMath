@@ -46,12 +46,12 @@ open class SMLine: SMLinear, SMClonable, Equatable {
     public func intersects(point: SMPoint) -> Bool {
         // Handle vertical lines
         if self.isVertical {
-            return SM.isEqual(point.x, self.origin.x)
+            return point.x.isEqual(to: self.origin.x)
         }
         // Calculate the slope and check if the point fits the line equation
         let slope = self.gradient ?? 0
         let yIntercept = self.origin.y - slope * self.origin.x
-        return SM.isEqual(point.y, slope * point.x + yIntercept)
+        return point.y.isEqual(to: slope * point.x + yIntercept)
     }
     
     public func intersection(with line: SMLinear) -> SMPoint? {

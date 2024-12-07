@@ -25,7 +25,7 @@ extension SMLinear {
     
     /// The slope of the line segment
     public var gradient: Double? {
-        guard !SM.isEqual(self.origin.x, self.end.x) else {
+        guard !self.origin.x.isEqual(to: self.end.x) else {
             return nil
         }
         return (self.end.y - self.origin.y) / (self.end.x - self.origin.x)
@@ -36,7 +36,7 @@ extension SMLinear {
     }
     /// If the line segment is horizontal
     public var isHorizontal: Bool {
-        return SM.isEqual(self.origin.y, self.end.y)
+        return self.origin.y.isEqual(to: self.end.y)
     }
     /// If the line segment is valid (can be drawn)
     public var isValid: Bool {
@@ -61,7 +61,7 @@ extension SMLinear {
             return false
         }
         if let m1 = self.gradient, let m2 = line.gradient {
-            return SM.isEqual(m1, m2, precision: precision)
+            return m1.isEqual(to: m2, precision: precision)
         }
         return self.gradient == line.gradient
     }
