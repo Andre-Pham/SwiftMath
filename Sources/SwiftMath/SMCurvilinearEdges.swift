@@ -16,7 +16,7 @@ open class SMCurvilinearEdges: SMClonable {
     private var bezierEdges = [Int: SMBezierCurve]()
     private var quadEdges = [Int: SMQuadCurve]()
     private var arcEdges = [Int: SMArc]()
-    private(set) var edgeCount = 0
+    public private(set) var edgeCount = 0
     public var lastPoint: SMPoint? {
         guard self.edgeCount > 0 else {
             return nil
@@ -44,6 +44,18 @@ open class SMCurvilinearEdges: SMClonable {
     public var assortedArcEdges: [SMArc] {
         return Array(self.arcEdges.values)
     }
+    public var sortedLinearEdges: [SMLineSegment] {
+        return self.linearEdges.keys.sorted().compactMap({ self.linearEdges[$0] })
+    }
+    public var sortedBezierEdges: [SMBezierCurve] {
+        return self.bezierEdges.keys.sorted().compactMap({ self.bezierEdges[$0] })
+    }
+    public var sortedQuadEdges: [SMQuadCurve] {
+        return self.quadEdges.keys.sorted().compactMap({ self.quadEdges[$0] })
+    }
+    public var sortedArcEdges: [SMArc] {
+        return self.arcEdges.keys.sorted().compactMap({ self.arcEdges[$0] })
+    }
     
     // MARK: - Constructors
     
@@ -59,22 +71,22 @@ open class SMCurvilinearEdges: SMClonable {
     // MARK: - Functions
     
     public func addLinearEdge(_ edge: SMLineSegment) {
-        self.linearEdges[self.edgeCount] = edge
+        self.linearEdges[self.edgeCount] = edge.clone()
         self.edgeCount += 1
     }
     
     public func addBezierEdge(_ edge: SMBezierCurve) {
-        self.bezierEdges[self.edgeCount] = edge
+        self.bezierEdges[self.edgeCount] = edge.clone()
         self.edgeCount += 1
     }
     
     public func addQuadEdge(_ edge: SMQuadCurve) {
-        self.quadEdges[self.edgeCount] = edge
+        self.quadEdges[self.edgeCount] = edge.clone()
         self.edgeCount += 1
     }
     
     public func addArcEdge(_ edge: SMArc) {
-        self.arcEdges[self.edgeCount] = edge
+        self.arcEdges[self.edgeCount] = edge.clone()
         self.edgeCount += 1
     }
     
@@ -91,27 +103,61 @@ open class SMCurvilinearEdges: SMClonable {
         for (key, value) in self.linearEdges {
             if key > index {
                 self.linearEdges[key - 1] = value
+                self.linearEdges[key] = nil
             }
         }
         for (key, value) in self.bezierEdges {
             if key > index {
                 self.bezierEdges[key - 1] = value
+                self.bezierEdges[key] = nil
             }
         }
         for (key, value) in self.quadEdges {
             if key > index {
                 self.quadEdges[key - 1] = value
+                self.quadEdges[key] = nil
             }
         }
         for (key, value) in self.arcEdges {
             if key > index {
                 self.arcEdges[key - 1] = value
+                self.arcEdges[key] = nil
             }
         }
-        self.linearEdges.removeValue(forKey: self.edgeCount)
-        self.bezierEdges.removeValue(forKey: self.edgeCount)
-        self.quadEdges.removeValue(forKey: self.edgeCount)
-        self.arcEdges.removeValue(forKey: self.edgeCount)
+    }
+    
+    public func removeRedundantEdges() {
+        for edgeIndex in (0..<self.edgeCount).reversed() {
+            if let linearEdge = self.linearEdges[edgeIndex] {
+                if linearEdge.length.isZero() {
+                    self.removeEdge(at: edgeIndex)
+                } else if let nextLinearEdge = self.linearEdges[edgeIndex + 1], linearEdge.end == nextLinearEdge.origin {
+                    let point1 = linearEdge.origin
+                    let point2 = linearEdge.end
+                    let point3 = nextLinearEdge.end
+                    let length1 = point1.length(to: point2) + point2.length(to: point3)
+                    let length2 = point1.length(to: point3)
+                    if length1.isEqual(to: length2) {
+                        linearEdge.adjustLength(by: nextLinearEdge.length)
+                        self.removeEdge(at: edgeIndex + 1)
+                    }
+                }
+            } else if let bezierEdge = self.bezierEdges[edgeIndex] {
+                if bezierEdge.lengthIsZero {
+                    self.removeEdge(at: edgeIndex)
+                }
+            } else if let quadEdge = self.quadEdges[edgeIndex] {
+                if quadEdge.lengthIsZero {
+                    self.removeEdge(at: edgeIndex)
+                }
+            } else if let arcEdge = self.arcEdges[edgeIndex] {
+                if arcEdge.length.isZero() {
+                    self.removeEdge(at: edgeIndex)
+                }
+            } else {
+                assertionFailure("Logic error - shouldn't be reachable")
+            }
+        }
     }
     
     // MARK: - Core Graphics

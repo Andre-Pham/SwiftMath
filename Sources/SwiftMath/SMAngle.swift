@@ -28,6 +28,76 @@ open class SMAngle: SMClonable, Equatable {
         }
         return tan(self.radians)
     }
+    /// True if the normalised angle is less than 90 degrees
+    public var isAcute: Bool {
+        return self.normalized.radians.isLess(than: .pi / 2.0)
+    }
+    /// True if the normalised angle is exactly 90 degrees
+    public var isRight: Bool {
+        return self.normalized.radians.isEqual(to: .pi / 2.0)
+    }
+    /// True if the normalised angle is greater than 90 degrees
+    public var isObtuse: Bool {
+        return self.normalized.radians.isGreater(than: .pi / 2.0)
+    }
+    /// True if the normalised angle is 180 degrees
+    public var isStraight: Bool {
+        return self.normalized.radians.isEqual(to: Double.pi)
+    }
+    /// True if the angle is greater than 180 degrees
+    public var isMinor: Bool {
+        return self.normalized.radians.isLess(than: Double.pi)
+    }
+    /// True if the angle is less than 180 degrees
+    public var isMajor: Bool {
+        return self.normalized.radians.isGreater(than: Double.pi)
+    }
+    /// The angle which adds to this to make 90 degrees (nil if this is greater than 90 degrees)
+    public var complement: SMAngle? {
+        let normalized = self.normalized
+        guard normalized.radians.isLessOrEqual(to: .pi / 2.0) else {
+            return nil
+        }
+        return SMAngle(radians: .pi / 2.0) - normalized
+    }
+    /// The angle which adds to this to make 180 degrees (nil if this is greater than 180 degrees)
+    public var supplementary: SMAngle? {
+        let normalized = self.normalized
+        guard normalized.radians.isLessOrEqual(to: Double.pi) else {
+            return nil
+        }
+        return SMAngle(radians: Double.pi) - normalized
+    }
+    /// The angle which adds to this to make 360 degrees, given this is less than 180 degrees (nil if this is greater or equal to 180 degrees)
+    public var reflex: SMAngle? {
+        let normalized = self.normalized
+        guard normalized.radians.isLess(than: Double.pi) else {
+            return nil
+        }
+        return SMAngle(radians: 2.0 * .pi) - normalized
+    }
+    /// The angle which adds to this to make 360 degrees
+    public var modularInverse: SMAngle {
+        return SMAngle(radians: 2.0 * .pi) - self.normalized
+    }
+    /// This angle if it's less than 180 degrees, otherwise the modular inverse of this (the "inside" angle)
+    public var minor: SMAngle {
+        let normalized = self.normalized
+        if self.radians.isLessOrEqual(to: Double.pi) {
+            return normalized
+        } else {
+            return self.modularInverse
+        }
+    }
+    /// This angle if it's greater than 180 degrees, otherwise the modular inverse of this (the "outside" angle)
+    public var major: SMAngle {
+        let normalized = self.normalized
+        if self.radians.isGreaterOrEqual(to: Double.pi) {
+            return normalized
+        } else {
+            return self.modularInverse
+        }
+    }
     
     // MARK: - Constructors
     
@@ -66,9 +136,9 @@ open class SMAngle: SMClonable, Equatable {
     /// Create an angle by calculating the counter-clockwise angle from `point1` to `point2` around `vertex`
     /// Example:
     /// ``` SMAngle(
-    ///         point1: SMPoint(x: 0.0, y: 1.0),
+    ///         point1: SMPoint(x: 1.0, y: 0.0),
     ///         vertex: SMPoint(),
-    ///         point2: SMPoint(x: 1.0, y: 0.0)
+    ///         point2: SMPoint(x: 0.0, y: 1.0)
     ///     ).degrees -> 90.0
     /// ```
     /// - Parameters:
@@ -81,7 +151,7 @@ open class SMAngle: SMClonable, Equatable {
         let angle1 = atan2(point1.y - vertex.y, point1.x - vertex.x)
         let angle2 = atan2(point2.y - vertex.y, point2.x - vertex.x)
         // Calculate the angle from point1 to point2 in counter-clockwise direction
-        var angle = angle1 - angle2
+        var angle = angle2 - angle1
         // Adjust the angle to be within the range [0, 2π]
         if angle.isLessThanZero() {
             angle += 2 * .pi

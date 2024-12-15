@@ -13,7 +13,7 @@ open class SMLine: SMLinear, SMClonable, Equatable {
     
     /// A point on the line
     public var origin: SMPoint
-    /// A direction vector representing the line's direction
+    /// A direction vector representing the line's direction (relative to origin, so still lies on the line)
     public var end: SMPoint
 
     // MARK: - Constructors
@@ -88,6 +88,12 @@ open class SMLine: SMLinear, SMClonable, Equatable {
     public func translate(by point: SMPoint) {
         self.origin += point
         self.end += point
+    }
+    
+    public func translateToIntersect(_ point: SMPoint) {
+        let newEnd = point + self.end - self.origin
+        self.origin = point.clone()
+        self.end = newEnd
     }
     
     public func rotate(around center: SMPoint, by angle: SMAngle) {

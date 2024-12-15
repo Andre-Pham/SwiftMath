@@ -23,6 +23,17 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
         }
         return result
     }
+    /// This geometry's triplets (ordered)
+    public var triplets: [(origin: SMPoint, corner: SMPoint, end: SMPoint)] {
+        guard self.edges.count > 1 else {
+            return []
+        }
+        var result = [(origin: SMPoint, corner: SMPoint, end: SMPoint)]()
+        for index in 0..<(self.vertices.count - 2) {
+            result.append((origin: self.vertices[index], corner: self.vertices[index + 1], end: self.vertices[index + 2]))
+        }
+        return result
+    }
     public var isValid: Bool {
         return self.length.isGreaterThanZero()
     }
@@ -38,6 +49,349 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
     }
     public var closed: SMPolygon {
         return SMPolygon(vertices: self.vertices.clone())
+    }
+    
+    public func roundedCorners(pointDistance: Double, controlPointDistance: Double) -> SMCurvilinearEdges {
+        let result = SMCurvilinearEdges()
+        let polyline = self.clone()
+        polyline.removeDuplicatePoints()
+        guard polyline.isValid else {
+            return result
+        }
+        guard polyline.edges.count > 1 else {
+            result.addLinearEdge(self.edges[0].clone())
+            return result
+        }
+        let triplets = self.triplets
+        
+//        let tripletPointDistances = [Double]()
+//        let tripletMinEdgeLengths = triplets.map({ min($0.origin.length(to: $0.corner), $0.corner.length(to: $0.end)) })
+//        let tripletWithMinEdgeIndex = tripletMinEdgeLengths.enumerated().min(by: { $0.element < $1.element })!.offset
+//        let tripletWithMinEdge = triplets[tripletWithMinEdgeIndex]
+//        let minEdgeIsFirstOrLast = (
+//            tripletWithMinEdgeIndex == 0
+//            && tripletWithMinEdge.origin.length(to: tripletWithMinEdge.corner).isLess(than: tripletWithMinEdge.corner.length(to: tripletWithMinEdge.end))
+//            || tripletWithMinEdgeIndex == triplets.count - 1
+//            && tripletWithMinEdge.origin.length(to: tripletWithMinEdge.corner).isGreater(than: tripletWithMinEdge.corner.length(to: tripletWithMinEdge.end))
+//        )
+//        let tripletWithMinEdgePointDistance = min(pointDistance, tripletMinEdgeLengths[tripletWithMinEdgeIndex] / (minEdgeIsFirstOrLast ? 1.0 : 2.0))
+//        
+//        var nextTripletPointDistances = [Double]()
+//        for tripletIndex in (tripletWithMinEdgeIndex + 1)..<triplets.endIndex {
+//            let triplet = triplets[tripletIndex]
+//            let connectedEdgeLength = triplet.origin.length(to: triplet.corner)
+//            let minLengthEdge = tripletMinEdgeLengths[tripletIndex]
+//            let tripletPointDistance = min(min(minLengthEdge, connectedEdgeLength - (nextTripletPointDistances.last ?? tripletWithMinEdgePointDistance)), pointDistance)
+//            nextTripletPointDistances.append(tripletPointDistance)
+//            // WHAT IF THE NEXT EDGE IS LONGER
+//            // then it would be half
+//            // WHAT IF THE NEXT EDGE AFTER THAT IS TINY
+//            // oh my gosh this approach doesn't work
+//            // i think i have to do this in order of edge lengths
+//            // this is literally a nightmare
+//            
+//            // max(nextEdge/2, previousEdge - previousEndDistance
+//            // let tripletPointDistance = min(nextEdge/2, previousEdge - previousEndDistance)
+//        }
+        
+        
+        
+        var tripletPointDistancesMap = [Int: Double]()
+        let tripletMinEdgeLengths = triplets.map({ min($0.origin.length(to: $0.corner), $0.corner.length(to: $0.end)) })
+        let tripletsWithIndices = triplets.enumerated().sorted(by: { t1, t2 in
+            let triplet1MinEdgeLength = tripletMinEdgeLengths[t1.offset]
+            let triplet2MinEdgeLength = tripletMinEdgeLengths[t2.offset]
+            return triplet1MinEdgeLength < triplet2MinEdgeLength
+        })
+        for (tripletIndex, triplet) in tripletsWithIndices {
+            let originToCornerLength = triplet.origin.length(to: triplet.corner)
+            let cornerToEndLength = triplet.corner.length(to: triplet.end)
+            let nextTripletPointDistance = tripletPointDistancesMap[tripletIndex + 1]
+            let prevTripletPointDistance = tripletPointDistancesMap[tripletIndex - 1]
+            if let nextTripletPointDistance, let prevTripletPointDistance {
+                let prevPotentialPointDistance = originToCornerLength - prevTripletPointDistance
+                let nextPotentialPointDistance = cornerToEndLength - nextTripletPointDistance
+                tripletPointDistancesMap[tripletIndex] = [prevPotentialPointDistance, nextPotentialPointDistance, pointDistance].min()!
+            } else if let nextTripletPointDistance {
+                let originToCornerIsFirst = tripletIndex == 0 && originToCornerLength.isLessOrEqual(to: cornerToEndLength)
+                let prevPotentialPointDistance = originToCornerLength / (originToCornerIsFirst ? 1.0 : 2.0)
+                let nextPotentialPointDistance = cornerToEndLength - nextTripletPointDistance
+                tripletPointDistancesMap[tripletIndex] = [prevPotentialPointDistance, nextPotentialPointDistance, pointDistance].min()!
+            } else if let prevTripletPointDistance {
+                let cornerToEndIsLast = tripletIndex == triplets.count - 1 && cornerToEndLength.isLessOrEqual(to: originToCornerLength)
+                let prevPotentialPointDistance = originToCornerLength - prevTripletPointDistance
+                let nextPotentialPointDistance = cornerToEndLength / (cornerToEndIsLast ? 1.0 : 2.0)
+                tripletPointDistancesMap[tripletIndex] = [prevPotentialPointDistance, nextPotentialPointDistance, pointDistance].min()!
+            } else {
+                let minEdgeLength = tripletMinEdgeLengths[tripletIndex]
+                let minEdgeIsFirst = tripletIndex == 0 && originToCornerLength.isLessOrEqual(to: cornerToEndLength)
+                let minEdgeIsLast = tripletIndex == triplets.count - 1 && cornerToEndLength.isLessOrEqual(to: originToCornerLength)
+                let minEdgeIsFirstOrLast = minEdgeIsFirst || minEdgeIsLast
+                tripletPointDistancesMap[tripletIndex] = min(pointDistance, minEdgeLength / (minEdgeIsFirstOrLast ? 1.0 : 2.0))
+                
+                
+//                if let previousTriplet = triplets.at(tripletIndex - 1),
+//                   originToCornerLength.isEqual(to: minEdgeLength),
+//                   SMPolyline(vertices: previousTriplet.origin, previousTriplet.end).length.isEqual(to: SMPolyline(vertices: previousTriplet.origin, previousTriplet.corner, previousTriplet.end).length)
+//                {
+//                    print("MEET CONDITIONS")
+//                    // Triplet originToCorner forms a straight line with previous triplet cornerToEnd
+//                    tripletPointDistancesMap[tripletIndex] = min(pointDistance, minEdgeLength)
+//                } else if let nextTriplet = triplets.at(tripletIndex + 1),
+//                          cornerToEndLength.isEqual(to: minEdgeLength),
+//                          SMPolyline(vertices: nextTriplet.origin, nextTriplet.end).length.isEqual(to: SMPolyline(vertices: nextTriplet.origin, nextTriplet.corner, nextTriplet.end).length)
+//                {
+//                    print("MEET CONDITIONS 2")
+//                    // Triplet originToCorner forms a straight line with next triplet originToCorner
+//                    tripletPointDistancesMap[tripletIndex] = min(pointDistance, minEdgeLength)
+//                }
+            }
+            let tripletIsStraight = triplet.origin.length(to: triplet.end).isEqual(to: originToCornerLength + cornerToEndLength)
+            if tripletIsStraight {
+                tripletPointDistancesMap[tripletIndex] = 0.0
+            }
+        }
+        let tripletPointDistances = tripletPointDistancesMap
+            .sorted(by: { $0.key < $1.key })
+            .map({ $0.value })
+        assert(tripletPointDistances.count == triplets.count)
+        
+//        var tripletPointDistances = [Double]()
+//        let tripletMinEdgeLengths = triplets.map({ min($0.origin.length(to: $0.corner), $0.corner.length(to: $0.end)) })
+//        let tripletWithMinEdgeIndex = tripletMinEdgeLengths.enumerated().min(by: { $0.element < $1.element })!.offset
+//        for tripletIndex in tripletWithMinEdgeIndex..<triplets.endIndex {
+//            let triplet = triplets[tripletIndex]
+//            let originToCornerLength = triplet.origin.length(to: triplet.corner)
+//            let cornerToEndLength = triplet.corner.length(to: triplet.end)
+//            if let prevTripletPointDistance = tripletPointDistances.last {
+//                let cornerToEndIsLast = tripletIndex == triplets.count - 1 && cornerToEndLength.isLess(than: originToCornerLength)
+//                let prevPotentialPointDistance = originToCornerLength - prevTripletPointDistance
+//                let nextPotentialPointDistance = cornerToEndLength / (cornerToEndIsLast ? 1.0 : 2.0)
+//                tripletPointDistances.append([prevPotentialPointDistance, nextPotentialPointDistance, pointDistance].min()!)
+//            } else {
+//                let minEdgeLength = tripletMinEdgeLengths[tripletIndex]
+//                let minEdgeIsFirstOrLast = (
+//                    tripletIndex == 0
+//                    && originToCornerLength.isLess(than: cornerToEndLength)
+//                    || tripletIndex == triplets.count - 1
+//                    && cornerToEndLength.isLess(than: originToCornerLength)
+//                )
+//                tripletPointDistances.append(min(pointDistance, minEdgeLength / (minEdgeIsFirstOrLast ? 1.0 : 2.0)))
+//            }
+//        }
+//        if tripletWithMinEdgeIndex > 0 {
+//            for tripletIndex in stride(from: tripletWithMinEdgeIndex - 1, through: 0, by: -1) {
+//                let triplet = triplets[tripletIndex]
+//                let originToCornerLength = triplet.origin.length(to: triplet.corner)
+//                let cornerToEndLength = triplet.corner.length(to: triplet.end)
+//                let nextTripletPointDistance = tripletPointDistances.first!
+//                let originToCornerIsFirst = tripletIndex == 0 && originToCornerLength.isLess(than: cornerToEndLength)
+//                let prevPotentialPointDistance = originToCornerLength / (originToCornerIsFirst ? 1.0 : 2.0)
+//                let nextPotentialPointDistance = cornerToEndLength - nextTripletPointDistance
+//                tripletPointDistances.insert([prevPotentialPointDistance, nextPotentialPointDistance, pointDistance].min()!, at: 0)
+//            }
+//        }
+//        assert(tripletPointDistances.count == triplets.count)
+        
+        for (index, triplet) in triplets.enumerated() {
+            if index == 0 {
+                let originToCorner = SMLineSegment(origin: triplet.origin, end: triplet.corner)
+                let cornerToEnd = SMLineSegment(origin: triplet.corner, end: triplet.end)
+                let tripletIsStraight = originToCorner.origin.length(to: cornerToEnd.end).isEqual(to: originToCorner.length + cornerToEnd.length)
+                
+                // The applied point distance (max that can be done)
+                // E.g. if the point distance is 50, but the first line has a length of 10
+                let appliedPointDistance = tripletPointDistances[index]
+                
+                // The applied control point distance (max that can be done)
+                // E.g. if it's greater than the point distance
+                let maxControlPointDistance = appliedPointDistance
+                let appliedControlPointDistance = min(controlPointDistance, maxControlPointDistance)
+                
+                // Straight edge
+                let straightEdge = originToCorner.clone()
+                let straightEdgeDirection = straightEdge.angle!
+                straightEdge.adjustLength(by: -appliedPointDistance)
+                
+                // Next straight edge
+                let nextStraightEdge = cornerToEnd.clone()
+                let nextStraightEdgeDirection = nextStraightEdge.angle!
+                nextStraightEdge.adjustLength(by: -appliedPointDistance, anchorEnd: true)
+                
+                // Curved edge origin and origin control point
+                let origin = straightEdge.end.clone()
+                let originControlEdge = SMLineSegment(
+                    origin: straightEdge.origin,
+                    angle: straightEdgeDirection,
+                    length: straightEdge.length + appliedControlPointDistance
+                )
+                let originControlPoint = originControlEdge.end
+                
+                // Curved edge end and end control point
+                let end = nextStraightEdge.origin.clone()
+                let endControlEdge = SMLineSegment(
+                    origin: nextStraightEdge.end,
+                    angle: nextStraightEdgeDirection + SMAngle(radians: Double.pi),
+                    length: nextStraightEdge.length + appliedControlPointDistance
+                )
+                let endControlPoint = endControlEdge.end
+                
+                // Add to result
+                if straightEdge.length.isGreaterThanZero() {
+                    result.addLinearEdge(straightEdge)
+                }
+                if !tripletIsStraight {
+                    result.addBezierEdge(SMBezierCurve(
+                        origin: origin,
+                        originControlPoint: originControlPoint,
+                        end: end,
+                        endControlPoint: endControlPoint
+                    ))
+                }
+                
+                if index == triplets.count - 1 {
+                    if nextStraightEdge.length.isGreaterThanZero() {
+                        result.addLinearEdge(nextStraightEdge)
+                    }
+                }
+            } else {
+                let originToCorner = SMLineSegment(origin: triplet.origin, end: triplet.corner)
+                let cornerToEnd = SMLineSegment(origin: triplet.corner, end: triplet.end)
+                let tripletIsStraight = originToCorner.origin.length(to: cornerToEnd.end).isEqual(to: originToCorner.length + cornerToEnd.length)
+                
+                // The applied point distance (max that can be done)
+                // E.g. if the point distance is 50, but the first line has a length of 10
+                let appliedPointDistance = tripletPointDistances[index]
+                let previousAppliedPointDistance = tripletPointDistances[index - 1]
+                
+                // The applied control point distance (max that can be done)
+                // E.g. if it's greater than the point distance
+                let maxControlPointDistance = appliedPointDistance
+                let appliedControlPointDistance = min(controlPointDistance, maxControlPointDistance)
+                
+                // Straight edge
+                let straightEdge = originToCorner.clone()
+                let straightEdgeDirection = straightEdge.angle!
+                straightEdge.adjustLength(by: -appliedPointDistance)
+                
+                // Next straight edge
+                let nextStraightEdge = cornerToEnd.clone()
+                let nextStraightEdgeDirection = nextStraightEdge.angle!
+                nextStraightEdge.adjustLength(by: -appliedPointDistance, anchorEnd: true)
+                
+                // Curved edge origin and origin control point
+                let origin = straightEdge.end.clone()
+                let originControlEdge = SMLineSegment(
+                    origin: straightEdge.origin,
+                    angle: straightEdgeDirection,
+                    length: straightEdge.length + appliedControlPointDistance
+                )
+                let originControlPoint = originControlEdge.end
+                
+                // Curved edge end and end control point
+                let end = nextStraightEdge.origin.clone()
+                let endControlEdge = SMLineSegment(
+                    origin: nextStraightEdge.end,
+                    angle: nextStraightEdgeDirection + SMAngle(radians: Double.pi),
+                    length: nextStraightEdge.length + appliedControlPointDistance
+                )
+                let endControlPoint = endControlEdge.end
+                
+                // Add to result
+                // Adjust straight edge here, otherwise if its length is zero, its length can't be adjusted above (0 length has no direction)
+                straightEdge.adjustLength(by: -previousAppliedPointDistance, anchorEnd: true)
+                if straightEdge.length.isGreaterThanZero() {
+                    result.addLinearEdge(straightEdge)
+                }
+                if !tripletIsStraight {
+                    result.addBezierEdge(SMBezierCurve(
+                        origin: origin,
+                        originControlPoint: originControlPoint,
+                        end: end,
+                        endControlPoint: endControlPoint
+                    ))
+                }
+                
+                if index == triplets.count - 1 {
+                    if nextStraightEdge.length.isGreaterThanZero() {
+                        result.addLinearEdge(nextStraightEdge)
+                    }
+                }
+            }
+        }
+        result.removeRedundantEdges()
+        return result
+    }
+    
+    public func bezierCorners(radius: Double, controlPointDistance: Double) -> SMCurvilinearEdges {
+        let result = SMCurvilinearEdges()
+        let polyline = self.clone()
+        polyline.removeDuplicatePoints()
+        guard polyline.isValid else {
+            return result
+        }
+        guard polyline.edges.count > 1 else {
+            result.addLinearEdge(self.edges[0].clone())
+            return result
+        }
+        let triplets = polyline.triplets
+        var origin: SMPoint? = nil
+        var originControlPoint: SMPoint? = nil
+        for (index, triplet) in triplets.enumerated() {
+            if index == 0 {
+                origin = triplet.origin.clone()
+                
+                let originToCorner = SMLineSegment(origin: triplet.origin, end: triplet.corner)
+                originToCorner.setLength(to: controlPointDistance)
+                originControlPoint = originToCorner.end.clone()
+            }
+            guard origin != nil, originControlPoint != nil else {
+                assertionFailure("Expected origin to be defined - logic failure")
+                return result
+            }
+            
+            let vertexArc = SMArc(point1: triplet.origin, vertex: triplet.corner, point2: triplet.end, minor: true, radius: radius)
+            // If the central angle is 180 degrees, it's just a straight line
+            let end = vertexArc.centralAngle.radians == .pi ? triplet.corner.clone() : vertexArc.midPoint
+            
+            let cornerToOrigin = SMLineSegment(origin: triplet.corner, end: triplet.origin)
+            let cornerToEnd = SMLineSegment(origin: triplet.corner, end: triplet.end)
+            cornerToEnd.setLength(to: cornerToOrigin.length)
+            let endTangentAngle = SMLineSegment(origin: cornerToOrigin.end, end: cornerToEnd.end).angle
+            guard let endTangentAngle else {
+                assertionFailure("An edge was detected with zero length")
+                return result
+            }
+            let endTangentLineSegment = SMLineSegment(origin: end, angle: endTangentAngle + SMAngle(degrees: 180), length: controlPointDistance)
+            let endControlPoint = endTangentLineSegment.end
+            
+            result.addBezierEdge(SMBezierCurve(
+                origin: origin!,
+                originControlPoint: originControlPoint!,
+                end: end,
+                endControlPoint: endControlPoint
+            ))
+            
+            origin = end.clone()
+            let nextOriginTangentLineSegment = SMLineSegment(origin: end, angle: endTangentAngle, length: controlPointDistance)
+            originControlPoint = nextOriginTangentLineSegment.end
+            
+            if index == triplets.count - 1 {
+                let end = triplet.end.clone()
+                
+                let endToCorner = SMLineSegment(origin: triplet.end, end: triplet.corner)
+                endToCorner.setLength(to: controlPointDistance)
+                let endControlPoint = endToCorner.end.clone()
+                
+                result.addBezierEdge(SMBezierCurve(
+                    origin: origin!,
+                    originControlPoint: originControlPoint!,
+                    end: end,
+                    endControlPoint: endControlPoint
+                ))
+            }
+        }
+        return result
     }
     
     // MARK: - Constructors

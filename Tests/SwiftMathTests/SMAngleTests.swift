@@ -12,15 +12,15 @@ final class SMAngleTests: XCTestCase {
 
     func testThreePointConstructor() throws {
         let angle90 = SMAngle(
-            point1: SMPoint(x: 0.0, y: 1.0),
+            point1: SMPoint(x: 1.0, y: 0.0),
             vertex: SMPoint(),
-            point2: SMPoint(x: 1.0, y: 0.0)
+            point2: SMPoint(x: 0.0, y: 1.0)
         )
         XCTAssertEqual(angle90.degrees, 90.0)
         let angle270 = SMAngle(
-            point1: SMPoint(x: 0.0, y: 1.0),
+            point1: SMPoint(x: -1.0, y: 0.0),
             vertex: SMPoint(),
-            point2: SMPoint(x: -1.0, y: 0.0)
+            point2: SMPoint(x: 0.0, y: 1.0)
         )
         XCTAssertEqual(angle270.degrees, 270.0)
         let angle0 = SMAngle(point1: SMPoint(), vertex: SMPoint(), point2: SMPoint())

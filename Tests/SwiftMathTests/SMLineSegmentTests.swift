@@ -215,7 +215,6 @@ final class SMLineSegmentTests: XCTestCase {
     func testAngleInit() throws {
         let line = SMLineSegment(origin: SMPoint(x: 1.0, y: 1.0), angle: SMAngle(degrees: 180), length: 10.0)
         XCTAssertEqual(line.origin, SMPoint(x: 1, y: 1))
-        dump(line.end)
         XCTAssertEqual(line.end, SMPoint(x: -9, y: 1))
     }
     

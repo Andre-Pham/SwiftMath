@@ -57,7 +57,7 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
         self.init(origin: origin.clone(), end: arc.endPoint)
     }
     
-    public convenience init(origin: SMPoint, gradient: Double, length: Double) {
+    public convenience init(origin: SMPoint, gradient: Double?, length: Double) {
         self.init(origin: origin, angle: SMAngle(gradient: gradient), length: length)
     }
     
@@ -68,42 +68,71 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     
     // MARK: - Functions
     
-    /// Extend or contract the line's length by a certain amount. Adjusts the line's end.
-    /// If the length is negative and has a magnitude greater than the line's original length, the end point continues moving in the collinear direction it was travelling from being contracted.
+    /// Extend or contract the line's length by a certain amount. By default, adjusts the line's end.
+    /// If the length is negative and has a magnitude greater than the line's original length, the adjusted point continues moving in the collinear direction it was travelling from being contracted.
     /// - Parameters:
     ///   - length: The length to extend (+) or contract (-) by
-    public func adjustLength(by length: Double) {
+    ///   - anchorEnd: True if the end should be used as the anchor (default is false)
+    public func adjustLength(by length: Double, anchorEnd: Bool = false) {
         guard self.isValid else {
             // An invalid line with zero length cannot have its length adjusted
             // (what direction would it go?)
             return
         }
-        let translation = self.origin.clone()
+        let translation = anchorEnd ? self.end.clone() : self.origin.clone()
         self.translate(by: translation * -1)
         let proportion = (length + self.length)/self.length
-        self.end *= proportion
+        if anchorEnd {
+            self.origin *= proportion
+        } else {
+            self.end *= proportion
+        }
         self.translate(by: translation)
     }
     
-    /// Set the line's length. Adjusts the line's end.
-    /// Setting a negative length is valid - the end point extends in the opposite direction.
+    /// Set the line's length. By default, adjusts the line's end.
+    /// Setting a negative length is valid - the adjusted point extends in the opposite direction.
     /// - Parameters:
-    ///   - length: The new length (negative to go in the opposite direction from the origin point)
-    public func setLength(to length: Double) {
+    ///   - length: The new length (negative to go in the opposite direction from the anchored point)
+    ///   - anchorEnd: True if the end should be used as the anchor (default is false)
+    public func setLength(to length: Double, anchorEnd: Bool = false) {
         guard self.isValid else {
             // An invalid line with zero length cannot have its length adjusted
             // (what direction would it go?)
             return
         }
         guard !length.isZero() else {
-            self.end = self.origin.clone()
+            if anchorEnd {
+                self.origin = self.end.clone()
+            } else {
+                self.end = self.origin.clone()
+            }
             return
         }
-        let translation = self.origin.clone()
+        let translation = anchorEnd ? self.end.clone() : self.origin.clone()
         self.translate(by: translation * -1)
         let proportion = length/self.length
-        self.end *= proportion
+        if anchorEnd {
+            self.origin *= proportion
+        } else {
+            self.end *= proportion
+        }
         self.translate(by: translation)
+    }
+    
+    /// Gets the point at a given proportional length of the line segment. Measures from the origin point towards the end point.
+    /// A proportion of 0.5 would return the mid point.
+    /// A proportion of 1.0 would return the end point.
+    /// - Parameters:
+    ///   - proportion: The proportion of the line segment's length from the origin point at which the returned point lies
+    /// - Returns: The point at the proportional distance (relative to the line segment's length) from the origin point
+    public func pointAtProportion(_ proportion: Double) -> SMPoint {
+        guard self.isValid else {
+            return self.origin.clone()
+        }
+        let x = self.origin.x + proportion*(self.end.x - self.origin.x)
+        let y = self.origin.y + proportion*(self.end.y - self.origin.y)
+        return SMPoint(x: x, y: y)
     }
     
     /// Checks if two line segments intercept infinitely (overlap).
@@ -300,6 +329,12 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
             return line.intersects(point: self.origin)
         }
         return self.isParallel(to: line) && line.intersects(point: self.origin)
+    }
+    
+    public func flip() {
+        let newOrigin = self.end
+        self.end = self.origin
+        self.origin = newOrigin
     }
     
     public func toString(decimalPlaces: Int = 2) -> String {

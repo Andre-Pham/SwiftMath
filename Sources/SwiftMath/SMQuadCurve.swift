@@ -18,6 +18,13 @@ open class SMQuadCurve: SMClonable {
     public var controlPoint: SMPoint
     /// The end of the curve
     public var end: SMPoint
+    /// True if the quad curve's length is zero
+    public var lengthIsZero: Bool {
+        return (
+            self.origin == self.controlPoint
+            && self.origin == self.end
+        )
+    }
     
     // MARK: - Constructors
     
