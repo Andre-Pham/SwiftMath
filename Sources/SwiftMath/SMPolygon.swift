@@ -8,6 +8,8 @@
 import Foundation
 import CoreGraphics
 
+/// Represents a polygon.
+/// A closed shape made of straight edges.
 open class SMPolygon: SMMutableGeometry, SMClonable {
     
     /// This geometry's vertices (ordered)

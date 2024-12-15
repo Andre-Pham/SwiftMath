@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Represents width and height dimensions.
 open class SMSize: SMClonable {
     
     // MARK: - Properties

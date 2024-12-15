@@ -8,6 +8,7 @@
 import Foundation
 import CoreGraphics
 
+/// Represents a hexagon.
 open class SMHexagon: SMGeometry, SMClonable, Equatable {
     
     // MARK: - Properties

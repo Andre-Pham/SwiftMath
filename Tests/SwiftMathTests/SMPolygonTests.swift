@@ -207,13 +207,29 @@ final class SMPolygonTests: XCTestCase {
     }
     
     func testRemoveRedundantPoints() throws {
+        // Case 1: Polygon with no redundant points
         let cleanPolygon = SMPolygon(vertices: SMPoint(), SMPoint(x: 1, y: 1))
         let cleaned = cleanPolygon.clone()
         cleaned.removeRedundantPoints()
         XCTAssertTrue(cleaned.matchesGeometry(of: cleanPolygon))
+        // Case 2: Polygon with a redundant point
         cleaned.insert(SMPoint(x: 0.5, y: 0.5), at: 1)
         cleaned.removeRedundantPoints()
         XCTAssertTrue(cleaned.matchesGeometry(of: cleanPolygon))
+        // Case 3: Polygon with duplicate points
+        let duplicatePointsPolygon = SMPolygon(vertices: SMPoint(), SMPoint(), SMPoint(), SMPoint(x: 1, y: 1), SMPoint())
+        duplicatePointsPolygon.removeRedundantPoints()
+        XCTAssertTrue(duplicatePointsPolygon.matchesGeometry(of: SMPolygon(vertices: SMPoint(), SMPoint(x: 1, y: 1), SMPoint())))
+        // Case 4: Polygon with only two points, they are duplicates
+        let duplicatePairPolygon = SMPolygon(vertices: SMPoint(), SMPoint())
+        duplicatePairPolygon.removeRedundantPoints()
+        XCTAssertTrue(duplicatePairPolygon.matchesGeometry(of: SMPolygon(vertices: SMPoint())))
+    }
+    
+    func testRemoveDuplicatePoints() throws {
+        let polygon = SMPolygon(vertices: SMPoint(x: 0, y: 0), SMPoint(x: 0, y: 0), SMPoint(x: 0, y: 0), SMPoint(x: 1, y: 0), SMPoint(x: 0, y: 0))
+        polygon.removeDuplicatePoints()
+        XCTAssertTrue(polygon.matchesGeometry(of: SMPolygon(vertices: SMPoint(x: 0, y: 0), SMPoint(x: 1, y: 0), SMPoint(x: 0, y: 0))))
     }
 
 }

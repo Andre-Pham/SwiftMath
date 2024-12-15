@@ -8,7 +8,8 @@
 import Foundation
 import CoreGraphics
 
-open class SMBezierCurve: SMClonable {
+/// Represents a bezier curve.
+open class SMBezierCurve: SMClonable, Equatable {
     
     // MARK: - Properties
     
@@ -20,14 +21,22 @@ open class SMBezierCurve: SMClonable {
     public var end: SMPoint
     /// The end's control point of the curve
     public var endControlPoint: SMPoint
+    /// True if the bezier curve's length is zero
+    public var lengthIsZero: Bool {
+        return (
+            self.origin == self.originControlPoint
+            && self.origin == self.end
+            && self.origin == self.endControlPoint
+        )
+    }
     
     // MARK: - Constructors
     
     public init(origin: SMPoint, originControlPoint: SMPoint, end: SMPoint, endControlPoint: SMPoint) {
-        self.origin = origin
-        self.originControlPoint = originControlPoint
-        self.end = end
-        self.endControlPoint = endControlPoint
+        self.origin = origin.clone()
+        self.originControlPoint = originControlPoint.clone()
+        self.end = end.clone()
+        self.endControlPoint = endControlPoint.clone()
     }
     
     public required init(_ original: SMBezierCurve) {
@@ -60,6 +69,12 @@ open class SMBezierCurve: SMClonable {
         self.originControlPoint *= factor
         self.endControlPoint *= factor
         self.translate(by: point)
+    }
+    
+    // MARK: - Operations
+    
+    public static func == (lhs: SMBezierCurve, rhs: SMBezierCurve) -> Bool {
+        return lhs.origin == rhs.origin && lhs.end == rhs.end && lhs.originControlPoint == rhs.originControlPoint && lhs.endControlPoint == rhs.endControlPoint
     }
     
     // MARK: - Core Graphics

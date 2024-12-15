@@ -8,6 +8,7 @@
 import Foundation
 import CoreGraphics
 
+/// Represents an ellipse.
 open class SMEllipse: SMClonable, Equatable {
     
     public var boundingBox: SMRect

@@ -30,6 +30,13 @@ extension SMLinear {
         }
         return (self.end.y - self.origin.y) / (self.end.x - self.origin.x)
     }
+    /// The angle of the line, whereby the origin of the line is the center of the unit circle
+    public var angle: SMAngle? {
+        guard self.isValid else {
+            return nil
+        }
+        return SMAngle(point1: self.origin + SMPoint(x: 1, y: 0), vertex: self.origin, point2: self.end)
+    }
     /// If the line segment is vertical
     public var isVertical: Bool {
         return self.gradient == nil

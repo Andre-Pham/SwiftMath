@@ -8,7 +8,8 @@
 import Foundation
 import CoreGraphics
 
-open class SMQuadCurve: SMClonable {
+/// Represents a quad curve.
+open class SMQuadCurve: SMClonable, Equatable {
     
     // MARK: - Properties
     
@@ -18,6 +19,13 @@ open class SMQuadCurve: SMClonable {
     public var controlPoint: SMPoint
     /// The end of the curve
     public var end: SMPoint
+    /// True if the quad curve's length is zero
+    public var lengthIsZero: Bool {
+        return (
+            self.origin == self.controlPoint
+            && self.origin == self.end
+        )
+    }
     
     // MARK: - Constructors
     
@@ -53,6 +61,12 @@ open class SMQuadCurve: SMClonable {
         self.end *= factor
         self.controlPoint *= factor
         self.translate(by: point)
+    }
+    
+    // MARK: - Operations
+    
+    public static func == (lhs: SMQuadCurve, rhs: SMQuadCurve) -> Bool {
+        return lhs.origin == rhs.origin && lhs.end == rhs.end && lhs.controlPoint == rhs.controlPoint
     }
     
     // MARK: - Core Graphics

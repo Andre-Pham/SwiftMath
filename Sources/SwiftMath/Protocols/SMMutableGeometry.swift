@@ -36,6 +36,7 @@ extension SMMutableGeometry {
     
     public func removeRedundantPoints() {
         guard self.vertices.count >= 3 else {
+            self.removeDuplicatePoints()
             return
         }
         var pointIndicesToRemove = [Int]()
@@ -47,6 +48,30 @@ extension SMMutableGeometry {
             let length2 = point1.length(to: point3)
             if length1.isEqual(to: length2) {
                 pointIndicesToRemove.append(index + 1)
+            }
+        }
+        guard !pointIndicesToRemove.isEmpty else {
+            return
+        }
+        var newVertices = [SMPoint]()
+        for (index, vertex) in self.vertices.enumerated() {
+            if !pointIndicesToRemove.contains(index) {
+                newVertices.append(vertex)
+            }
+        }
+        self.vertices = newVertices
+    }
+    
+    public func removeDuplicatePoints() {
+        guard self.vertices.count > 1 else {
+            return
+        }
+        var pointIndicesToRemove = [Int]()
+        for index in 0..<self.vertices.count - 1 {
+            let point1 = self.vertices[index]
+            let point2 = self.vertices[index + 1]
+            if point1 == point2 {
+                pointIndicesToRemove.append(index)
             }
         }
         guard !pointIndicesToRemove.isEmpty else {

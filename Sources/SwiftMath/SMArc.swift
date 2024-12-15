@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a segment of a circle's perimeter, defined by two points on the circumference and the path between them along the circle.
-open class SMArc: SMClonable {
+open class SMArc: SMClonable, Equatable {
     
     /// The center of the arc
     public var center: SMPoint
@@ -61,11 +61,15 @@ open class SMArc: SMClonable {
         let y = self.center.y + self.radius * sin(self.endAngle.radians)
         return SMPoint(x: x, y: y)
     }
+    /// The mid point of the arc (lies on the arc)
+    public var midPoint: SMPoint {
+        return self.pointAtProportion(0.5)
+    }
     /// The straight line between the start point and end point of the arc
     public var chord: SMLineSegment {
         return SMLineSegment(origin: self.startPoint, end: self.endPoint)
     }
-    /// The angle between the start angle and the end angle
+    /// The angle from the start angle to the end angle (the spanning angle)
     public var centralAngle: SMAngle {
         let reference = self.clone()
         reference.rotate(by: reference.startAngle * -1)
@@ -106,11 +110,31 @@ open class SMArc: SMClonable {
         endAngle: SMAngle,
         fullArcWhenZeroCentralAngle: Bool = false
     ) {
-        self.center = center
+        self.center = center.clone()
         self.radius = radius
         self.fullArcWhenZeroCentralAngle = fullArcWhenZeroCentralAngle
         self._startAngle = startAngle
         self._endAngle = endAngle
+    }
+    
+    public convenience init(
+        point1: SMPoint,
+        vertex: SMPoint,
+        point2: SMPoint,
+        minor: Bool,
+        radius: Double,
+        fullArcWhenZeroCentralAngle: Bool = false
+    ) {
+        let angle1 = SMAngle(point1: vertex + SMPoint(x: 1, y: 0), vertex: vertex, point2: point1)
+        let angle2 = SMAngle(point1: vertex + SMPoint(x: 1, y: 0), vertex: vertex, point2: point2)
+        let flip = ((angle2 - angle1).isMinor || (angle2 - angle1).isStraight) != minor
+        self.init(
+            center: vertex.clone(),
+            radius: radius,
+            startAngle: flip ? angle2 : angle1,
+            endAngle: flip ? angle1 : angle2,
+            fullArcWhenZeroCentralAngle: fullArcWhenZeroCentralAngle
+        )
     }
     
     public required init(_ original: SMArc) {
@@ -176,6 +200,18 @@ open class SMArc: SMClonable {
         self.rotate(by: rotation)
     }
     
+    /// Gets the point at a given proportional length of the arc. Measures from the start angle towards the end angle (counter clockwise).
+    /// A proportion of 0.5 would return the mid point.
+    /// A proportion of 1.0 would return the end point.
+    /// - Parameters:
+    ///   - proportion: The proportion of the arc's length from the start point at which the returned point lies
+    /// - Returns: The point at the proportional distance (relative to the arc's length) from the start point
+    public func pointAtProportion(_ proportion: Double) -> SMPoint {
+        let x = self.center.x + self.radius * cos((self.startAngle + self.centralAngle*proportion).radians)
+        let y = self.center.y + self.radius * sin((self.startAngle + self.centralAngle*proportion).radians)
+        return SMPoint(x: x, y: y)
+    }
+    
     // MARK: - Transformations
     
     public func translate(by point: SMPoint) {
@@ -191,6 +227,18 @@ open class SMArc: SMClonable {
         self.center *= factor
         self.radius *= factor
         self.translate(by: point)
+    }
+    
+    // MARK: - Operations
+    
+    public static func == (lhs: SMArc, rhs: SMArc) -> Bool {
+        return (
+            lhs.center == rhs.center
+            && lhs.radius.isEqual(to: rhs.radius)
+            && lhs.startAngle.isEquivalent(to: rhs.startAngle)
+            && lhs.endAngle.isEquivalent(to: rhs.endAngle)
+            && lhs.isFullCircle == rhs.isFullCircle
+        )
     }
     
     // MARK: - Core Graphics
