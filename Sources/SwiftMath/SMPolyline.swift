@@ -59,42 +59,10 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
             return result
         }
         guard polyline.edges.count > 1 else {
-            result.addLinearEdge(self.edges[0].clone())
+            result.addLinearEdge(self.edges[0])
             return result
         }
         let triplets = self.triplets
-        
-//        let tripletPointDistances = [Double]()
-//        let tripletMinEdgeLengths = triplets.map({ min($0.origin.length(to: $0.corner), $0.corner.length(to: $0.end)) })
-//        let tripletWithMinEdgeIndex = tripletMinEdgeLengths.enumerated().min(by: { $0.element < $1.element })!.offset
-//        let tripletWithMinEdge = triplets[tripletWithMinEdgeIndex]
-//        let minEdgeIsFirstOrLast = (
-//            tripletWithMinEdgeIndex == 0
-//            && tripletWithMinEdge.origin.length(to: tripletWithMinEdge.corner).isLess(than: tripletWithMinEdge.corner.length(to: tripletWithMinEdge.end))
-//            || tripletWithMinEdgeIndex == triplets.count - 1
-//            && tripletWithMinEdge.origin.length(to: tripletWithMinEdge.corner).isGreater(than: tripletWithMinEdge.corner.length(to: tripletWithMinEdge.end))
-//        )
-//        let tripletWithMinEdgePointDistance = min(pointDistance, tripletMinEdgeLengths[tripletWithMinEdgeIndex] / (minEdgeIsFirstOrLast ? 1.0 : 2.0))
-//        
-//        var nextTripletPointDistances = [Double]()
-//        for tripletIndex in (tripletWithMinEdgeIndex + 1)..<triplets.endIndex {
-//            let triplet = triplets[tripletIndex]
-//            let connectedEdgeLength = triplet.origin.length(to: triplet.corner)
-//            let minLengthEdge = tripletMinEdgeLengths[tripletIndex]
-//            let tripletPointDistance = min(min(minLengthEdge, connectedEdgeLength - (nextTripletPointDistances.last ?? tripletWithMinEdgePointDistance)), pointDistance)
-//            nextTripletPointDistances.append(tripletPointDistance)
-//            // WHAT IF THE NEXT EDGE IS LONGER
-//            // then it would be half
-//            // WHAT IF THE NEXT EDGE AFTER THAT IS TINY
-//            // oh my gosh this approach doesn't work
-//            // i think i have to do this in order of edge lengths
-//            // this is literally a nightmare
-//            
-//            // max(nextEdge/2, previousEdge - previousEndDistance
-//            // let tripletPointDistance = min(nextEdge/2, previousEdge - previousEndDistance)
-//        }
-        
-        
         
         var tripletPointDistancesMap = [Int: Double]()
         let tripletMinEdgeLengths = triplets.map({ min($0.origin.length(to: $0.corner), $0.corner.length(to: $0.end)) })
@@ -128,70 +96,17 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
                 let minEdgeIsLast = tripletIndex == triplets.count - 1 && cornerToEndLength.isLessOrEqual(to: originToCornerLength)
                 let minEdgeIsFirstOrLast = minEdgeIsFirst || minEdgeIsLast
                 tripletPointDistancesMap[tripletIndex] = min(pointDistance, minEdgeLength / (minEdgeIsFirstOrLast ? 1.0 : 2.0))
-                
-                
-//                if let previousTriplet = triplets.at(tripletIndex - 1),
-//                   originToCornerLength.isEqual(to: minEdgeLength),
-//                   SMPolyline(vertices: previousTriplet.origin, previousTriplet.end).length.isEqual(to: SMPolyline(vertices: previousTriplet.origin, previousTriplet.corner, previousTriplet.end).length)
-//                {
-//                    print("MEET CONDITIONS")
-//                    // Triplet originToCorner forms a straight line with previous triplet cornerToEnd
-//                    tripletPointDistancesMap[tripletIndex] = min(pointDistance, minEdgeLength)
-//                } else if let nextTriplet = triplets.at(tripletIndex + 1),
-//                          cornerToEndLength.isEqual(to: minEdgeLength),
-//                          SMPolyline(vertices: nextTriplet.origin, nextTriplet.end).length.isEqual(to: SMPolyline(vertices: nextTriplet.origin, nextTriplet.corner, nextTriplet.end).length)
-//                {
-//                    print("MEET CONDITIONS 2")
-//                    // Triplet originToCorner forms a straight line with next triplet originToCorner
-//                    tripletPointDistancesMap[tripletIndex] = min(pointDistance, minEdgeLength)
-//                }
             }
             let tripletIsStraight = triplet.origin.length(to: triplet.end).isEqual(to: originToCornerLength + cornerToEndLength)
             if tripletIsStraight {
                 tripletPointDistancesMap[tripletIndex] = 0.0
             }
         }
+        
         let tripletPointDistances = tripletPointDistancesMap
             .sorted(by: { $0.key < $1.key })
             .map({ $0.value })
         assert(tripletPointDistances.count == triplets.count)
-        
-//        var tripletPointDistances = [Double]()
-//        let tripletMinEdgeLengths = triplets.map({ min($0.origin.length(to: $0.corner), $0.corner.length(to: $0.end)) })
-//        let tripletWithMinEdgeIndex = tripletMinEdgeLengths.enumerated().min(by: { $0.element < $1.element })!.offset
-//        for tripletIndex in tripletWithMinEdgeIndex..<triplets.endIndex {
-//            let triplet = triplets[tripletIndex]
-//            let originToCornerLength = triplet.origin.length(to: triplet.corner)
-//            let cornerToEndLength = triplet.corner.length(to: triplet.end)
-//            if let prevTripletPointDistance = tripletPointDistances.last {
-//                let cornerToEndIsLast = tripletIndex == triplets.count - 1 && cornerToEndLength.isLess(than: originToCornerLength)
-//                let prevPotentialPointDistance = originToCornerLength - prevTripletPointDistance
-//                let nextPotentialPointDistance = cornerToEndLength / (cornerToEndIsLast ? 1.0 : 2.0)
-//                tripletPointDistances.append([prevPotentialPointDistance, nextPotentialPointDistance, pointDistance].min()!)
-//            } else {
-//                let minEdgeLength = tripletMinEdgeLengths[tripletIndex]
-//                let minEdgeIsFirstOrLast = (
-//                    tripletIndex == 0
-//                    && originToCornerLength.isLess(than: cornerToEndLength)
-//                    || tripletIndex == triplets.count - 1
-//                    && cornerToEndLength.isLess(than: originToCornerLength)
-//                )
-//                tripletPointDistances.append(min(pointDistance, minEdgeLength / (minEdgeIsFirstOrLast ? 1.0 : 2.0)))
-//            }
-//        }
-//        if tripletWithMinEdgeIndex > 0 {
-//            for tripletIndex in stride(from: tripletWithMinEdgeIndex - 1, through: 0, by: -1) {
-//                let triplet = triplets[tripletIndex]
-//                let originToCornerLength = triplet.origin.length(to: triplet.corner)
-//                let cornerToEndLength = triplet.corner.length(to: triplet.end)
-//                let nextTripletPointDistance = tripletPointDistances.first!
-//                let originToCornerIsFirst = tripletIndex == 0 && originToCornerLength.isLess(than: cornerToEndLength)
-//                let prevPotentialPointDistance = originToCornerLength / (originToCornerIsFirst ? 1.0 : 2.0)
-//                let nextPotentialPointDistance = cornerToEndLength - nextTripletPointDistance
-//                tripletPointDistances.insert([prevPotentialPointDistance, nextPotentialPointDistance, pointDistance].min()!, at: 0)
-//            }
-//        }
-//        assert(tripletPointDistances.count == triplets.count)
         
         for (index, triplet) in triplets.enumerated() {
             if index == 0 {
