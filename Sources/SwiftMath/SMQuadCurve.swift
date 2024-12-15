@@ -8,7 +8,7 @@
 import Foundation
 import CoreGraphics
 
-open class SMQuadCurve: SMClonable {
+open class SMQuadCurve: SMClonable, Equatable {
     
     // MARK: - Properties
     
@@ -60,6 +60,12 @@ open class SMQuadCurve: SMClonable {
         self.end *= factor
         self.controlPoint *= factor
         self.translate(by: point)
+    }
+    
+    // MARK: - Operations
+    
+    public static func == (lhs: SMQuadCurve, rhs: SMQuadCurve) -> Bool {
+        return lhs.origin == rhs.origin && lhs.end == rhs.end && lhs.controlPoint == rhs.controlPoint
     }
     
     // MARK: - Core Graphics

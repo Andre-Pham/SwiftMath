@@ -8,7 +8,7 @@
 import Foundation
 import CoreGraphics
 
-open class SMBezierCurve: SMClonable {
+open class SMBezierCurve: SMClonable, Equatable {
     
     // MARK: - Properties
     
@@ -68,6 +68,12 @@ open class SMBezierCurve: SMClonable {
         self.originControlPoint *= factor
         self.endControlPoint *= factor
         self.translate(by: point)
+    }
+    
+    // MARK: - Operations
+    
+    public static func == (lhs: SMBezierCurve, rhs: SMBezierCurve) -> Bool {
+        return lhs.origin == rhs.origin && lhs.end == rhs.end && lhs.originControlPoint == rhs.originControlPoint && lhs.endControlPoint == rhs.endControlPoint
     }
     
     // MARK: - Core Graphics

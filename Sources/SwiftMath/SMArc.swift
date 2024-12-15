@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a segment of a circle's perimeter, defined by two points on the circumference and the path between them along the circle.
-open class SMArc: SMClonable {
+open class SMArc: SMClonable, Equatable {
     
     /// The center of the arc
     public var center: SMPoint
@@ -227,6 +227,18 @@ open class SMArc: SMClonable {
         self.center *= factor
         self.radius *= factor
         self.translate(by: point)
+    }
+    
+    // MARK: - Operations
+    
+    public static func == (lhs: SMArc, rhs: SMArc) -> Bool {
+        return (
+            lhs.center == rhs.center
+            && lhs.radius.isEqual(to: rhs.radius)
+            && lhs.startAngle.isEquivalent(to: rhs.startAngle)
+            && lhs.endAngle.isEquivalent(to: rhs.endAngle)
+            && lhs.isFullCircle == rhs.isFullCircle
+        )
     }
     
     // MARK: - Core Graphics
