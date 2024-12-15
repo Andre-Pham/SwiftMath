@@ -76,7 +76,10 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
             let cornerToEndLength = triplet.corner.length(to: triplet.end)
             let nextTripletPointDistance = tripletPointDistancesMap[tripletIndex + 1]
             let prevTripletPointDistance = tripletPointDistancesMap[tripletIndex - 1]
-            if let nextTripletPointDistance, let prevTripletPointDistance {
+            let tripletIsStraight = triplet.origin.length(to: triplet.end).isEqual(to: originToCornerLength + cornerToEndLength)
+            if tripletIsStraight {
+                tripletPointDistancesMap[tripletIndex] = 0.0
+            } else if let nextTripletPointDistance, let prevTripletPointDistance {
                 let prevPotentialPointDistance = originToCornerLength - prevTripletPointDistance
                 let nextPotentialPointDistance = cornerToEndLength - nextTripletPointDistance
                 tripletPointDistancesMap[tripletIndex] = [prevPotentialPointDistance, nextPotentialPointDistance, pointDistance].min()!
@@ -96,10 +99,6 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
                 let minEdgeIsLast = tripletIndex == triplets.count - 1 && cornerToEndLength.isLessOrEqual(to: originToCornerLength)
                 let minEdgeIsFirstOrLast = minEdgeIsFirst || minEdgeIsLast
                 tripletPointDistancesMap[tripletIndex] = min(pointDistance, minEdgeLength / (minEdgeIsFirstOrLast ? 1.0 : 2.0))
-            }
-            let tripletIsStraight = triplet.origin.length(to: triplet.end).isEqual(to: originToCornerLength + cornerToEndLength)
-            if tripletIsStraight {
-                tripletPointDistancesMap[tripletIndex] = 0.0
             }
         }
         
