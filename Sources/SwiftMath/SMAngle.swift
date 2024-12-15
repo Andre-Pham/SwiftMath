@@ -44,11 +44,11 @@ open class SMAngle: SMClonable, Equatable {
     public var isStraight: Bool {
         return self.normalized.radians.isEqual(to: Double.pi)
     }
-    /// True if the angle is greater than 180 degrees
+    /// True if the angle is less than 180 degrees
     public var isMinor: Bool {
         return self.normalized.radians.isLess(than: Double.pi)
     }
-    /// True if the angle is less than 180 degrees
+    /// True if the angle is greater than 180 degrees
     public var isMajor: Bool {
         return self.normalized.radians.isGreater(than: Double.pi)
     }

@@ -96,5 +96,19 @@ final class SMArcTests: XCTestCase {
         XCTAssertTrue(testArc.length.isEqual(to: 1.0))
         XCTAssertTrue(testArc.endAngle == arc.startAngle)
     }
+    
+    func testMidpoint() throws {
+        let arc = SMArc(radius: 1, startAngle: SMAngle(degrees: 90), endAngle: SMAngle(degrees: 270))
+        XCTAssertTrue(arc.midPoint == SMPoint(x: -1, y: 0))
+    }
+    
+    func testPointAtProportion() throws {
+        let arc = SMArc(radius: 1, startAngle: SMAngle(degrees: 45), endAngle: SMAngle(degrees: 225))
+        XCTAssertTrue(arc.pointAtProportion(0.0) == arc.startPoint)
+        XCTAssertTrue(arc.pointAtProportion(0.25) == SMPoint(x: 0, y: 1))
+        XCTAssertTrue(arc.pointAtProportion(0.75) == SMPoint(x: -1, y: 0))
+        XCTAssertTrue(arc.pointAtProportion(1.0) == arc.endPoint)
+        XCTAssertTrue(arc.pointAtProportion(1.25) == SMPoint(x: 0, y: -1))
+    }
 
 }

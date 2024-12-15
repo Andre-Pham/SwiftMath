@@ -328,5 +328,17 @@ final class SMLineSegmentTests: XCTestCase {
         XCTAssertTrue(line.length.isEqual(to: 0.0))
         XCTAssertTrue(line.origin == SMPoint(x: 1, y: 2))
     }
+    
+    func testAngle() throws {
+        // Case 1: Invalid line
+        var line = SMLineSegment(origin: SMPoint(), end: SMPoint())
+        XCTAssertTrue(line.angle == nil)
+        // Case 2: Flat horizontal line from origin
+        line = SMLineSegment(origin: SMPoint(), end: SMPoint(x: 1, y: 0))
+        XCTAssertTrue(line.angle!.degrees.isEqual(to: 0.0))
+        // Case 3: Diagonal line not from origin
+        line = SMLineSegment(origin: SMPoint(x: 10, y: 12), end: SMPoint(x: 9, y: 11))
+        XCTAssertTrue(line.angle!.degrees.isEqual(to: 225.0))
+    }
 
 }

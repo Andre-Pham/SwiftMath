@@ -225,5 +225,11 @@ final class SMPolygonTests: XCTestCase {
         duplicatePairPolygon.removeRedundantPoints()
         XCTAssertTrue(duplicatePairPolygon.matchesGeometry(of: SMPolygon(vertices: SMPoint())))
     }
+    
+    func testRemoveDuplicatePoints() throws {
+        let polygon = SMPolygon(vertices: SMPoint(x: 0, y: 0), SMPoint(x: 0, y: 0), SMPoint(x: 0, y: 0), SMPoint(x: 1, y: 0), SMPoint(x: 0, y: 0))
+        polygon.removeDuplicatePoints()
+        XCTAssertTrue(polygon.matchesGeometry(of: SMPolygon(vertices: SMPoint(x: 0, y: 0), SMPoint(x: 1, y: 0), SMPoint(x: 0, y: 0))))
+    }
 
 }
