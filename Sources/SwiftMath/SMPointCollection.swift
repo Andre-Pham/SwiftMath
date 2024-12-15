@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Represents a collection of unordered points.
 open class SMPointCollection: SMClonable {
     
     public var points = [SMPoint]()

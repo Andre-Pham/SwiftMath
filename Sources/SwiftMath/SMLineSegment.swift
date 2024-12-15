@@ -8,6 +8,8 @@
 import Foundation
 import CoreGraphics
 
+/// Represents a line segment.
+/// A straight line between two points.
 open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     
     // MARK: - Properties

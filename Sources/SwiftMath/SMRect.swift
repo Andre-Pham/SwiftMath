@@ -8,6 +8,7 @@
 import Foundation
 import CoreGraphics
 
+/// Represents a rectangle.
 open class SMRect: SMGeometry, SMClonable, Equatable {
     
     // MARK: - Properties

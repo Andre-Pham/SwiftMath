@@ -8,6 +8,7 @@
 import Foundation
 import CoreGraphics
 
+/// Represents a quad curve.
 open class SMQuadCurve: SMClonable, Equatable {
     
     // MARK: - Properties

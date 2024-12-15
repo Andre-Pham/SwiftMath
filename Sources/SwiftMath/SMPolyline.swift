@@ -8,6 +8,8 @@
 import Foundation
 import CoreGraphics
 
+/// Represents a polyline.
+/// A sequence of connected straight edges.
 open class SMPolyline: SMMutableGeometry, SMClonable {
     
     /// This geometry's vertices (ordered)

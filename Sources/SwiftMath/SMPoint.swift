@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Represents a 2D point.
 open class SMPoint: SMClonable, Equatable, Hashable {
     
     // MARK: - Properties

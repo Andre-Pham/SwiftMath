@@ -8,6 +8,7 @@
 import Foundation
 import CoreGraphics
 
+/// Represents a bezier curve.
 open class SMBezierCurve: SMClonable, Equatable {
     
     // MARK: - Properties

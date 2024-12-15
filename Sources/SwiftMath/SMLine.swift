@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Represents an infinite line.
 open class SMLine: SMLinear, SMClonable, Equatable {
 
     // MARK: - Properties
