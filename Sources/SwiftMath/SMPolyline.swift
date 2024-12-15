@@ -34,9 +34,11 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
         }
         return result
     }
+    /// True if this polyline is valid (length is non-zero)
     public var isValid: Bool {
         return self.length.isGreaterThanZero()
     }
+    /// The total length of all this polyline's edges
     public var length: Double {
         guard self.vertices.count > 1 else {
             return 0.0
@@ -47,10 +49,17 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
         }
         return totalLength
     }
+    /// This as a closed polygon
     public var closed: SMPolygon {
         return SMPolygon(vertices: self.vertices.clone())
     }
     
+    /// Returns this with every corner rounded.
+    /// Replaces corner vertices with bezier curves.
+    /// - Parameters:
+    ///   - pointDistance: The target distance away from the corner vertex the bezier origin/end points are placed at (whilst remaining on the original edge)
+    ///   - controlPointDistance: The target distance away from the control origin/end points (towards the original corner vertex) the bezier origin/end control points are placed at (whilst remaining on the original edge)
+    /// - Returns: A collection of curvilinear edges (bezier and linear edges)
     public func roundedCorners(pointDistance: Double, controlPointDistance: Double) -> SMCurvilinearEdges {
         let result = SMCurvilinearEdges()
         let polyline = self.clone()
