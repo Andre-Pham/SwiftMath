@@ -284,6 +284,35 @@ final class SMPolylineTests: XCTestCase {
         XCTAssertTrue(rounded.sortedLinearEdges[1].origin == SMPoint(x: 10, y: -3))
         XCTAssertTrue(rounded.sortedLinearEdges[1].end == SMPoint(x: 10, y: -10))
         
+        // Test non right angles work
+        polyline = SMPolyline(vertices: [SMPoint(x: 0, y: 0), SMPoint(x: 0, y: 500), SMPoint(x: 500, y: 700), SMPoint(x: 500, y: 1200)])
+        rounded = polyline.roundedCorners(pointDistance: 250, controlPointDistance: 200)
+        XCTAssertEqual(rounded.edgeCount, 5)
+        if rounded.edgeCount != 5 {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(rounded.assortedLinearEdges.count, 3)
+        XCTAssertEqual(rounded.assortedBezierEdges.count, 2)
+        if rounded.assortedLinearEdges.count != 3 || rounded.assortedBezierEdges.count != 2 {
+            XCTFail()
+            return
+        }
+        XCTAssertTrue(rounded.sortedLinearEdges[0].origin == SMPoint(x: 0.0, y: 0.0))
+        XCTAssertTrue(rounded.sortedLinearEdges[0].end == SMPoint(x: 0.0, y: 250.0))
+        XCTAssertTrue(rounded.sortedLinearEdges[1].origin == SMPoint(x: 232.11917272131484, y: 592.847669088526))
+        XCTAssertTrue(rounded.sortedLinearEdges[1].end == SMPoint(x: 267.88082727868516, y: 607.1523309114741))
+        XCTAssertTrue(rounded.sortedLinearEdges[2].origin == SMPoint(x: 500.0, y: 950.0))
+        XCTAssertTrue(rounded.sortedLinearEdges[2].end == SMPoint(x: 500.0, y: 1200.0))
+        XCTAssertTrue(rounded.sortedBezierEdges[0].origin == SMPoint(x: 0.0, y: 250.0))
+        XCTAssertTrue(rounded.sortedBezierEdges[0].originControlPoint == SMPoint(x: 2.7554552980815446e-14, y: 450.0))
+        XCTAssertTrue(rounded.sortedBezierEdges[0].end == SMPoint(x: 232.11917272131484, y: 592.8476690885259))
+        XCTAssertTrue(rounded.sortedBezierEdges[0].endControlPoint == SMPoint(x: 46.423834544263, y: 518.5695338177052))
+        XCTAssertTrue(rounded.sortedBezierEdges[1].origin == SMPoint(x: 267.88082727868516, y: 607.1523309114741))
+        XCTAssertTrue(rounded.sortedBezierEdges[1].originControlPoint == SMPoint(x: 453.576165455737, y: 681.4304661822948))
+        XCTAssertTrue(rounded.sortedBezierEdges[1].end == SMPoint(x: 500.0, y: 950.0))
+        XCTAssertTrue(rounded.sortedBezierEdges[1].endControlPoint == SMPoint(x: 500.0, y: 750.0))
+        
         // Test point distance algorithm - scenario #1
         polyline = SMPolyline(vertices: SMPoint(), SMPoint(x: 1, y: 0), SMPoint(x: 1, y: -5), SMPoint(x: 6, y: -5), SMPoint(x: 6, y: 5), SMPoint(x: 9, y: 5))
         rounded = polyline.roundedCorners(pointDistance: 100, controlPointDistance: 100)
