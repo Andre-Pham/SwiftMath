@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a hexagon.
-open class SMHexagon: SMGeometry, SMClonable, Equatable {
+public final class SMHexagon: SMGeometry, SMClonable {
     
     // MARK: - Properties
     
@@ -129,6 +129,22 @@ open class SMHexagon: SMGeometry, SMClonable, Equatable {
     }
     
     // MARK: - Operations
+    
+    public static func + (left: SMHexagon, right: SMPoint) -> SMHexagon {
+        return SMHexagon(flatTop: left.flatTop, center: left.center + right, sideLength: left.sideLength)
+    }
+
+    public static func += (left: inout SMHexagon, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMHexagon, right: SMPoint) -> SMHexagon {
+        return SMHexagon(flatTop: left.flatTop, center: left.center - right, sideLength: left.sideLength)
+    }
+
+    public static func -= (left: inout SMHexagon, right: SMPoint) {
+        left = left - right
+    }
     
     public static func == (lhs: SMHexagon, rhs: SMHexagon) -> Bool {
         return lhs.flatTop == rhs.flatTop && lhs.center == rhs.center && lhs.sideLength.isEqual(to: rhs.sideLength)

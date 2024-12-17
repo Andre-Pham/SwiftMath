@@ -7,31 +7,12 @@
 
 import Foundation
 
-public protocol SMGeometry {
+public protocol SMGeometry: SMTransformable {
     
     /// This geometry's vertices (ordered)
     var vertices: [SMPoint] { get }
     /// This geometry's edges (ordered)
     var edges: [SMLineSegment] { get }
-    
-    /// Translate the geometry vertically and horizontally.
-    /// - Parameters:
-    ///   - point: A point, by which its x translates horizontally and its y translates vertically
-    func translate(by point: SMPoint)
-    /// Translate the geometry's center to a point.
-    /// - Parameters:
-    ///   - point: The point the center of the geometry will be translated to
-    func translateCenter(to point: SMPoint)
-    /// Rotate the geometry counter-clockwise around a given center by a given angle.
-    /// - Parameters:
-    ///   - center: The center to rotate around
-    ///   - angle: The angle to rotate by (counter-clockwise)
-    func rotate(around center: SMPoint, by angle: SMAngle)
-    /// Scale this geometry from a given point by a given scale (factor).
-    /// - Parameters:
-    ///   - point: The point to scale from
-    ///   - scale: The factor to scale by
-    func scale(from point: SMPoint, scale: Double)
     
 }
 extension SMGeometry {
@@ -117,28 +98,28 @@ extension SMGeometry {
         return boundingBox.encloses(point: point)
     }
     
-    public func boundingBoxContainsBoundingBox(of geometry: SMGeometry) -> Bool {
+    public func boundingBoxContainsBoundingBox(of geometry: any SMGeometry) -> Bool {
         guard let boundingBox, let geometryBoundingBox = geometry.boundingBox else {
             return false
         }
         return boundingBox.contains(rect: geometryBoundingBox)
     }
     
-    public func boundingBoxEnclosesBoundingBox(of geometry: SMGeometry) -> Bool {
+    public func boundingBoxEnclosesBoundingBox(of geometry: any SMGeometry) -> Bool {
         guard let boundingBox, let geometryBoundingBox = geometry.boundingBox else {
             return false
         }
         return boundingBox.encloses(rect: geometryBoundingBox)
     }
     
-    public func boundingBoxContains(geometry: SMGeometry) -> Bool {
+    public func boundingBoxContains(geometry: any SMGeometry) -> Bool {
         guard let boundingBox else {
             return false
         }
         return boundingBox.contains(geometry: geometry)
     }
     
-    public func boundingBoxEncloses(geometry: SMGeometry) -> Bool {
+    public func boundingBoxEncloses(geometry: any SMGeometry) -> Bool {
         guard let boundingBox else {
             return false
         }
@@ -152,21 +133,21 @@ extension SMGeometry {
         return boundingBox.intersects(point: point)
     }
     
-    public func boundingBoxIntersectsBoundingBox(of geometry: SMGeometry) -> Bool {
+    public func boundingBoxIntersectsBoundingBox(of geometry: any SMGeometry) -> Bool {
         guard let boundingBox, let geometryBoundingBox = geometry.boundingBox else {
             return false
         }
         return boundingBox.intersects(with: geometryBoundingBox)
     }
     
-    public func boundingBoxIntersects(geometry: SMGeometry) -> Bool {
+    public func boundingBoxIntersects(geometry: any SMGeometry) -> Bool {
         guard let boundingBox else {
             return false
         }
         return boundingBox.intersects(geometry: geometry)
     }
     
-    public func boundingBoxRelatesToBoundingBox(of geometry: SMGeometry) -> Bool {
+    public func boundingBoxRelatesToBoundingBox(of geometry: any SMGeometry) -> Bool {
         guard let boundingBox, let geometryBoundingBox = geometry.boundingBox else {
             return false
         }
@@ -190,7 +171,7 @@ extension SMGeometry {
     /// - Parameters:
     ///   - geometry: The other geometry to check
     /// - Returns: True if the geometries intersect
-    public func intersects(geometry: SMGeometry) -> Bool {
+    public func intersects(geometry: any SMGeometry) -> Bool {
         guard self.boundingBoxRelatesToBoundingBox(of: geometry) else {
             return false
         }
@@ -208,7 +189,7 @@ extension SMGeometry {
     /// - Parameters:
     ///   - geometry: The other geometry to compare against
     /// - Returns: True if the two geometries are spatially related
-    public func relates(to geometry: SMGeometry) -> Bool {
+    public func relates(to geometry: any SMGeometry) -> Bool {
         guard self.boundingBoxRelatesToBoundingBox(of: geometry) else {
             return false
         }
@@ -229,7 +210,7 @@ extension SMGeometry {
     /// - Parameters:
     ///   - geometry: The other geometry to compare against
     /// - Returns: True if both geometries are equivalent by comparison of points
-    public func matchesGeometry(of geometry: SMGeometry) -> Bool {
+    public func matchesGeometry(of geometry: any SMGeometry) -> Bool {
         let vertices = self.vertices
         let otherVertices = geometry.vertices
         guard vertices.count == otherVertices.count else {

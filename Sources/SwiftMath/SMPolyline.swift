@@ -10,7 +10,7 @@ import CoreGraphics
 
 /// Represents a polyline.
 /// A sequence of connected straight edges.
-open class SMPolyline: SMMutableGeometry, SMClonable {
+public final class SMPolyline: SMMutableGeometry, SMClonable {
     
     /// This geometry's vertices (ordered)
     public var vertices = [SMPoint]()
@@ -198,6 +198,36 @@ open class SMPolyline: SMMutableGeometry, SMClonable {
     
     public required init(_ original: SMPolyline) {
         self.vertices = original.vertices.clone()
+    }
+    
+    // MARK: - Operations
+    
+    public static func + (left: SMPolyline, right: SMPoint) -> SMPolyline {
+        return SMPolyline(vertices: left.vertices.map({ $0 + right }))
+    }
+
+    public static func += (left: inout SMPolyline, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMPolyline, right: SMPoint) -> SMPolyline {
+        return SMPolyline(vertices: left.vertices.map({ $0 - right }))
+    }
+
+    public static func -= (left: inout SMPolyline, right: SMPoint) {
+        left = left - right
+    }
+    
+    public static func == (lhs: SMPolyline, rhs: SMPolyline) -> Bool {
+        guard lhs.vertices.count == rhs.vertices.count else {
+            return false
+        }
+        for index in lhs.vertices.indices {
+            if lhs.vertices[index] != rhs.vertices[index] {
+                return false
+            }
+        }
+        return true
     }
     
     // MARK: - Core Graphics

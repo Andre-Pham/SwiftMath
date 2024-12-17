@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents a 2D point.
-open class SMPoint: SMClonable, Equatable, Hashable {
+public final class SMPoint: SMClonable, SMTransformable, Hashable {
     
     // MARK: - Properties
     
@@ -56,6 +56,11 @@ open class SMPoint: SMClonable, Equatable, Hashable {
         self.y += point.y
     }
     
+    public func translateCenter(to point: SMPoint) {
+        self.x = point.x
+        self.y = point.y
+    }
+    
     /// Rotates this point counter-clockwise around a given `center` by a certain `angle`
     /// - Parameters:
     ///   - center: The center point to rotate around
@@ -72,10 +77,10 @@ open class SMPoint: SMClonable, Equatable, Hashable {
         self.y = yRotated + center.y
     }
     
-    public func scale(from point: SMPoint, by factor: Double) {
+    public func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
-        self.x *= factor
-        self.y *= factor
+        self.x *= scale
+        self.y *= scale
         self.translate(by: point)
     }
     

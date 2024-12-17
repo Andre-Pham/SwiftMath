@@ -10,7 +10,7 @@ import CoreGraphics
 
 /// Represents curvilinear edges.
 /// A sequence of ordered (but not necessarily connected) straight or curved edges.
-open class SMCurvilinearEdges: SMClonable {
+public final class SMCurvilinearEdges: SMClonable {
     
     // MARK: - Properties
     

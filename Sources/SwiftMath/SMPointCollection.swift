@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents a collection of unordered points.
-open class SMPointCollection: SMClonable {
+public final class SMPointCollection: SMClonable {
     
     public var points = [SMPoint]()
     public var minXPoint: SMPoint? {

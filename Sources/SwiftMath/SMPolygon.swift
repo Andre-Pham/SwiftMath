@@ -10,7 +10,7 @@ import CoreGraphics
 
 /// Represents a polygon.
 /// A closed shape made of straight edges.
-open class SMPolygon: SMMutableGeometry, SMClonable {
+public final class SMPolygon: SMMutableGeometry, SMClonable {
     
     /// This geometry's vertices (ordered)
     public var vertices = [SMPoint]()
@@ -150,7 +150,7 @@ open class SMPolygon: SMMutableGeometry, SMClonable {
         return self.contains(point: point, checkEdges: false, validatePolygon: false)
     }
     
-    public func contains(geometry: SMGeometry, checkEdges: Bool = true, validatePolygon: Bool = false) -> Bool {
+    public func contains(geometry: any SMGeometry, checkEdges: Bool = true, validatePolygon: Bool = false) -> Bool {
         guard !validatePolygon || self.isValid else {
             return false
         }
@@ -175,7 +175,7 @@ open class SMPolygon: SMMutableGeometry, SMClonable {
         return true
     }
     
-    public func encloses(geometry: SMGeometry, validatePolygon: Bool = false) -> Bool {
+    public func encloses(geometry: any SMGeometry, validatePolygon: Bool = false) -> Bool {
         guard !validatePolygon || self.isValid else {
             return false
         }
@@ -212,6 +212,36 @@ open class SMPolygon: SMMutableGeometry, SMClonable {
             return
         }
         self.vertices = self.vertices.reversed()
+    }
+    
+    // MARK: - Operations
+    
+    public static func + (left: SMPolygon, right: SMPoint) -> SMPolygon {
+        return SMPolygon(vertices: left.vertices.map({ $0 + right }))
+    }
+
+    public static func += (left: inout SMPolygon, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMPolygon, right: SMPoint) -> SMPolygon {
+        return SMPolygon(vertices: left.vertices.map({ $0 - right }))
+    }
+
+    public static func -= (left: inout SMPolygon, right: SMPoint) {
+        left = left - right
+    }
+    
+    public static func == (lhs: SMPolygon, rhs: SMPolygon) -> Bool {
+        guard lhs.vertices.count == rhs.vertices.count else {
+            return false
+        }
+        for index in lhs.vertices.indices {
+            if lhs.vertices[index] != rhs.vertices[index] {
+                return false
+            }
+        }
+        return true
     }
     
     // MARK: - Core Graphics

@@ -9,7 +9,7 @@ import Foundation
 import SceneKit
 
 /// Represents a 3D vector.
-open class SMVector3: SMClonable, Equatable {
+public final class SMVector3: SMClonable, Equatable {
     
     // MARK: - Properties
     

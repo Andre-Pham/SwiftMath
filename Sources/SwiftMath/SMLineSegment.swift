@@ -10,7 +10,7 @@ import CoreGraphics
 
 /// Represents a line segment.
 /// A straight line between two points.
-open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
+public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
     
     // MARK: - Properties
     

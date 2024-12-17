@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents an infinite line.
-open class SMLine: SMLinear, SMClonable, Equatable {
+public final class SMLine: SMLinear, SMTransformable, SMClonable {
 
     // MARK: - Properties
     
@@ -91,6 +91,10 @@ open class SMLine: SMLinear, SMClonable, Equatable {
         self.end += point
     }
     
+    public func translateCenter(to point: SMPoint) {
+        self.translateToIntersect(point)
+    }
+    
     public func translateToIntersect(_ point: SMPoint) {
         let newEnd = point + self.end - self.origin
         self.origin = point.clone()
@@ -101,8 +105,28 @@ open class SMLine: SMLinear, SMClonable, Equatable {
         self.origin.rotate(around: center, by: angle)
         self.end.rotate(around: center, by: angle)
     }
+    
+    public func scale(from point: SMPoint, scale: Double) {
+        // Do nothing - SMLine is infinite in length
+    }
 
     // MARK: - Operations
+    
+    public static func + (left: SMLine, right: SMPoint) -> SMLine {
+        return SMLine(point: left.origin + right, direction: left.end + right)
+    }
+
+    public static func += (left: inout SMLine, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMLine, right: SMPoint) -> SMLine {
+        return SMLine(point: left.origin - right, direction: left.end - right)
+    }
+
+    public static func -= (left: inout SMLine, right: SMPoint) {
+        left = left - right
+    }
 
     public static func == (lhs: SMLine, rhs: SMLine) -> Bool {
         return lhs.isParallel(to: rhs) && lhs.intersects(point: rhs.origin)

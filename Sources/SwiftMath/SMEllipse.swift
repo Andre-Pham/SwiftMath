@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents an ellipse.
-open class SMEllipse: SMClonable, Equatable {
+public final class SMEllipse: SMClonable, SMTransformable {
     
     public var boundingBox: SMRect
     public var isValid: Bool {
@@ -49,16 +49,36 @@ open class SMEllipse: SMClonable, Equatable {
         self.boundingBox.translate(by: point)
     }
     
+    public func translateCenter(to point: SMPoint) {
+        self.boundingBox.translateCenter(to: point)
+    }
+    
     /// Rotates the center of this ellipse around a point
     public func rotate(around center: SMPoint, by angle: SMAngle) {
         self.boundingBox.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, by factor: Double) {
-        self.boundingBox.scale(from: point, scale: factor)
+    public func scale(from point: SMPoint, scale: Double) {
+        self.boundingBox.scale(from: point, scale: scale)
     }
     
     // MARK: - Operations
+    
+    public static func + (left: SMEllipse, right: SMPoint) -> SMEllipse {
+        return SMEllipse(boundingBox: left.boundingBox + right)
+    }
+
+    public static func += (left: inout SMEllipse, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMEllipse, right: SMPoint) -> SMEllipse {
+        return SMEllipse(boundingBox: left.boundingBox - right)
+    }
+
+    public static func -= (left: inout SMEllipse, right: SMPoint) {
+        left = left - right
+    }
     
     public static func == (lhs: SMEllipse, rhs: SMEllipse) -> Bool {
         return lhs.boundingBox == rhs.boundingBox

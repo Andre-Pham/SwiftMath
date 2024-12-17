@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a segment of a circle's perimeter, defined by two points on the circumference and the path between them along the circle.
-open class SMArc: SMClonable, Equatable {
+public final class SMArc: SMClonable, SMTransformable {
     
     /// The center of the arc
     public var center: SMPoint
@@ -218,18 +218,50 @@ open class SMArc: SMClonable, Equatable {
         self.center += point
     }
     
+    public func translateCenter(to point: SMPoint) {
+        self.center = point.clone()
+    }
+    
     public func rotate(around center: SMPoint, by angle: SMAngle) {
         self.center.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, by factor: Double) {
+    public func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
-        self.center *= factor
-        self.radius *= factor
+        self.center *= scale
+        self.radius *= scale
         self.translate(by: point)
     }
     
     // MARK: - Operations
+    
+    public static func + (left: SMArc, right: SMPoint) -> SMArc {
+        return SMArc(
+            center: left.center + right,
+            radius: left.radius,
+            startAngle: left._startAngle,
+            endAngle: left._endAngle,
+            fullArcWhenZeroCentralAngle: left.fullArcWhenZeroCentralAngle
+        )
+    }
+
+    public static func += (left: inout SMArc, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMArc, right: SMPoint) -> SMArc {
+        return SMArc(
+            center: left.center - right,
+            radius: left.radius,
+            startAngle: left._startAngle,
+            endAngle: left._endAngle,
+            fullArcWhenZeroCentralAngle: left.fullArcWhenZeroCentralAngle
+        )
+    }
+
+    public static func -= (left: inout SMArc, right: SMPoint) {
+        left = left - right
+    }
     
     public static func == (lhs: SMArc, rhs: SMArc) -> Bool {
         return (

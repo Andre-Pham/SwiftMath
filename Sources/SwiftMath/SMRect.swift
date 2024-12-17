@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a rectangle.
-open class SMRect: SMGeometry, SMClonable, Equatable {
+public final class SMRect: SMGeometry, SMClonable {
     
     // MARK: - Properties
     
@@ -295,7 +295,7 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         )
     }
     
-    public func contains(geometry: SMGeometry) -> Bool {
+    public func contains(geometry: any SMGeometry) -> Bool {
         guard self.isValid else {
             return false
         }
@@ -311,7 +311,7 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
         return true
     }
     
-    public func encloses(geometry: SMGeometry) -> Bool {
+    public func encloses(geometry: any SMGeometry) -> Bool {
         guard self.isValid else {
             return false
         }
@@ -359,6 +359,22 @@ open class SMRect: SMGeometry, SMClonable, Equatable {
     }
     
     // MARK: - Operations
+    
+    public static func + (left: SMRect, right: SMPoint) -> SMRect {
+        return SMRect(origin: left.origin + right, end: left.end + right)
+    }
+
+    public static func += (left: inout SMRect, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMRect, right: SMPoint) -> SMRect {
+        return SMRect(origin: left.origin - right, end: left.end - right)
+    }
+
+    public static func -= (left: inout SMRect, right: SMPoint) {
+        left = left - right
+    }
     
     public static func == (lhs: SMRect, rhs: SMRect) -> Bool {
         return lhs.origin == rhs.origin && lhs.end == rhs.end

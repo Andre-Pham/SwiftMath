@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents an angle.
-open class SMAngle: SMClonable, Equatable {
+public final class SMAngle: SMClonable, Equatable {
     
     // MARK: - Properties
     
