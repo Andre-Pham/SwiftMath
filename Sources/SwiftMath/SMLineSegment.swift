@@ -46,6 +46,15 @@ open class SMLineSegment: SMLinear, SMGeometry, SMClonable, Equatable {
     public var asInfiniteLine: SMLine {
         return SMLine(point: self.origin.clone(), direction: self.end.clone())
     }
+    /// The bounding box of the line segment
+    public var boundingBox: SMRect {
+        return SMRect(
+            minX: min(self.origin.x, self.end.x),
+            maxX: max(self.origin.x, self.end.x),
+            minY: min(self.origin.y, self.end.y),
+            maxY: max(self.origin.y, self.end.y)
+        )
+    }
     
     // MARK: - Constructors
     
