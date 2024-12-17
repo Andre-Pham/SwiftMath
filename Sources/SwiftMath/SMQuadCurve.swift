@@ -26,6 +26,10 @@ open class SMQuadCurve: SMClonable, Equatable {
             && self.origin == self.end
         )
     }
+    /// The bounding box that contains the entire curve
+    public var boundingBox: SMRect {
+        return SMRect(self.cgPath.boundingBoxOfPath)
+    }
     
     // MARK: - Constructors
     

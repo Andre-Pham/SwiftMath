@@ -29,6 +29,10 @@ open class SMBezierCurve: SMClonable, Equatable {
             && self.origin == self.endControlPoint
         )
     }
+    /// The bounding box that contains the entire curve
+    public var boundingBox: SMRect {
+        return SMRect(self.cgPath.boundingBoxOfPath)
+    }
     
     // MARK: - Constructors
     
