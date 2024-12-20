@@ -187,7 +187,9 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
     }
     
     public func translateCenter(to point: SMPoint) {
-        let center = self.boundingBox.center
+        guard let center = self.boundingBox?.center else {
+            return
+        }
         self.translate(by: point - center)
     }
     
