@@ -59,7 +59,10 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
         return self.arcEdges.keys.sorted().compactMap({ self.arcEdges[$0] })
     }
     /// The bounding box that contains all curves and edges
-    public var boundingBox: SMRect {
+    public var boundingBox: SMRect? {
+        if self.edgeCount == 0 {
+            return nil
+        }
         return SMRect(self.cgPath.boundingBoxOfPath)
     }
     
