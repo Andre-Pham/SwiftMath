@@ -68,7 +68,7 @@ public final class SMPointCollection: SMClonable {
     // MARK: - Constructors
     
     public init(points: [SMPoint]) {
-        self.points = points
+        self.points = points.clone()
     }
     
     public convenience init(points: SMPoint...) {

@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a bezier curve.
-public final class SMBezierCurve: SMClonable, Equatable {
+public final class SMBezierCurve: SMTransformable, SMClonable {
     
     // MARK: - Properties
     
@@ -59,6 +59,11 @@ public final class SMBezierCurve: SMClonable, Equatable {
         self.endControlPoint += point
     }
     
+    public func translateCenter(to point: SMPoint) {
+        let center = self.boundingBox.center
+        self.translate(by: point - center)
+    }
+    
     public func rotate(around center: SMPoint, by angle: SMAngle) {
         self.origin.rotate(around: center, by: angle)
         self.end.rotate(around: center, by: angle)
@@ -66,16 +71,42 @@ public final class SMBezierCurve: SMClonable, Equatable {
         self.endControlPoint.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, by factor: Double) {
+    public func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
-        self.origin *= factor
-        self.end *= factor
-        self.originControlPoint *= factor
-        self.endControlPoint *= factor
+        self.origin *= scale
+        self.end *= scale
+        self.originControlPoint *= scale
+        self.endControlPoint *= scale
         self.translate(by: point)
     }
     
     // MARK: - Operations
+    
+    public static func + (left: SMBezierCurve, right: SMPoint) -> SMBezierCurve {
+        return SMBezierCurve(
+            origin: left.origin + right,
+            originControlPoint: left.originControlPoint + right,
+            end: left.end + right,
+            endControlPoint: left.endControlPoint + right
+        )
+    }
+
+    public static func += (left: inout SMBezierCurve, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMBezierCurve, right: SMPoint) -> SMBezierCurve {
+        return SMBezierCurve(
+            origin: left.origin - right,
+            originControlPoint: left.originControlPoint - right,
+            end: left.end - right,
+            endControlPoint: left.endControlPoint - right
+        )
+    }
+
+    public static func -= (left: inout SMBezierCurve, right: SMPoint) {
+        left = left - right
+    }
     
     public static func == (lhs: SMBezierCurve, rhs: SMBezierCurve) -> Bool {
         return lhs.origin == rhs.origin && lhs.end == rhs.end && lhs.originControlPoint == rhs.originControlPoint && lhs.endControlPoint == rhs.endControlPoint

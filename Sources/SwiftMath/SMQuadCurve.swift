@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a quad curve.
-public final class SMQuadCurve: SMClonable, Equatable {
+public final class SMQuadCurve: SMTransformable, SMClonable {
     
     // MARK: - Properties
     
@@ -34,9 +34,9 @@ public final class SMQuadCurve: SMClonable, Equatable {
     // MARK: - Constructors
     
     public init(origin: SMPoint, controlPoint: SMPoint, end: SMPoint) {
-        self.origin = origin
-        self.controlPoint = controlPoint
-        self.end = end
+        self.origin = origin.clone()
+        self.controlPoint = controlPoint.clone()
+        self.end = end.clone()
     }
     
     public required init(_ original: SMQuadCurve) {
@@ -53,21 +53,50 @@ public final class SMQuadCurve: SMClonable, Equatable {
         self.controlPoint += point
     }
     
+    public func translateCenter(to point: SMPoint) {
+        let center = self.boundingBox.center
+        self.translate(by: point - center)
+    }
+    
     public func rotate(around center: SMPoint, by angle: SMAngle) {
         self.origin.rotate(around: center, by: angle)
         self.end.rotate(around: center, by: angle)
         self.controlPoint.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, by factor: Double) {
+    public func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
-        self.origin *= factor
-        self.end *= factor
-        self.controlPoint *= factor
+        self.origin *= scale
+        self.end *= scale
+        self.controlPoint *= scale
         self.translate(by: point)
     }
     
     // MARK: - Operations
+    
+    public static func + (left: SMQuadCurve, right: SMPoint) -> SMQuadCurve {
+        return SMQuadCurve(
+            origin: left.origin + right,
+            controlPoint: left.controlPoint + right,
+            end: left.end + right
+        )
+    }
+
+    public static func += (left: inout SMQuadCurve, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMQuadCurve, right: SMPoint) -> SMQuadCurve {
+        return SMQuadCurve(
+            origin: left.origin - right,
+            controlPoint: left.controlPoint - right,
+            end: left.end - right
+        )
+    }
+
+    public static func -= (left: inout SMQuadCurve, right: SMPoint) {
+        left = left - right
+    }
     
     public static func == (lhs: SMQuadCurve, rhs: SMQuadCurve) -> Bool {
         return lhs.origin == rhs.origin && lhs.end == rhs.end && lhs.controlPoint == rhs.controlPoint

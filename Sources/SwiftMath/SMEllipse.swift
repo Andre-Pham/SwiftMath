@@ -36,7 +36,7 @@ public final class SMEllipse: SMClonable, SMTransformable {
 
     
     public init(boundingBox: SMRect) {
-        self.boundingBox = boundingBox
+        self.boundingBox = boundingBox.clone()
     }
     
     public required init(_ original: SMEllipse) {

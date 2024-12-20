@@ -62,7 +62,7 @@ public final class SMHexagon: SMGeometry, SMClonable {
     
     public init(flatTop: Bool = false, center: SMPoint = SMPoint(), sideLength: Double) {
         self.flatTop = flatTop
-        self.center = center
+        self.center = center.clone()
         self.sideLength = sideLength
     }
     

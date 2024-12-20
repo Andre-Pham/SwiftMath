@@ -10,7 +10,7 @@ import CoreGraphics
 
 /// Represents curvilinear edges.
 /// A sequence of ordered (but not necessarily connected) straight or curved edges.
-public final class SMCurvilinearEdges: SMClonable {
+public final class SMCurvilinearEdges: SMTransformable, SMClonable {
     
     // MARK: - Properties
     
@@ -164,6 +164,96 @@ public final class SMCurvilinearEdges: SMClonable {
                 assertionFailure("Logic error - shouldn't be reachable")
             }
         }
+    }
+    
+    // MARK: - Transformations
+    
+    public func translate(by point: SMPoint) {
+        for (key, linearEdge) in self.linearEdges {
+            self.linearEdges[key] = linearEdge + point
+        }
+        for (key, bezierEdge) in self.bezierEdges {
+            self.bezierEdges[key] = bezierEdge + point
+        }
+        for (key, quadEdge) in self.quadEdges {
+            self.quadEdges[key] = quadEdge + point
+        }
+        for (key, arcEdge) in self.arcEdges {
+            self.arcEdges[key] = arcEdge + point
+        }
+    }
+    
+    public func translateCenter(to point: SMPoint) {
+        let center = self.boundingBox.center
+        self.translate(by: point - center)
+    }
+    
+    public func rotate(around center: SMPoint, by angle: SMAngle) {
+        for linearEdge in self.assortedLinearEdges {
+            linearEdge.rotate(around: center, by: angle)
+        }
+        for bezierEdge in self.assortedBezierEdges {
+            bezierEdge.rotate(around: center, by: angle)
+        }
+        for quadEdge in self.assortedQuadEdges {
+            quadEdge.rotate(around: center, by: angle)
+        }
+        for arcEdge in self.assortedArcEdges {
+            arcEdge.rotate(around: center, by: angle)
+        }
+    }
+    
+    public func scale(from point: SMPoint, scale: Double) {
+        for linearEdge in self.assortedLinearEdges {
+            linearEdge.scale(from: point, scale: scale)
+        }
+        for bezierEdge in self.assortedBezierEdges {
+            bezierEdge.scale(from: point, scale: scale)
+        }
+        for quadEdge in self.assortedQuadEdges {
+            quadEdge.scale(from: point, scale: scale)
+        }
+        for arcEdge in self.assortedArcEdges {
+            arcEdge.scale(from: point, scale: scale)
+        }
+    }
+    
+    // MARK: - Operations
+    
+    public static func + (left: SMCurvilinearEdges, right: SMPoint) -> SMCurvilinearEdges {
+        let new = left.clone()
+        new.translate(by: right)
+        return new
+    }
+
+    public static func += (left: inout SMCurvilinearEdges, right: SMPoint) {
+        left = left + right
+    }
+
+    public static func - (left: SMCurvilinearEdges, right: SMPoint) -> SMCurvilinearEdges {
+        let new = left.clone()
+        new.translate(by: right * -1)
+        return new
+    }
+
+    public static func -= (left: inout SMCurvilinearEdges, right: SMPoint) {
+        left = left - right
+    }
+    
+    public static func == (lhs: SMCurvilinearEdges, rhs: SMCurvilinearEdges) -> Bool {
+        guard lhs.linearEdges.count == rhs.linearEdges.count else {
+            return false
+        }
+        guard lhs.bezierEdges.count == rhs.bezierEdges.count else {
+            return false
+        }
+        guard lhs.quadEdges.count == rhs.quadEdges.count else {
+            return false
+        }
+        guard lhs.arcEdges.count == rhs.arcEdges.count else {
+            return false
+        }
+        return lhs.linearEdges == rhs.linearEdges && lhs.bezierEdges == rhs.bezierEdges && lhs.quadEdges == rhs.quadEdges && lhs.arcEdges == rhs.arcEdges
     }
     
     // MARK: - Core Graphics

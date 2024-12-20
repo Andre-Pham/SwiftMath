@@ -95,7 +95,7 @@ public final class SMPolygon: SMMutableGeometry, SMClonable {
     // MARK: - Constructors
     
     public init(vertices: [SMPoint]) {
-        self.vertices = vertices
+        self.vertices = vertices.clone()
     }
     
     public convenience init(vertices: SMPoint...) {
