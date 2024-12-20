@@ -75,6 +75,7 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
         self.bezierEdges = original.bezierEdges.clone()
         self.quadEdges = original.quadEdges.clone()
         self.arcEdges = original.arcEdges.clone()
+        self.edgeCount = original.edgeCount
     }
     
     // MARK: - Functions
@@ -258,6 +259,7 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
         guard lhs.arcEdges.count == rhs.arcEdges.count else {
             return false
         }
+        assert(lhs.edgeCount == rhs.edgeCount, "Edge counter out of sync - logic error")
         return lhs.linearEdges == rhs.linearEdges && lhs.bezierEdges == rhs.bezierEdges && lhs.quadEdges == rhs.quadEdges && lhs.arcEdges == rhs.arcEdges
     }
     
