@@ -65,7 +65,7 @@ public final class SMRect: SMGeometry, SMClonable {
     }
     /// The center of the rectangle
     public var center: SMPoint {
-        return SMPoint(x: (self.width)/2.0, y: (self.height)/2.0)
+        return SMPoint(x: (self.minX + self.maxX)/2.0, y: (self.minY + self.maxY)/2.0)
     }
     /// The rectangle width
     public var width: Double {

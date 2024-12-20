@@ -19,6 +19,11 @@ final class SMRectTests: XCTestCase {
         XCTAssertEqual(rect1.height, cgRect.height)
     }
     
+    func testCenter() throws {
+        let rect = SMRect(minX: 5.0, maxX: 10.0, minY: 5.0, maxY: 10.0)
+        XCTAssertTrue(rect.center == SMPoint(x: 7.5, y: 7.5))
+    }
+    
     func testUnion() throws {
         var rect1 = SMRect(minX: 0.0, maxX: 10.0, minY: 0.0, maxY: 10.0)
         var rect2 = SMRect(minX: -10.0, maxX: 5.0, minY: 0.0, maxY: 5.0)
