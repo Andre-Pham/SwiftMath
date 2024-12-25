@@ -57,3 +57,34 @@ public protocol SMTransformable: Equatable {
     static func == (lhs: Self, rhs: Self) -> Bool
     
 }
+extension SMTransformable {
+    
+    public mutating func translate(x: Double, y: Double) {
+        self.translate(by: SMPoint(x: x, y: y))
+    }
+    
+    public mutating func translateX(_ amount: Double) {
+        self.translate(by: SMPoint(x: amount, y: 0.0))
+    }
+    
+    public mutating func translateY(_ amount: Double) {
+        self.translate(by: SMPoint(x: 0.0, y: amount))
+    }
+    
+    public func translated(x: Double, y: Double) -> Self {
+        return self + SMPoint(x: x, y: y)
+    }
+    
+    public func translated(by point: SMPoint) -> Self {
+        return self + point
+    }
+    
+    public func translatedX(by amount: Double) -> Self {
+        return self + SMPoint(x: amount, y: 0.0)
+    }
+    
+    public func translatedY(by amount: Double) -> Self {
+        return self + SMPoint(x: 0.0, y: amount)
+    }
+    
+}

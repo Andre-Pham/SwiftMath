@@ -72,18 +72,6 @@ extension SMGeometry {
         )
     }
     
-    public mutating func translateX(_ amount: Double) {
-        self.translate(by: SMPoint(x: amount, y: 0.0))
-    }
-    
-    public mutating func translateY(_ amount: Double) {
-        self.translate(by: SMPoint(x: 0.0, y: amount))
-    }
-    
-    public mutating func translate(x: Double, y: Double) {
-        self.translate(by: SMPoint(x: x, y: y))
-    }
-    
     public func boundingBoxContains(point: SMPoint) -> Bool {
         guard let boundingBox else {
             return false
