@@ -202,6 +202,10 @@ public struct SMArc: SMTransformable {
         return SMPoint(x: x, y: y)
     }
     
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "Arc\n- Center: \(self.center.toString(decimalPlaces: decimalPlaces))\n- Radius: \(self.radius)\n- Start: \(self.startAngle.toString(decimalPlaces: decimalPlaces))\n- End: \(self.endAngle.toString(decimalPlaces: decimalPlaces))"
+    }
+    
     // MARK: - Transformations
     
     public mutating func translate(by point: SMPoint) {

@@ -32,6 +32,48 @@ public struct SMSize {
         self.height = height
     }
     
+    // MARK: - Functions
+    
+    /// Scale this size to fill the given size whilst maintaining the same aspect ratio.
+    /// - Parameters:
+    ///   - size: The size to scale to (to fill)
+    public mutating func scale(toAspectFillSize size: SMSize) {
+        let aspectRatio = size.width / size.height
+        let rectRatio = self.width / self.height
+        var scale: CGFloat = 1.0
+        if aspectRatio > rectRatio {
+            // Scale based on width
+            scale = size.width / self.width
+        } else {
+            // Scale based on height
+            scale = size.height / self.height
+        }
+        self.width *= scale
+        self.height *= scale
+    }
+    
+    /// Scale this size to fit the given size whilst maintaining the same aspect ratio.
+    /// - Parameters:
+    ///   - size: The size to scale to (to fit)
+    public mutating func scale(toAspectFitSize size: SMSize) {
+        let aspectRatio = size.width / size.height
+        let rectRatio = self.width / self.height
+        var scale: CGFloat = 1.0
+        if aspectRatio < rectRatio {
+            // Scale based on width
+            scale = size.width / self.width
+        } else {
+            // Scale based on height
+            scale = size.height / self.height
+        }
+        self.width *= scale
+        self.height *= scale
+    }
+    
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "\(self.width.rounded(decimalPlaces: decimalPlaces)) x \(self.height.rounded(decimalPlaces: decimalPlaces))"
+    }
+    
     // MARK: - Core Graphics
     
     public var cgSize: CGSize {
