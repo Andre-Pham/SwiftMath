@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a rectangle.
-public final class SMRect: SMGeometry, SMClonable {
+public struct SMRect: SMGeometry {
     
     // MARK: - Properties
     
@@ -27,11 +27,11 @@ public final class SMRect: SMGeometry, SMClonable {
     }
     /// The top right point
     public var topRight: SMPoint {
-        return self.end.clone()
+        return self.end
     }
     /// The bottom left point
     public var bottomLeft: SMPoint {
-        return self.origin.clone()
+        return self.origin
     }
     /// The bottom right point
     public var bottomRight: SMPoint {
@@ -91,8 +91,8 @@ public final class SMRect: SMGeometry, SMClonable {
     // MARK: - Constructors
     
     public init(origin: SMPoint, end: SMPoint) {
-        self.origin = origin.clone()
-        self.end = end.clone()
+        self.origin = origin
+        self.end = end
     }
     
     public init(minX: Double, maxX: Double, minY: Double, maxY: Double) {
@@ -105,13 +105,8 @@ public final class SMRect: SMGeometry, SMClonable {
         self.end = center + SMPoint(x: width/2.0, y: height/2.0)
     }
     
-    public convenience init(origin: SMPoint, width: Double, height: Double) {
+    public init(origin: SMPoint, width: Double, height: Double) {
         self.init(origin: origin, end: origin + SMPoint(x: width, y: height))
-    }
-    
-    public required init(_ original: SMRect) {
-        self.origin = original.origin.clone()
-        self.end = original.end.clone()
     }
     
     // MARK: - Functions
@@ -182,7 +177,7 @@ public final class SMRect: SMGeometry, SMClonable {
     /// Scale this rect from the center to fill the given size whilst maintaining the same aspect ratio.
     /// - Parameters:
     ///   - size: The size to scale to (to fill)
-    public func scale(toAspectFillSize size: SMSize) {
+    public mutating func scale(toAspectFillSize size: SMSize) {
         let aspectRatio = size.width / size.height
         let rectRatio = self.width / self.height
         var scale: CGFloat = 1.0
@@ -204,7 +199,7 @@ public final class SMRect: SMGeometry, SMClonable {
     /// Scale this rect from the center to fit the given size whilst maintaining the same aspect ratio.
     /// - Parameters:
     ///   - size: The size to scale to (to fit)
-    public func scale(toAspectFitSize size: SMSize) {
+    public mutating func scale(toAspectFitSize size: SMSize) {
         let aspectRatio = size.width / size.height
         let rectRatio = self.width / self.height
         var scale: CGFloat = 1.0
@@ -229,7 +224,7 @@ public final class SMRect: SMGeometry, SMClonable {
     ///   - right: The amount of horizontal translation the right side of the rect receives (away from the center)
     ///   - top: The amount of vertical translation the top side of the rect receives (away from the center)
     ///   - bottom: The amount of vertical translation the bottom side of the rect receives (away from the center)
-    public func expand(left: Double = 0.0, right: Double = 0.0, top: Double = 0.0, bottom: Double = 0.0) {
+    public mutating func expand(left: Double = 0.0, right: Double = 0.0, top: Double = 0.0, bottom: Double = 0.0) {
         self.origin.x -= left
         self.origin.y -= bottom
         self.end.x += right
@@ -239,7 +234,7 @@ public final class SMRect: SMGeometry, SMClonable {
     /// Expand each side away from the center by a certain magnitude.
     /// - Parameters:
     ///   - amount: The amount of translation each side of the rect receives (away from the center)
-    public func expandAllSides(by amount: Double) {
+    public mutating func expandAllSides(by amount: Double) {
         self.expand(left: amount, right: amount, top: amount, bottom: amount)
     }
     
@@ -333,25 +328,25 @@ public final class SMRect: SMGeometry, SMClonable {
     
     // MARK: - Transformations
     
-    public func translate(by point: SMPoint) {
+    public mutating func translate(by point: SMPoint) {
         self.origin += point
         self.end += point
     }
     
-    public func translateCenter(to point: SMPoint) {
+    public mutating func translateCenter(to point: SMPoint) {
         self.translate(by: point - self.center)
     }
     
     /// Rotates the center of this rectangle around a point
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
-        let rectCenter = self.center
+    public mutating func rotate(around center: SMPoint, by angle: SMAngle) {
+        var rectCenter = self.center
         rectCenter.rotate(around: center, by: angle)
         let newRect = SMRect(center: rectCenter, width: self.width, height: self.height)
         self.origin = newRect.origin
         self.end = newRect.end
     }
     
-    public func scale(from point: SMPoint, scale: Double) {
+    public mutating func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
         self.origin *= scale
         self.end *= scale

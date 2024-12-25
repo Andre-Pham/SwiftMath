@@ -9,7 +9,7 @@ import Foundation
 import SceneKit
 
 /// Represents a 3D vector.
-public final class SMVector3: SMClonable, Equatable {
+public struct SMVector3: Equatable {
     
     // MARK: - Properties
     
@@ -28,24 +28,18 @@ public final class SMVector3: SMClonable, Equatable {
         self.z = z
     }
     
-    public convenience init() {
+    public init() {
         self.init(x: 0.0, y: 0.0, z: 0.0)
     }
     
-    public convenience init(x: Float, y: Float, z: Float) {
+    public init(x: Float, y: Float, z: Float) {
         self.init(x: Double(x), y: Double(y), z: Double(z))
-    }
-    
-    public required init(_ original: SMVector3) {
-        self.x = original.x
-        self.y = original.y
-        self.z = original.z
     }
     
     // MARK: - Functions
     
     /// Normalizes this vector
-    public func normalize() {
+    public mutating func normalize() {
         let mag = self.magnitude
         if !mag.isZero() {
             self.x /= mag
@@ -57,7 +51,7 @@ public final class SMVector3: SMClonable, Equatable {
     /// Creates a new vector from this vector but normalized
     /// - Returns: This a new normalised vector
     public func normalized() -> SMVector3 {
-        let result = self.clone()
+        var result = self
         result.normalize()
         return result
     }

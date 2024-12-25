@@ -201,7 +201,7 @@ final class SMPolygonTests: XCTestCase {
         let triangle2 = SMPolygon(vertices: SMPoint(x: 1, y: 0), SMPoint(x: 1, y: 1), SMPoint(x: 0, y: 0))
         XCTAssertTrue(triangle1.matchesGeometry(of: triangle2))
         
-        let reversedTriangle1 = triangle1.clone()
+        var reversedTriangle1 = triangle1
         reversedTriangle1.reverse()
         XCTAssertTrue(triangle1.matchesGeometry(of: reversedTriangle1))
     }
@@ -209,7 +209,7 @@ final class SMPolygonTests: XCTestCase {
     func testRemoveRedundantPoints() throws {
         // Case 1: Polygon with no redundant points
         let cleanPolygon = SMPolygon(vertices: SMPoint(), SMPoint(x: 1, y: 1))
-        let cleaned = cleanPolygon.clone()
+        var cleaned = cleanPolygon
         cleaned.removeRedundantPoints()
         XCTAssertTrue(cleaned.matchesGeometry(of: cleanPolygon))
         // Case 2: Polygon with a redundant point
@@ -217,17 +217,17 @@ final class SMPolygonTests: XCTestCase {
         cleaned.removeRedundantPoints()
         XCTAssertTrue(cleaned.matchesGeometry(of: cleanPolygon))
         // Case 3: Polygon with duplicate points
-        let duplicatePointsPolygon = SMPolygon(vertices: SMPoint(), SMPoint(), SMPoint(), SMPoint(x: 1, y: 1), SMPoint())
+        var duplicatePointsPolygon = SMPolygon(vertices: SMPoint(), SMPoint(), SMPoint(), SMPoint(x: 1, y: 1), SMPoint())
         duplicatePointsPolygon.removeRedundantPoints()
         XCTAssertTrue(duplicatePointsPolygon.matchesGeometry(of: SMPolygon(vertices: SMPoint(), SMPoint(x: 1, y: 1), SMPoint())))
         // Case 4: Polygon with only two points, they are duplicates
-        let duplicatePairPolygon = SMPolygon(vertices: SMPoint(), SMPoint())
+        var duplicatePairPolygon = SMPolygon(vertices: SMPoint(), SMPoint())
         duplicatePairPolygon.removeRedundantPoints()
         XCTAssertTrue(duplicatePairPolygon.matchesGeometry(of: SMPolygon(vertices: SMPoint())))
     }
     
     func testRemoveDuplicatePoints() throws {
-        let polygon = SMPolygon(vertices: SMPoint(x: 0, y: 0), SMPoint(x: 0, y: 0), SMPoint(x: 0, y: 0), SMPoint(x: 1, y: 0), SMPoint(x: 0, y: 0))
+        var polygon = SMPolygon(vertices: SMPoint(x: 0, y: 0), SMPoint(x: 0, y: 0), SMPoint(x: 0, y: 0), SMPoint(x: 1, y: 0), SMPoint(x: 0, y: 0))
         polygon.removeDuplicatePoints()
         XCTAssertTrue(polygon.matchesGeometry(of: SMPolygon(vertices: SMPoint(x: 0, y: 0), SMPoint(x: 1, y: 0), SMPoint(x: 0, y: 0))))
     }

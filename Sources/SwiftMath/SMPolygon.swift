@@ -10,7 +10,7 @@ import CoreGraphics
 
 /// Represents a polygon.
 /// A closed shape made of straight edges.
-public final class SMPolygon: SMMutableGeometry, SMClonable {
+public struct SMPolygon: SMMutableGeometry {
     
     /// This geometry's vertices (ordered)
     public var vertices = [SMPoint]()
@@ -95,15 +95,11 @@ public final class SMPolygon: SMMutableGeometry, SMClonable {
     // MARK: - Constructors
     
     public init(vertices: [SMPoint]) {
-        self.vertices = vertices.clone()
+        self.vertices = vertices
     }
     
-    public convenience init(vertices: SMPoint...) {
+    public init(vertices: SMPoint...) {
         self.init(vertices: vertices)
-    }
-    
-    public required init(_ original: SMPolygon) {
-        self.vertices = original.vertices.clone()
     }
     
     // MARK: - Functions
@@ -200,14 +196,14 @@ public final class SMPolygon: SMMutableGeometry, SMClonable {
         return true
     }
     
-    public func orderClockwise() {
+    public mutating func orderClockwise() {
         guard self.isAnticlockwise else {
             return
         }
         self.vertices = self.vertices.reversed()
     }
     
-    public func orderAnticlockwise() {
+    public mutating func orderAnticlockwise() {
         guard self.isClockwise else {
             return
         }

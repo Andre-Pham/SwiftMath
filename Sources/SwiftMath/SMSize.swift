@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents width and height dimensions.
-public final class SMSize: SMClonable {
+public struct SMSize {
     
     // MARK: - Properties
     
@@ -30,11 +30,6 @@ public final class SMSize: SMClonable {
     public init(width: Double, height: Double) {
         self.width = width
         self.height = height
-    }
-    
-    public required init(_ original: SMSize) {
-        self.width = original.width
-        self.height = original.height
     }
     
     // MARK: - Core Graphics

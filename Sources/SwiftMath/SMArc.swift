@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a segment of a circle's perimeter, defined by two points on the circumference and the path between them along the circle.
-public final class SMArc: SMClonable, SMTransformable {
+public struct SMArc: SMTransformable {
     
     /// The center of the arc
     public var center: SMPoint
@@ -40,7 +40,7 @@ public final class SMArc: SMClonable, SMTransformable {
         guard !self.isFullCircle else {
             return self.circumference
         }
-        let reference = self.clone()
+        var reference = self
         reference.rotate(by: reference.startAngle * -1)
         let angleDifference = reference.endAngle - reference.startAngle
         return reference.radius*angleDifference.radians
@@ -71,9 +71,7 @@ public final class SMArc: SMClonable, SMTransformable {
     }
     /// The angle from the start angle to the end angle (the spanning angle)
     public var centralAngle: SMAngle {
-        let reference = self.clone()
-        reference.rotate(by: reference.startAngle * -1)
-        return (reference.endAngle - reference.startAngle).normalized
+        return (self.endAngle - self.startAngle).normalized
     }
     /// Bounding box of the arc
     public var boundingBox: SMRect {
@@ -110,14 +108,14 @@ public final class SMArc: SMClonable, SMTransformable {
         endAngle: SMAngle,
         fullArcWhenZeroCentralAngle: Bool = false
     ) {
-        self.center = center.clone()
+        self.center = center
         self.radius = radius
         self.fullArcWhenZeroCentralAngle = fullArcWhenZeroCentralAngle
         self._startAngle = startAngle
         self._endAngle = endAngle
     }
     
-    public convenience init(
+    public init(
         point1: SMPoint,
         vertex: SMPoint,
         point2: SMPoint,
@@ -129,7 +127,7 @@ public final class SMArc: SMClonable, SMTransformable {
         let angle2 = SMAngle(point1: vertex + SMPoint(x: 1, y: 0), vertex: vertex, point2: point2)
         let flip = ((angle2 - angle1).isMinor || (angle2 - angle1).isStraight) != minor
         self.init(
-            center: vertex.clone(),
+            center: vertex,
             radius: radius,
             startAngle: flip ? angle2 : angle1,
             endAngle: flip ? angle1 : angle2,
@@ -137,20 +135,12 @@ public final class SMArc: SMClonable, SMTransformable {
         )
     }
     
-    public required init(_ original: SMArc) {
-        self.center = original.center.clone()
-        self.radius = original.radius
-        self.fullArcWhenZeroCentralAngle = original.fullArcWhenZeroCentralAngle
-        self._startAngle = original._startAngle.clone()
-        self._endAngle = original._endAngle.clone()
-    }
-    
     // MARK: - Functions
     
     /// Rotates the arc counter-clockwise around its center by a certain angle
     /// - Parameters:
     ///   - angle: The angle to rotate by
-    public func rotate(by angle: SMAngle) {
+    public mutating func rotate(by angle: SMAngle) {
         self.startAngle += angle
         self.endAngle += angle
     }
@@ -159,14 +149,14 @@ public final class SMArc: SMClonable, SMTransformable {
     /// If the length is negative and has a magnitude greater than the arc's original length, the arc begins extending in the opposite direction.
     /// - Parameters:
     ///   - length: The length to extend (+) or contract (-) by
-    public func adjustLength(by length: Double) {
+    public mutating func adjustLength(by length: Double) {
         if (self.length + length).isLessThanZero() {
             if abs(length).isGreater(than: self.circumference) {
                 // WARNING: Recursion is used here
                 self.adjustLength(by: length.truncatingRemainder(dividingBy: self.circumference))
             } else {
                 let length = self.circumference + (self.length + length).truncatingRemainder(dividingBy: self.circumference)
-                let rotation = self.startAngle.clone()
+                let rotation = self.startAngle
                 self.rotate(by: rotation * -1)
                 self.endAngle = SMAngle(radians: length/self.radius)
                 let temp = self.startAngle
@@ -183,13 +173,13 @@ public final class SMArc: SMClonable, SMTransformable {
     /// Setting a negative length is valid - the end angle continues in the opposite direction.
     /// - Parameters:
     ///   - length: The new length (negative to go in the opposite direction from the origin point)
-    public func setLength(to length: Double) {
+    public mutating func setLength(to length: Double) {
         let length = length.truncatingRemainder(dividingBy: self.circumference)
         guard !length.isZero() else {
-            self.endAngle = self.startAngle.clone()
+            self.endAngle = self.startAngle
             return
         }
-        let rotation = self.startAngle.clone()
+        let rotation = self.startAngle
         self.rotate(by: rotation * -1)
         if length.isLessThanZero() {
             self.endAngle = SMAngle(radians: abs(length)/self.radius)
@@ -214,19 +204,19 @@ public final class SMArc: SMClonable, SMTransformable {
     
     // MARK: - Transformations
     
-    public func translate(by point: SMPoint) {
+    public mutating func translate(by point: SMPoint) {
         self.center += point
     }
     
-    public func translateCenter(to point: SMPoint) {
-        self.center = point.clone()
+    public mutating func translateCenter(to point: SMPoint) {
+        self.center = point
     }
     
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
+    public mutating func rotate(around center: SMPoint, by angle: SMAngle) {
         self.center.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, scale: Double) {
+    public mutating func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
         self.center *= scale
         self.radius *= scale

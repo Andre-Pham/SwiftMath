@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol SMMutableGeometry: AnyObject, SMGeometry {
+public protocol SMMutableGeometry: SMGeometry {
     
     /// This geometry's vertices (ordered)
     var vertices: [SMPoint] { get set }
@@ -15,26 +15,26 @@ public protocol SMMutableGeometry: AnyObject, SMGeometry {
 }
 extension SMMutableGeometry {
     
-    public func reverse() {
+    public mutating func reverse() {
         self.vertices = self.vertices.reversed()
     }
     
-    public func add(_ point: SMPoint) {
-        self.vertices.append(point.clone())
+    public mutating func add(_ point: SMPoint) {
+        self.vertices.append(point)
     }
     
-    public func insert(_ point: SMPoint, at: Int) {
-        self.vertices.insert(point.clone(), at: at)
+    public mutating func insert(_ point: SMPoint, at: Int) {
+        self.vertices.insert(point, at: at)
     }
     
-    public func remove(at index: Int) -> SMPoint? {
+    public mutating func remove(at index: Int) -> SMPoint? {
         guard index < self.vertices.endIndex else {
             return nil
         }
         return self.vertices.remove(at: index)
     }
     
-    public func removeRedundantPoints() {
+    public mutating func removeRedundantPoints() {
         guard self.vertices.count >= 3 else {
             self.removeDuplicatePoints()
             return
@@ -62,7 +62,7 @@ extension SMMutableGeometry {
         self.vertices = newVertices
     }
     
-    public func removeDuplicatePoints() {
+    public mutating func removeDuplicatePoints() {
         guard self.vertices.count > 1 else {
             return
         }
@@ -86,26 +86,26 @@ extension SMMutableGeometry {
         self.vertices = newVertices
     }
     
-    public func translate(by point: SMPoint) {
+    public mutating func translate(by point: SMPoint) {
         for index in self.vertices.indices {
             self.vertices[index] += point
         }
     }
     
-    public func translateCenter(to point: SMPoint) {
+    public mutating func translateCenter(to point: SMPoint) {
         guard let center = self.boundingBox?.center else {
             return
         }
         self.translate(by: point - center)
     }
     
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
+    public mutating func rotate(around center: SMPoint, by angle: SMAngle) {
         for index in self.vertices.indices {
             self.vertices[index].rotate(around: center, by: angle)
         }
     }
     
-    public func scale(from point: SMPoint, scale: Double) {
+    public mutating func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
         for index in self.vertices.indices {
             self.vertices[index] *= scale

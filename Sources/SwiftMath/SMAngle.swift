@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents an angle.
-public final class SMAngle: SMClonable, Equatable {
+public struct SMAngle: Equatable {
     
     // MARK: - Properties
     
@@ -18,7 +18,7 @@ public final class SMAngle: SMClonable, Equatable {
     }
     /// The angle normalized such that it falls within the range [0, 2π)
     public var normalized: SMAngle {
-        let result = self.clone()
+        var result = self
         result.normalize()
         return result
     }
@@ -160,10 +160,6 @@ public final class SMAngle: SMClonable, Equatable {
         self.radians = angle
     }
     
-    public required init(_ original: SMAngle) {
-        self.radians = original.radians
-    }
-    
     // MARK: - Functions
     
     /// Normalize the current angle such that it falls within the range [0, 2π).
@@ -172,7 +168,7 @@ public final class SMAngle: SMClonable, Equatable {
     ///     angle.normalize()
     ///     angle.radians -> .pi
     /// ```
-    public func normalize() {
+    public mutating func normalize() {
         var result = self.radians.truncatingRemainder(dividingBy: (2.0 * .pi))
         if result.isLessThanZero() {
             result += (2.0 * .pi)

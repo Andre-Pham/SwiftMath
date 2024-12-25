@@ -6,9 +6,19 @@
 //
 
 import XCTest
-import SwiftMath
+@testable import SwiftMath
 
 final class SMAngleTests: XCTestCase {
+    
+    func testRadians() throws {
+        let angle = SMAngle(degrees: 90)
+        XCTAssertTrue(angle.radians.isEqual(to: .pi / 2.0))
+    }
+    
+    func testDegrees() throws {
+        let angle = SMAngle(radians: .pi / 2.0)
+        XCTAssertTrue(angle.degrees.isEqual(to: 90.0))
+    }
 
     func testThreePointConstructor() throws {
         let angle90 = SMAngle(
@@ -28,8 +38,19 @@ final class SMAngleTests: XCTestCase {
     }
     
     func testNormalization() throws {
-        let angle = SMAngle(degrees: -45.0)
+        var angle = SMAngle(degrees: -45.0)
         XCTAssertEqual(angle.normalized.degrees, 315.0)
+        angle.normalize()
+        XCTAssertEqual(angle.degrees, 315.0)
+    }
+    
+    func testGradient() throws {
+        let angle90 = SMAngle(degrees: 90)
+        XCTAssertEqual(angle90.gradient, nil)
+        let angle0 = SMAngle()
+        XCTAssertTrue(angle0.gradient!.isZero())
+        let angle45 = SMAngle(degrees: 45)
+        XCTAssertTrue(angle45.gradient!.isEqual(to: 1.0))
     }
 
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents a 2D point.
-public final class SMPoint: SMClonable, SMTransformable, Hashable {
+public struct SMPoint: SMTransformable, Hashable {
     
     // MARK: - Properties
     
@@ -22,21 +22,16 @@ public final class SMPoint: SMClonable, SMTransformable, Hashable {
         self.y = y
     }
     
-    public convenience init() {
+    public init() {
         self.init(x: 0.0, y: 0.0)
     }
     
-    public convenience init(x: Float, y: Float) {
+    public init(x: Float, y: Float) {
         self.init(x: Double(x), y: Double(y))
     }
     
-    public convenience init(x: Int, y: Int) {
+    public init(x: Int, y: Int) {
         self.init(x: Double(x), y: Double(y))
-    }
-    
-    public required init(_ original: SMPoint) {
-        self.x = original.x
-        self.y = original.y
     }
     
     // MARK: - Functions
@@ -51,12 +46,12 @@ public final class SMPoint: SMClonable, SMTransformable, Hashable {
     
     // MARK: - Transformations
     
-    public func translate(by point: SMPoint) {
+    public mutating func translate(by point: SMPoint) {
         self.x += point.x
         self.y += point.y
     }
     
-    public func translateCenter(to point: SMPoint) {
+    public mutating func translateCenter(to point: SMPoint) {
         self.x = point.x
         self.y = point.y
     }
@@ -65,7 +60,7 @@ public final class SMPoint: SMClonable, SMTransformable, Hashable {
     /// - Parameters:
     ///   - center: The center point to rotate around
     ///   - angle: The angle to rotate by
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
+    public mutating func rotate(around center: SMPoint, by angle: SMAngle) {
         // Translate point back to origin
         let xTranslated = self.x - center.x
         let yTranslated = self.y - center.y
@@ -77,22 +72,22 @@ public final class SMPoint: SMClonable, SMTransformable, Hashable {
         self.y = yRotated + center.y
     }
     
-    public func scale(from point: SMPoint, scale: Double) {
+    public mutating func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
         self.x *= scale
         self.y *= scale
         self.translate(by: point)
     }
     
-    public func translateX(_ amount: Double) {
+    public mutating func translateX(_ amount: Double) {
         self.translate(by: SMPoint(x: amount, y: 0.0))
     }
     
-    public func translateY(_ amount: Double) {
+    public mutating func translateY(_ amount: Double) {
         self.translate(by: SMPoint(x: 0.0, y: amount))
     }
     
-    public func translate(x: Double, y: Double) {
+    public mutating func translate(x: Double, y: Double) {
         self.translate(by: SMPoint(x: x, y: y))
     }
     

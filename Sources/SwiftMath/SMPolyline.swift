@@ -10,7 +10,7 @@ import CoreGraphics
 
 /// Represents a polyline.
 /// A sequence of connected straight edges.
-public final class SMPolyline: SMMutableGeometry, SMClonable {
+public struct SMPolyline: SMMutableGeometry {
     
     /// This geometry's vertices (ordered)
     public var vertices = [SMPoint]()
@@ -53,7 +53,7 @@ public final class SMPolyline: SMMutableGeometry, SMClonable {
     }
     /// This as a closed polygon
     public var closed: SMPolygon {
-        return SMPolygon(vertices: self.vertices.clone())
+        return SMPolygon(vertices: self.vertices)
     }
     
     /// Returns this with every corner rounded.
@@ -63,8 +63,8 @@ public final class SMPolyline: SMMutableGeometry, SMClonable {
     ///   - controlPointDistance: The target distance away from the control origin/end points (towards the original corner vertex) the bezier origin/end control points are placed at (whilst remaining on the original edge)
     /// - Returns: A collection of curvilinear edges (bezier and linear edges)
     public func roundedCorners(pointDistance: Double, controlPointDistance: Double) -> SMCurvilinearEdges {
-        let result = SMCurvilinearEdges()
-        let polyline = self.clone()
+        var result = SMCurvilinearEdges()
+        var polyline = self
         polyline.removeDuplicatePoints()
         guard polyline.isValid else {
             return result
@@ -134,17 +134,17 @@ public final class SMPolyline: SMMutableGeometry, SMClonable {
             let appliedControlPointDistance = min(controlPointDistance, maxControlPointDistance)
             
             // Straight edge
-            let straightEdge = originToCorner.clone()
+            var straightEdge = originToCorner
             let straightEdgeDirection = straightEdge.angle!
             straightEdge.adjustLength(by: -appliedPointDistance)
             
             // Next straight edge
-            let nextStraightEdge = cornerToEnd.clone()
+            var nextStraightEdge = cornerToEnd
             let nextStraightEdgeDirection = nextStraightEdge.angle!
             nextStraightEdge.adjustLength(by: -appliedPointDistance, anchorEnd: true)
             
             // Curved edge origin and origin control point
-            let origin = straightEdge.end.clone()
+            let origin = straightEdge.end
             let originControlEdge = SMLineSegment(
                 origin: straightEdge.origin,
                 angle: straightEdgeDirection,
@@ -153,7 +153,7 @@ public final class SMPolyline: SMMutableGeometry, SMClonable {
             let originControlPoint = originControlEdge.end
             
             // Curved edge end and end control point
-            let end = nextStraightEdge.origin.clone()
+            let end = nextStraightEdge.origin
             let endControlEdge = SMLineSegment(
                 origin: nextStraightEdge.end,
                 angle: nextStraightEdgeDirection + SMAngle(radians: Double.pi),
@@ -192,12 +192,8 @@ public final class SMPolyline: SMMutableGeometry, SMClonable {
         self.vertices = vertices
     }
     
-    public convenience init(vertices: SMPoint...) {
+    public init(vertices: SMPoint...) {
         self.init(vertices: vertices)
-    }
-    
-    public required init(_ original: SMPolyline) {
-        self.vertices = original.vertices.clone()
     }
     
     // MARK: - Operations

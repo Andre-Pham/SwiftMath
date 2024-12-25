@@ -10,7 +10,7 @@ import CoreGraphics
 
 /// Represents curvilinear edges.
 /// A sequence of ordered (but not necessarily connected) straight or curved edges.
-public final class SMCurvilinearEdges: SMTransformable, SMClonable {
+public struct SMCurvilinearEdges: SMTransformable {
     
     // MARK: - Properties
     
@@ -70,37 +70,29 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
     
     public init() { }
     
-    public required init(_ original: SMCurvilinearEdges) {
-        self.linearEdges = original.linearEdges.clone()
-        self.bezierEdges = original.bezierEdges.clone()
-        self.quadEdges = original.quadEdges.clone()
-        self.arcEdges = original.arcEdges.clone()
-        self.edgeCount = original.edgeCount
-    }
-    
     // MARK: - Functions
     
-    public func addLinearEdge(_ edge: SMLineSegment) {
-        self.linearEdges[self.edgeCount] = edge.clone()
+    public mutating func addLinearEdge(_ edge: SMLineSegment) {
+        self.linearEdges[self.edgeCount] = edge
         self.edgeCount += 1
     }
     
-    public func addBezierEdge(_ edge: SMBezierCurve) {
-        self.bezierEdges[self.edgeCount] = edge.clone()
+    public mutating func addBezierEdge(_ edge: SMBezierCurve) {
+        self.bezierEdges[self.edgeCount] = edge
         self.edgeCount += 1
     }
     
-    public func addQuadEdge(_ edge: SMQuadCurve) {
-        self.quadEdges[self.edgeCount] = edge.clone()
+    public mutating func addQuadEdge(_ edge: SMQuadCurve) {
+        self.quadEdges[self.edgeCount] = edge
         self.edgeCount += 1
     }
     
-    public func addArcEdge(_ edge: SMArc) {
-        self.arcEdges[self.edgeCount] = edge.clone()
+    public mutating func addArcEdge(_ edge: SMArc) {
+        self.arcEdges[self.edgeCount] = edge
         self.edgeCount += 1
     }
     
-    public func removeEdge(at index: Int) {
+    public mutating func removeEdge(at index: Int) {
         let linearRemoved = self.linearEdges.removeValue(forKey: index) != nil
         let bezierRemoved = self.bezierEdges.removeValue(forKey: index) != nil
         let quadRemoved = self.quadEdges.removeValue(forKey: index) != nil
@@ -136,7 +128,7 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
         }
     }
     
-    public func removeRedundantEdges() {
+    public mutating func removeRedundantEdges() {
         for edgeIndex in (0..<self.edgeCount).reversed() {
             if let linearEdge = self.linearEdges[edgeIndex] {
                 if linearEdge.length.isZero() {
@@ -148,7 +140,9 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
                     let length1 = point1.length(to: point2) + point2.length(to: point3)
                     let length2 = point1.length(to: point3)
                     if length1.isEqual(to: length2) {
-                        linearEdge.adjustLength(by: nextLinearEdge.length)
+                        var extendedLinearEdge = linearEdge
+                        extendedLinearEdge.adjustLength(by: nextLinearEdge.length)
+                        self.linearEdges[edgeIndex] = extendedLinearEdge
                         self.removeEdge(at: edgeIndex + 1)
                     }
                 }
@@ -172,7 +166,7 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
     
     // MARK: - Transformations
     
-    public func translate(by point: SMPoint) {
+    public mutating func translate(by point: SMPoint) {
         for (key, linearEdge) in self.linearEdges {
             self.linearEdges[key] = linearEdge + point
         }
@@ -187,47 +181,55 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
         }
     }
     
-    public func translateCenter(to point: SMPoint) {
+    public mutating func translateCenter(to point: SMPoint) {
         guard let center = self.boundingBox?.center else {
             return
         }
         self.translate(by: point - center)
     }
     
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
-        for linearEdge in self.assortedLinearEdges {
+    public mutating func rotate(around center: SMPoint, by angle: SMAngle) {
+        for (key, var linearEdge) in self.linearEdges {
             linearEdge.rotate(around: center, by: angle)
+            self.linearEdges[key] = linearEdge
         }
-        for bezierEdge in self.assortedBezierEdges {
+        for (key, var bezierEdge) in self.bezierEdges {
             bezierEdge.rotate(around: center, by: angle)
+            self.bezierEdges[key] = bezierEdge
         }
-        for quadEdge in self.assortedQuadEdges {
+        for (key, var quadEdge) in self.quadEdges {
             quadEdge.rotate(around: center, by: angle)
+            self.quadEdges[key] = quadEdge
         }
-        for arcEdge in self.assortedArcEdges {
+        for (key, var arcEdge) in self.arcEdges {
             arcEdge.rotate(around: center, by: angle)
+            self.arcEdges[key] = arcEdge
         }
     }
     
-    public func scale(from point: SMPoint, scale: Double) {
-        for linearEdge in self.assortedLinearEdges {
+    public mutating func scale(from point: SMPoint, scale: Double) {
+        for (key, var linearEdge) in self.linearEdges {
             linearEdge.scale(from: point, scale: scale)
+            self.linearEdges[key] = linearEdge
         }
-        for bezierEdge in self.assortedBezierEdges {
+        for (key, var bezierEdge) in self.bezierEdges {
             bezierEdge.scale(from: point, scale: scale)
+            self.bezierEdges[key] = bezierEdge
         }
-        for quadEdge in self.assortedQuadEdges {
+        for (key, var quadEdge) in self.quadEdges {
             quadEdge.scale(from: point, scale: scale)
+            self.quadEdges[key] = quadEdge
         }
-        for arcEdge in self.assortedArcEdges {
+        for (key, var arcEdge) in self.arcEdges {
             arcEdge.scale(from: point, scale: scale)
+            self.arcEdges[key] = arcEdge
         }
     }
     
     // MARK: - Operations
     
     public static func + (left: SMCurvilinearEdges, right: SMPoint) -> SMCurvilinearEdges {
-        let new = left.clone()
+        var new = left
         new.translate(by: right)
         return new
     }
@@ -237,7 +239,7 @@ public final class SMCurvilinearEdges: SMTransformable, SMClonable {
     }
 
     public static func - (left: SMCurvilinearEdges, right: SMPoint) -> SMCurvilinearEdges {
-        let new = left.clone()
+        var new = left
         new.translate(by: right * -1)
         return new
     }

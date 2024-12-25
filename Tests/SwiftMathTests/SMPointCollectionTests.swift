@@ -42,12 +42,12 @@ final class SMPointCollectionTests: XCTestCase {
             SMPoint(x: 92.50998741620441, y: -93.54874779236873),
             SMPoint(x: 58.68100872673165, y: 80.92686671802932)
         ]
-        points.append(points[3].clone())
-        points.append(points[5].clone())
-        points.append(points[7].clone())
-        points.append(points[9].clone())
+        points.append(points[3])
+        points.append(points[5])
+        points.append(points[7])
+        points.append(points[9])
         for _ in 0..<3 {
-            points.append(points[19].clone())
+            points.append(points[19])
         }
         let duplicates = SMPointCollection(points: points).duplicatedPoints()
         XCTAssertEqual(duplicates.count, 5)
@@ -81,12 +81,12 @@ final class SMPointCollectionTests: XCTestCase {
             SMPoint(x: 92.50998741620441, y: -93.54874779236873),
             SMPoint(x: 58.68100872673165, y: 80.92686671802932)
         ]
-        points.append(points[3].clone())
-        points.append(points[5].clone())
-        points.append(points[7].clone())
-        points.append(points[9].clone())
+        points.append(points[3])
+        points.append(points[5])
+        points.append(points[7])
+        points.append(points[9])
         for _ in 0..<3 {
-            points.append(points[19].clone())
+            points.append(points[19])
         }
         let duplicateCount = SMPointCollection(points: points).countDuplicatedPoints()
         XCTAssertEqual(duplicateCount, 7)

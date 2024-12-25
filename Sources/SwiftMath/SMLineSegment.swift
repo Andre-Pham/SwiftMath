@@ -10,7 +10,7 @@ import CoreGraphics
 
 /// Represents a line segment.
 /// A straight line between two points.
-public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
+public struct SMLineSegment: SMLinear, SMGeometry {
     
     // MARK: - Properties
     
@@ -20,11 +20,11 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
     public var end: SMPoint
     /// This geometry's vertices (ordered)
     public var vertices: [SMPoint] {
-        return [self.origin.clone(), self.end.clone()]
+        return [self.origin, self.end]
     }
     /// This geometry's edges (ordered)
     public var edges: [SMLineSegment] {
-        return [self.clone()]
+        return [self]
     }
     /// The line segment midpoint
     public var midPoint: SMPoint {
@@ -40,11 +40,11 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
     }
     /// This line segment, flipped
     public var flipped: SMLineSegment {
-        return SMLineSegment(origin: self.end.clone(), end: self.origin.clone())
+        return SMLineSegment(origin: self.end, end: self.origin)
     }
     /// This line, infinite instead of a segment
     public var asInfiniteLine: SMLine {
-        return SMLine(point: self.origin.clone(), direction: self.end.clone())
+        return SMLine(point: self.origin, direction: self.end)
     }
     /// The bounding box of the line segment
     public var boundingBox: SMRect {
@@ -59,38 +59,40 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
     // MARK: - Constructors
     
     public init(origin: SMPoint, end: SMPoint) {
-        self.origin = origin.clone()
-        self.end = end.clone()
+        self.origin = origin
+        self.end = end
     }
     
-    public convenience init(origin: SMPoint, angle: SMAngle, length: Double) {
+    public init(origin: SMPoint, angle: SMAngle, length: Double) {
         let arc = SMArc(center: origin, radius: length, startAngle: SMAngle(degrees: 0.0), endAngle: angle)
-        self.init(origin: origin.clone(), end: arc.endPoint)
+        self.init(origin: origin, end: arc.endPoint)
     }
     
-    public convenience init(origin: SMPoint, gradient: Double?, length: Double) {
+    public init(origin: SMPoint, gradient: Double?, length: Double) {
         self.init(origin: origin, angle: SMAngle(gradient: gradient), length: length)
     }
     
-    public required init(_ original: SMLineSegment) {
-        self.origin = original.origin.clone()
-        self.end = original.end.clone()
-    }
-    
     // MARK: - Functions
+    
+    /// Swap the origin and end points.
+    public mutating func flip() {
+        let newOrigin = self.end
+        self.end = self.origin
+        self.origin = newOrigin
+    }
     
     /// Extend or contract the line's length by a certain amount. By default, adjusts the line's end.
     /// If the length is negative and has a magnitude greater than the line's original length, the adjusted point continues moving in the collinear direction it was travelling from being contracted.
     /// - Parameters:
     ///   - length: The length to extend (+) or contract (-) by
     ///   - anchorEnd: True if the end should be used as the anchor (default is false)
-    public func adjustLength(by length: Double, anchorEnd: Bool = false) {
+    public mutating func adjustLength(by length: Double, anchorEnd: Bool = false) {
         guard self.isValid else {
             // An invalid line with zero length cannot have its length adjusted
             // (what direction would it go?)
             return
         }
-        let translation = anchorEnd ? self.end.clone() : self.origin.clone()
+        let translation = anchorEnd ? self.end : self.origin
         self.translate(by: translation * -1)
         let proportion = (length + self.length)/self.length
         if anchorEnd {
@@ -106,7 +108,7 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
     /// - Parameters:
     ///   - length: The new length (negative to go in the opposite direction from the anchored point)
     ///   - anchorEnd: True if the end should be used as the anchor (default is false)
-    public func setLength(to length: Double, anchorEnd: Bool = false) {
+    public mutating func setLength(to length: Double, anchorEnd: Bool = false) {
         guard self.isValid else {
             // An invalid line with zero length cannot have its length adjusted
             // (what direction would it go?)
@@ -114,13 +116,13 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
         }
         guard !length.isZero() else {
             if anchorEnd {
-                self.origin = self.end.clone()
+                self.origin = self.end
             } else {
-                self.end = self.origin.clone()
+                self.end = self.origin
             }
             return
         }
-        let translation = anchorEnd ? self.end.clone() : self.origin.clone()
+        let translation = anchorEnd ? self.end : self.origin
         self.translate(by: translation * -1)
         let proportion = length/self.length
         if anchorEnd {
@@ -139,7 +141,7 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
     /// - Returns: The point at the proportional distance (relative to the line segment's length) from the origin point
     public func pointAtProportion(_ proportion: Double) -> SMPoint {
         guard self.isValid else {
-            return self.origin.clone()
+            return self.origin
         }
         let x = self.origin.x + proportion*(self.end.x - self.origin.x)
         let y = self.origin.y + proportion*(self.end.y - self.origin.y)
@@ -203,7 +205,7 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
         // If these are both point lines
         if !self.isValid && !line.isValid {
             if self.origin == line.origin {
-                return self.origin.clone()
+                return self.origin
             } else {
                 return nil
             }
@@ -211,7 +213,7 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
         // If just this is a point line
         if !self.isValid {
             if line.intersects(point: self.origin) {
-                return self.origin.clone()
+                return self.origin
             } else {
                 return nil
             }
@@ -219,7 +221,7 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
         // If just the other line is a point line
         if !line.isValid {
             if self.intersects(point: line.origin) {
-                return line.origin.clone()
+                return line.origin
             } else {
                 return nil
             }
@@ -279,9 +281,9 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
         }
         if touchingOrigin && touchingEnd {
             if !self.isValid {
-                return self.origin.clone()
+                return self.origin
             } else if !line.isValid {
-                return line.origin.clone()
+                return line.origin
             } else {
                 // They're overlapping
                 return nil
@@ -298,7 +300,7 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
                     }
                 }
             }
-            return self.origin.clone()
+            return self.origin
         } else if touchingEnd {
             if self.gradient == line.gradient {
                 if self.end == line.origin {
@@ -311,7 +313,7 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
                     }
                 }
             }
-            return self.end.clone()
+            return self.end
         }
         return nil
     }
@@ -342,33 +344,27 @@ public final class SMLineSegment: SMLinear, SMGeometry, SMClonable {
         return self.isParallel(to: line) && line.intersects(point: self.origin)
     }
     
-    public func flip() {
-        let newOrigin = self.end
-        self.end = self.origin
-        self.origin = newOrigin
-    }
-    
     public func toString(decimalPlaces: Int = 2) -> String {
         return "\(self.origin.toString(decimalPlaces: decimalPlaces)) -> \(self.end.toString(decimalPlaces: decimalPlaces))"
     }
     
     // MARK: - Transformations
     
-    public func translate(by point: SMPoint) {
+    public mutating func translate(by point: SMPoint) {
         self.origin += point
         self.end += point
     }
     
-    public func translateCenter(to point: SMPoint) {
+    public mutating func translateCenter(to point: SMPoint) {
         self.translate(by: point - self.midPoint)
     }
     
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
+    public mutating func rotate(around center: SMPoint, by angle: SMAngle) {
         self.origin.rotate(around: center, by: angle)
         self.end.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, scale: Double) {
+    public mutating func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
         self.origin *= scale
         self.end *= scale

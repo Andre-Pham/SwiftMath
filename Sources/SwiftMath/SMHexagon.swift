@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a hexagon.
-public final class SMHexagon: SMGeometry, SMClonable {
+public struct SMHexagon: SMGeometry {
     
     // MARK: - Properties
     
@@ -62,19 +62,13 @@ public final class SMHexagon: SMGeometry, SMClonable {
     
     public init(flatTop: Bool = false, center: SMPoint = SMPoint(), sideLength: Double) {
         self.flatTop = flatTop
-        self.center = center.clone()
+        self.center = center
         self.sideLength = sideLength
-    }
-    
-    public required init(_ original: SMHexagon) {
-        self.flatTop = original.flatTop
-        self.center = original.center.clone()
-        self.sideLength = original.sideLength
     }
     
     // MARK: - Functions
     
-    public func setWidth(to width: Double) {
+    public mutating func setWidth(to width: Double) {
         guard width.isGreaterThanZero() else {
             self.sideLength = 0.0
             return
@@ -86,11 +80,11 @@ public final class SMHexagon: SMGeometry, SMClonable {
         }
     }
     
-    public func widen(by length: Double) {
+    public mutating func widen(by length: Double) {
         self.setWidth(to: length + self.width)
     }
     
-    public func setHeight(to height: Double) {
+    public mutating func setHeight(to height: Double) {
         guard height.isGreaterThanZero() else {
             self.sideLength = 0.0
             return
@@ -102,26 +96,26 @@ public final class SMHexagon: SMGeometry, SMClonable {
         }
     }
     
-    public func heighten(by height: Double) {
+    public mutating func heighten(by height: Double) {
         self.setHeight(to: height + self.height)
     }
     
     // MARK: - Transformations
     
-    public func translate(by point: SMPoint) {
+    public mutating func translate(by point: SMPoint) {
         self.center += point
     }
     
-    public func translateCenter(to point: SMPoint) {
-        self.center = point.clone()
+    public mutating func translateCenter(to point: SMPoint) {
+        self.center = point
     }
     
     /// Rotates the center of this hexagon around a point
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
+    public mutating func rotate(around center: SMPoint, by angle: SMAngle) {
         self.center.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, scale: Double) {
+    public mutating func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
         self.center *= scale
         self.sideLength *= scale

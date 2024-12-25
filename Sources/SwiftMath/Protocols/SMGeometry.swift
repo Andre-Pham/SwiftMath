@@ -72,15 +72,15 @@ extension SMGeometry {
         )
     }
     
-    public func translateX(_ amount: Double) {
+    public mutating func translateX(_ amount: Double) {
         self.translate(by: SMPoint(x: amount, y: 0.0))
     }
     
-    public func translateY(_ amount: Double) {
+    public mutating func translateY(_ amount: Double) {
         self.translate(by: SMPoint(x: 0.0, y: amount))
     }
     
-    public func translate(x: Double, y: Double) {
+    public mutating func translate(x: Double, y: Double) {
         self.translate(by: SMPoint(x: x, y: y))
     }
     

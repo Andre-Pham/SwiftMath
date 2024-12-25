@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents a collection of unordered points.
-public final class SMPointCollection: SMClonable {
+public struct SMPointCollection {
     
     public var points = [SMPoint]()
     public var minXPoint: SMPoint? {
@@ -68,24 +68,20 @@ public final class SMPointCollection: SMClonable {
     // MARK: - Constructors
     
     public init(points: [SMPoint]) {
-        self.points = points.clone()
+        self.points = points
     }
     
-    public convenience init(points: SMPoint...) {
+    public init(points: SMPoint...) {
         self.init(points: points)
-    }
-    
-    public required init(_ original: SMPointCollection) {
-        self.points = original.points.clone()
     }
     
     // MARK: - Functions
     
-    public func add(_ point: SMPoint) {
-        self.points.append(point.clone())
+    public mutating func add(_ point: SMPoint) {
+        self.points.append(point)
     }
     
-    public func remove(at index: Int) -> SMPoint? {
+    public mutating func remove(at index: Int) -> SMPoint? {
         guard index < self.points.endIndex else {
             return nil
         }
@@ -124,7 +120,7 @@ public final class SMPointCollection: SMClonable {
                 if duplicatedPoints[point] != nil {
                     duplicatedPoints[point]! += 1
                 } else {
-                    duplicatedPoints[point.clone()] = 1
+                    duplicatedPoints[point] = 1
                 }
             } else {
                 seenPoints.insert(point)

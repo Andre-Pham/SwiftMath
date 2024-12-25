@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents an infinite line.
-public final class SMLine: SMLinear, SMTransformable, SMClonable {
+public struct SMLine: SMLinear, SMTransformable {
 
     // MARK: - Properties
     
@@ -20,28 +20,23 @@ public final class SMLine: SMLinear, SMTransformable, SMClonable {
     // MARK: - Constructors
 
     public init(point: SMPoint, direction: SMPoint) {
-        self.origin = point.clone()
-        self.end = direction.clone()
+        self.origin = point
+        self.end = direction
     }
     
-    public convenience init(point: SMPoint, angle: SMAngle) {
+    public init(point: SMPoint, angle: SMAngle) {
         let arc = SMArc(center: point, radius: 1.0, startAngle: SMAngle(degrees: 0.0), endAngle: angle)
-        self.init(point: point.clone(), direction: arc.endPoint)
+        self.init(point: point, direction: arc.endPoint)
     }
     
-    public convenience init(point: SMPoint, gradient: Double?) {
-        let end = point.clone()
+    public init(point: SMPoint, gradient: Double?) {
+        var end = point
         if let gradient {
             end.translate(by: SMPoint(x: 1.0, y: gradient)) // rise / run
         } else {
             end.translate(by: SMPoint(x: 0.0, y: 1.0))
         }
-        self.init(point: point.clone(), direction: end)
-    }
-    
-    public required init(_ original: SMLine) {
-        self.origin = original.origin
-        self.end = original.end
+        self.init(point: point, direction: end)
     }
     
     public func intersects(point: SMPoint) -> Bool {
@@ -86,27 +81,27 @@ public final class SMLine: SMLinear, SMTransformable, SMClonable {
     
     // MARK: - Transformations
     
-    public func translate(by point: SMPoint) {
+    public mutating func translate(by point: SMPoint) {
         self.origin += point
         self.end += point
     }
     
-    public func translateCenter(to point: SMPoint) {
+    public mutating func translateCenter(to point: SMPoint) {
         self.translateToIntersect(point)
     }
     
-    public func translateToIntersect(_ point: SMPoint) {
+    public mutating func translateToIntersect(_ point: SMPoint) {
         let newEnd = point + self.end - self.origin
-        self.origin = point.clone()
+        self.origin = point
         self.end = newEnd
     }
     
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
+    public mutating func rotate(around center: SMPoint, by angle: SMAngle) {
         self.origin.rotate(around: center, by: angle)
         self.end.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, scale: Double) {
+    public mutating func scale(from point: SMPoint, scale: Double) {
         // Do nothing - SMLine is infinite in length
     }
 

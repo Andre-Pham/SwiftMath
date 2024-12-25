@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 /// Represents a quad curve.
-public final class SMQuadCurve: SMTransformable, SMClonable {
+public struct SMQuadCurve: SMTransformable {
     
     // MARK: - Properties
     
@@ -34,37 +34,31 @@ public final class SMQuadCurve: SMTransformable, SMClonable {
     // MARK: - Constructors
     
     public init(origin: SMPoint, controlPoint: SMPoint, end: SMPoint) {
-        self.origin = origin.clone()
-        self.controlPoint = controlPoint.clone()
-        self.end = end.clone()
-    }
-    
-    public required init(_ original: SMQuadCurve) {
-        self.origin = original.origin.clone()
-        self.controlPoint = original.controlPoint.clone()
-        self.end = original.end.clone()
+        self.origin = origin
+        self.controlPoint = controlPoint
+        self.end = end
     }
     
     // MARK: - Transformations
     
-    public func translate(by point: SMPoint) {
+    public mutating func translate(by point: SMPoint) {
         self.origin += point
         self.end += point
         self.controlPoint += point
     }
     
-    public func translateCenter(to point: SMPoint) {
+    public mutating func translateCenter(to point: SMPoint) {
         let center = self.boundingBox.center
         self.translate(by: point - center)
     }
     
-    public func rotate(around center: SMPoint, by angle: SMAngle) {
+    public mutating func rotate(around center: SMPoint, by angle: SMAngle) {
         self.origin.rotate(around: center, by: angle)
         self.end.rotate(around: center, by: angle)
         self.controlPoint.rotate(around: center, by: angle)
     }
     
-    public func scale(from point: SMPoint, scale: Double) {
+    public mutating func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
         self.origin *= scale
         self.end *= scale
