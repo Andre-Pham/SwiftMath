@@ -76,6 +76,41 @@ public struct SMSize: Equatable {
     
     // MARK: - Operations
     
+    public static func + (left: SMSize, right: SMSize) -> SMSize {
+        return SMSize(width: left.width + right.width, height: left.height + right.height)
+    }
+
+    public static func += (left: inout SMSize, right: SMSize) {
+        left = left + right
+    }
+
+    public static func - (left: SMSize, right: SMSize) -> SMSize {
+        return SMSize(width: left.width - right.width, height: left.height - right.height)
+    }
+
+    public static func -= (left: inout SMSize, right: SMSize) {
+        left = left - right
+    }
+
+    public static func * (size: SMSize, scalar: Double) -> SMSize {
+        return SMSize(width: size.width * scalar, height: size.height * scalar)
+    }
+
+    public static func *= (size: inout SMSize, scalar: Double) {
+        size = size * scalar
+    }
+
+    public static func / (size: SMSize, scalar: Double) -> SMSize {
+        guard !scalar.isZero() else {
+            fatalError("Division by zero is illegal")
+        }
+        return SMSize(width: size.width / scalar, height: size.height / scalar)
+    }
+
+    public static func /= (size: inout SMSize, scalar: Double) {
+        size = size / scalar
+    }
+    
     public static func == (lhs: SMSize, rhs: SMSize) -> Bool {
         return lhs.width.isEqual(to: rhs.width) && lhs.height.isEqual(to: rhs.height)
     }
