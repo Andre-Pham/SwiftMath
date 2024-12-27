@@ -87,6 +87,10 @@ public struct SMRect: SMGeometry {
     public var isValid: Bool {
         return self.minY.isLess(than: self.maxY) && self.minX.isLess(than: self.maxY)
     }
+    /// The size of the rect
+    public var size: SMSize {
+        return SMSize(width: self.width, height: self.height)
+    }
     
     // MARK: - Constructors
     

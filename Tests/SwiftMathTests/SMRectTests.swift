@@ -86,5 +86,10 @@ final class SMRectTests: XCTestCase {
         XCTAssertEqual(rect.maxX, 400 + 10)
         XCTAssertEqual(rect.maxY, 300 + 5)
     }
+    
+    func testSize() throws {
+        let rect = SMRect(minX: 200, maxX: 400, minY: 200, maxY: 300)
+        XCTAssertTrue(rect.size == SMSize(width: 200, height: 100))
+    }
 
 }

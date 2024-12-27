@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents width and height dimensions.
-public struct SMSize {
+public struct SMSize: Equatable {
     
     // MARK: - Properties
     
@@ -72,6 +72,12 @@ public struct SMSize {
     
     public func toString(decimalPlaces: Int = 2) -> String {
         return "\(self.width.rounded(decimalPlaces: decimalPlaces)) x \(self.height.rounded(decimalPlaces: decimalPlaces))"
+    }
+    
+    // MARK: - Operations
+    
+    public static func == (lhs: SMSize, rhs: SMSize) -> Bool {
+        return lhs.width.isEqual(to: rhs.width) && lhs.height.isEqual(to: rhs.height)
     }
     
     // MARK: - Core Graphics
