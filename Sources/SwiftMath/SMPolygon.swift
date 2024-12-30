@@ -104,33 +104,31 @@ public struct SMPolygon: SMMutableGeometry {
     
     // MARK: - Functions
     
-    public func contains(point: SMPoint, checkEdges: Bool = true, validatePolygon: Bool = false) -> Bool {
+    /// Checks if the polygon contains a point (a point exists inside or on the edge of the polygon).
+    /// - Parameters:
+    ///   - point: The point being checked if it's contained
+    ///   - validatePolygon: If set to true, polygons that are invalid will return false
+    /// - Returns: True if the point is within or on the edge of the polygon
+    public func contains(point: SMPoint, validatePolygon: Bool = false) -> Bool {
         guard !validatePolygon || self.isValid else {
             return false
         }
         guard self.boundingBoxContains(point: point) else {
             return false
         }
-        if checkEdges {
-            for edge in self.edges {
-                if edge.intersects(point: point) {
-                    return true
-                }
+        for edge in self.edges {
+            if edge.intersects(point: point) {
+                return true
             }
         }
-        // https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
-        let nvert = self.vertices.count
-        var c = false
-        for i in 0..<nvert {
-            let j = (i == 0) ? nvert - 1 : i - 1
-            if ((self.vertices[i].y > point.y) != (self.vertices[j].y > point.y)) &&
-                (point.x < (self.vertices[j].x - self.vertices[i].x) * (point.y - self.vertices[i].y) / (self.vertices[j].y - self.vertices[i].y) + self.vertices[i].x) {
-                c = !c
-            }
-        }
-        return c
+        return self.pnpoly(point)
     }
     
+    /// Checks if the polygon encloses a point (a point exists inside and not on the edge nor outside polygon).
+    /// - Parameters:
+    ///   - point: The point being checked if it's enclosed
+    ///   - validatePolygon: If set to true, polygons that are invalid will return false
+    /// - Returns: True if the point is within the polygon
     public func encloses(point: SMPoint, validatePolygon: Bool = false) -> Bool {
         guard !validatePolygon || self.isValid else {
             return false
@@ -143,10 +141,15 @@ public struct SMPolygon: SMMutableGeometry {
                 return false
             }
         }
-        return self.contains(point: point, checkEdges: false, validatePolygon: false)
+        return self.pnpoly(point)
     }
     
-    public func contains(geometry: any SMGeometry, checkEdges: Bool = true, validatePolygon: Bool = false) -> Bool {
+    /// Checks if the polygon contains some geometry (the geometry exists inside or on the edge of the polygon).
+    /// - Parameters:
+    ///   - geometry: The geometry being checked if it's contained
+    ///   - validatePolygon: If set to true, polygons that are invalid will return false
+    /// - Returns: True if the geometry is within or on the edge of the polygon
+    public func contains(geometry: any SMGeometry, validatePolygon: Bool = false) -> Bool {
         guard !validatePolygon || self.isValid else {
             return false
         }
@@ -158,7 +161,7 @@ public struct SMPolygon: SMMutableGeometry {
         }
         // Check if all points are inside
         for vertex in geometry.vertices {
-            if !self.contains(point: vertex, checkEdges: checkEdges, validatePolygon: false) {
+            if !self.contains(point: vertex, validatePolygon: false) {
                 return false
             }
         }
@@ -171,6 +174,11 @@ public struct SMPolygon: SMMutableGeometry {
         return true
     }
     
+    /// Checks if the polygon encloses some geometry (the geometry exists inside and not on the edge nor outside polygon).
+    /// - Parameters:
+    ///   - geometry: The geometry being checked if it's enclosed
+    ///   - validatePolygon: If set to true, polygons that are invalid will return false
+    /// - Returns: True if the geometry is within the polygon
     public func encloses(geometry: any SMGeometry, validatePolygon: Bool = false) -> Bool {
         guard !validatePolygon || self.isValid else {
             return false
@@ -196,6 +204,23 @@ public struct SMPolygon: SMMutableGeometry {
         return true
     }
     
+    /// The "point-in-polygon" algorithm by Randolph Franklin. Uses the ray-casting method.
+    /// Does not explicitly address points on the edges of the polygon, which must be explicitly accounted for.
+    /// - Returns: True if a point is contained inside this polygon.
+    private func pnpoly(_ point: SMPoint) -> Bool {
+        // https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
+        let nvert = self.vertices.count
+        var c = false
+        for i in 0..<nvert {
+            let j = (i == 0) ? nvert - 1 : i - 1
+            if ((self.vertices[i].y.isGreater(than: point.y)) != (self.vertices[j].y.isGreater(than: point.y))) &&
+                (point.x.isLess(than: (self.vertices[j].x - self.vertices[i].x) * (point.y - self.vertices[i].y) / (self.vertices[j].y - self.vertices[i].y) + self.vertices[i].x)) {
+                c = !c
+            }
+        }
+        return c
+    }
+    
     public mutating func orderClockwise() {
         guard self.isAnticlockwise else {
             return
@@ -208,6 +233,10 @@ public struct SMPolygon: SMMutableGeometry {
             return
         }
         self.vertices = self.vertices.reversed()
+    }
+    
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "[\(self.vertices.map({ $0.toString(decimalPlaces: decimalPlaces) }).joined(separator: ", "))]"
     }
     
     // MARK: - Operations

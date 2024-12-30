@@ -123,6 +123,28 @@ final class SMPolygonTests: XCTestCase {
         // Test for a polygon with intersecting lines (invalid, hence all points should be outside)
         polygon = SMPolygon(vertices: [SMPoint(x: 0.0, y: 0.0), SMPoint(x: 1.0, y: 1.0), SMPoint(x: 1.0, y: 0.0), SMPoint(x: 0.0, y: 1.0)])
         XCTAssertFalse(polygon.contains(point: SMPoint(x: 0.5, y: 0.5), validatePolygon: true))
+        // Test for a concave polygon
+        polygon = SMPolygon(vertices: [SMPoint(x: 0.0, y: 0.0), SMPoint(x: 4.0, y: 0.0), SMPoint(x: 2.0, y: 2.0), SMPoint(x: 4.0, y: 4.0), SMPoint(x: 0.0, y: 4.0)])
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 2.0, y: 3.0)))
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 2.0, y: 1.0)))
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 2.0, y: 2.0)))
+        XCTAssertFalse(polygon.contains(point: SMPoint(x: 2.1, y: 2.0)))
+        XCTAssertFalse(polygon.contains(point: SMPoint(x: 3.0, y: 2.5)))
+        XCTAssertFalse(polygon.contains(point: SMPoint(x: 3.0, y: 4.1)))
+        // Test for a convex polygon
+        polygon = SMPolygon(vertices: [SMPoint(x: 0.0, y: 0.0), SMPoint(x: 4.0, y: 0.0), SMPoint(x: 6.0, y: 2.0), SMPoint(x: 3.0, y: 5.0), SMPoint(x: 0.0, y: 4.0)])
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 2.0, y: 2.0)))
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 3.0, y: 3.0)))
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 4.0, y: 1.0)))
+        XCTAssertFalse(polygon.contains(point: SMPoint(x: -1.0, y: -1.0)))
+        XCTAssertFalse(polygon.contains(point: SMPoint(x: 7.0, y: 3.0)))
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 3.0, y: 5.0)))
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 4.0, y: 0.0)))
+        XCTAssertFalse(polygon.contains(point: SMPoint(x: 5.0, y: 4.0)))
+        XCTAssertFalse(polygon.contains(point: SMPoint(x: 5.0, y: 0.5)))
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 6.0, y: 2.0)))
+        XCTAssertFalse(polygon.contains(point: SMPoint(x: -1.0, y: 2.0)))
+        XCTAssertTrue(polygon.contains(point: SMPoint(x: 5.5, y: 2.0)))
     }
     
     func testContainsPolygon() throws {
@@ -154,11 +176,11 @@ final class SMPolygonTests: XCTestCase {
         XCTAssertFalse(vShapePolygon.encloses(geometry: vIntersectPolygon))
         // Case 7: Touching polygons
         let touchingPolygon = SMPolygon(vertices: [SMPoint(x: 1.0, y: 1.0), SMPoint(x: 4.0, y: 1.0), SMPoint(x: 5.0, y: 2.5), SMPoint(x: 4.0, y: 4.0), SMPoint(x: 1.0, y: 4.0)])
-        XCTAssertTrue(outerPolygon.contains(geometry: touchingPolygon, checkEdges: true))
+        XCTAssertTrue(outerPolygon.contains(geometry: touchingPolygon))
         XCTAssertFalse(outerPolygon.encloses(geometry: touchingPolygon))
         // Case 8: Extruding polygons
         let extrudingPolygon = SMPolygon(vertices: [SMPoint(x: 1.0, y: 1.0), SMPoint(x: 4.0, y: 1.0), SMPoint(x: 5.0, y: 2.0), SMPoint(x: 6.0, y: 2.5), SMPoint(x: 4.0, y: 3.0), SMPoint(x: 4.0, y: 4.0), SMPoint(x: 1.0, y: 4.0)])
-        XCTAssertFalse(outerPolygon.contains(geometry: extrudingPolygon, checkEdges: true))
+        XCTAssertFalse(outerPolygon.contains(geometry: extrudingPolygon))
         XCTAssertFalse(outerPolygon.encloses(geometry: extrudingPolygon))
     }
     

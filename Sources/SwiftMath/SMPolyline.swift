@@ -186,6 +186,10 @@ public struct SMPolyline: SMMutableGeometry {
         return result
     }
     
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "[\(self.vertices.map({ $0.toString(decimalPlaces: decimalPlaces) }).joined(separator: ", "))]"
+    }
+    
     // MARK: - Constructors
     
     public init(vertices: [SMPoint]) {

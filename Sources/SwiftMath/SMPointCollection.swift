@@ -138,5 +138,9 @@ public struct SMPointCollection {
         return self.points.sorted { $0.length(to: otherPoint) < $1.length(to: otherPoint) }
     }
     
+    public func toString(decimalPlaces: Int = 2) -> String {
+        return "[\(self.points.map({ $0.toString(decimalPlaces: decimalPlaces) }).joined(separator: ", "))]"
+    }
+    
 }
 
