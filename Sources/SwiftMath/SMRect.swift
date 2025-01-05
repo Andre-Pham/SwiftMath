@@ -125,15 +125,23 @@ public struct SMRect: SMGeometry {
         return SMRect(self.cgRect.union(other.cgRect))
     }
     
-    /// Calculates the smallest rectangle with a valid area that represents the overlap between the two input rectangles.
+    /// Calculates the smallest rectangle that represents the overlap between the two input rectangles.
+    /// The result may have an area of 0 if the two rectangles share the same corner and have no other overlap.
+    /// Returns nil if the two rectangles don't relate to each other at all (have no spatial relationship).
     /// - Parameters:
     ///   - other: The other rectangle to form an overlapping rectangle
-    /// - Returns: The union of the two rectangles
+    /// - Returns: The union of the two rectangles (or nil if there is no spatial relationship)
     public func overlap(_ other: SMRect) -> SMRect? {
-        guard self.cgRect.intersects(other.cgRect) else {
+        let overlap = SMRect(self.cgRect.intersection(other.cgRect))
+        guard !(
+            overlap.minX.isInfinite
+            || overlap.minY.isInfinite
+            || overlap.maxX.isInfinite
+            || overlap.maxY.isInfinite
+        ) else {
             return nil
         }
-        return SMRect(self.cgRect.intersection(other.cgRect))
+        return overlap
     }
     
     /// Calculates if there is an intersecting point between two rectangles (doesn't count overlapping edges).

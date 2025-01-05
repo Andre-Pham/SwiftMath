@@ -33,6 +33,29 @@ final class SMRectTests: XCTestCase {
         XCTAssertEqual(rect1.union(rect2), SMRect(minX: 0.0, minY: 0.0, maxX: 3.0, maxY: 1.0))
     }
     
+    func testOverlap() throws {
+        let rect1 = SMRect(minX: 0.0, minY: 0.0, maxX: 10.0, maxY: 10.0)
+        var rect2 = SMRect(minX: -10.0, minY: -10.0, maxX: 0.0, maxY: 0.0)
+        // Case 1: Touching corners
+        XCTAssertTrue(rect1.overlap(rect2) == SMRect(minX: 0, minY: 0, maxX: 0, maxY: 0))
+        rect2 = SMRect(minX: -10.0, minY: 0.0, maxX: 0.0, maxY: 10.0)
+        // Case 2: Overlapping lines
+        XCTAssertTrue(rect1.overlap(rect2) == SMRect(minX: 0, minY: 0, maxX: 0, maxY: 10))
+        rect2 = SMRect(minX: -10.0, minY: 0.0, maxX: -0.5, maxY: 10.0)
+        // Case 3: No relation
+        XCTAssertNil(rect1.overlap(rect2))
+        // Case 4: Intersecting
+        rect2 = rect1
+        rect2.translate(by: SMPoint(x: 4.0, y: 5.0))
+        XCTAssertTrue(rect1.overlap(rect2) == SMRect(minX: 4, minY: 5, maxX: 10, maxY: 10))
+        // Case 5: Enclosed
+        rect2 = SMRect(minX: 1.0, minY: 1.0, maxX: 2.0, maxY: 2.0)
+        XCTAssertTrue(rect1.overlap(rect2) == SMRect(minX: 1, minY: 1, maxX: 2, maxY: 2))
+        // Case 6: Containing
+        rect2 = SMRect(minX: 0.0, minY: 1.0, maxX: 2.0, maxY: 2.0)
+        XCTAssertTrue(rect1.overlap(rect2) == SMRect(minX: 0, minY: 1, maxX: 2, maxY: 2))
+    }
+    
     func testIntersects() throws {
         let rect1 = SMRect(minX: 0.0, minY: 0.0, maxX: 10.0, maxY: 10.0)
         var rect2 = SMRect(minX: -10.0, minY: -10.0, maxX: 0.0, maxY: 0.0)
