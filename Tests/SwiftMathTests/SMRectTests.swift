@@ -13,8 +13,8 @@ final class SMRectTests: XCTestCase {
     func testCGRect() throws {
         let rect1 = SMRect(minX: 5.0, minY: 5.0, maxX: 10.0, maxY: 10.0)
         let cgRect = rect1.cgRect
-        XCTAssertEqual(rect1.minCorner.x, cgRect.origin.x)
-        XCTAssertEqual(rect1.minCorner.y, cgRect.origin.y)
+        XCTAssertEqual(rect1.origin.x, cgRect.origin.x)
+        XCTAssertEqual(rect1.origin.y, cgRect.origin.y)
         XCTAssertEqual(rect1.width, cgRect.width)
         XCTAssertEqual(rect1.height, cgRect.height)
     }
@@ -28,8 +28,8 @@ final class SMRectTests: XCTestCase {
         var rect1 = SMRect(minX: 0.0, minY: 0.0, maxX: 10.0, maxY: 10.0)
         var rect2 = SMRect(minX: -10.0, minY: 0.0, maxX: 5.0, maxY: 5.0)
         XCTAssertEqual(rect1.union(rect2), SMRect(minX: -10.0, minY: 0.0, maxX: 10.0, maxY: 10.0))
-        rect1 = SMRect(minCorner: SMPoint(), maxCorner: SMPoint(x: 1.0, y: 1.0))
-        rect2 = SMRect(minCorner: SMPoint(x: 2.0, y: 0.0), maxCorner: SMPoint(x: 3.0, y: 1.0))
+        rect1 = SMRect(origin: SMPoint(), end: SMPoint(x: 1.0, y: 1.0))
+        rect2 = SMRect(origin: SMPoint(x: 2.0, y: 0.0), end: SMPoint(x: 3.0, y: 1.0))
         XCTAssertEqual(rect1.union(rect2), SMRect(minX: 0.0, minY: 0.0, maxX: 3.0, maxY: 1.0))
     }
     

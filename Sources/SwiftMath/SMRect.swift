@@ -42,11 +42,11 @@ public struct SMRect: SMGeometry {
         return SMPoint(x: self.maxX, y: self.maxY)
     }
     /// The corner with the min x and min y
-    public var minCorner: SMPoint {
+    public var origin: SMPoint {
         self.minXminY
     }
     /// The corner with the max x and max y
-    public var maxCorner: SMPoint {
+    public var end: SMPoint {
         self.maxXmaxY
     }
     /// This geometry's edges (ordered)
@@ -90,11 +90,11 @@ public struct SMRect: SMGeometry {
     
     // MARK: - Constructors
     
-    public init(minCorner: SMPoint, maxCorner: SMPoint) {
-        self.minX = minCorner.x
-        self.minY = minCorner.y
-        self.maxX = maxCorner.x
-        self.maxY = maxCorner.y
+    public init(origin: SMPoint, end: SMPoint) {
+        self.minX = origin.x
+        self.minY = origin.y
+        self.maxX = end.x
+        self.maxY = end.y
     }
     
     public init(minX: Double, minY: Double, maxX: Double, maxY: Double) {
@@ -111,8 +111,8 @@ public struct SMRect: SMGeometry {
         self.maxY = center.y + height/2.0
     }
     
-    public init(minCorner: SMPoint, width: Double, height: Double) {
-        self.init(minCorner: minCorner, maxCorner: minCorner + SMPoint(x: width, y: height))
+    public init(origin: SMPoint, width: Double, height: Double) {
+        self.init(origin: origin, end: origin + SMPoint(x: width, y: height))
     }
     
     // MARK: - Functions
@@ -196,8 +196,8 @@ public struct SMRect: SMGeometry {
         }
         let scaledWidth = self.width * scale
         let scaledHeight = self.height * scale
-        let x = self.minCorner.x - (scaledWidth - self.width) / 2
-        let y = self.minCorner.y - (scaledHeight - self.height) / 2
+        let x = self.origin.x - (scaledWidth - self.width) / 2
+        let y = self.origin.y - (scaledHeight - self.height) / 2
         self.minX = x
         self.minY = y
         self.maxX = x + scaledWidth
@@ -220,8 +220,8 @@ public struct SMRect: SMGeometry {
         }
         let scaledWidth = self.width * scale
         let scaledHeight = self.height * scale
-        let x = self.minCorner.x + (self.width - scaledWidth) / 2
-        let y = self.minCorner.y + (self.height - scaledHeight) / 2
+        let x = self.origin.x + (self.width - scaledWidth) / 2
+        let y = self.origin.y + (self.height - scaledHeight) / 2
         self.minX = x
         self.minY = y
         self.maxX = x + scaledWidth
@@ -372,7 +372,7 @@ public struct SMRect: SMGeometry {
     // MARK: - Operations
     
     public static func + (left: SMRect, right: SMPoint) -> SMRect {
-        return SMRect(minCorner: left.minCorner + right, maxCorner: left.maxCorner + right)
+        return SMRect(origin: left.origin + right, end: left.end + right)
     }
 
     public static func += (left: inout SMRect, right: SMPoint) {
@@ -380,7 +380,7 @@ public struct SMRect: SMGeometry {
     }
 
     public static func - (left: SMRect, right: SMPoint) -> SMRect {
-        return SMRect(minCorner: left.minCorner - right, maxCorner: left.maxCorner - right)
+        return SMRect(origin: left.origin - right, end: left.end - right)
     }
 
     public static func -= (left: inout SMRect, right: SMPoint) {
@@ -394,7 +394,7 @@ public struct SMRect: SMGeometry {
     // MARK: - Core Graphics
     
     public var cgRect: CGRect {
-        return CGRect(origin: self.minCorner.cgPoint, size: CGSize(width: self.width, height: self.height))
+        return CGRect(origin: self.origin.cgPoint, size: CGSize(width: self.width, height: self.height))
     }
     
     public var cgRectValidated: CGRect? {
