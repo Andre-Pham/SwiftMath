@@ -13,29 +13,41 @@ public struct SMRect: SMGeometry {
     
     // MARK: - Properties
     
-    /// The bottom left of the rectangle
-    public var origin: SMPoint
-    /// The top right of the rectangle
-    public var end: SMPoint
+    /// Min x of the rectangle
+    public var minX: Double
+    /// Min y of the rectangle
+    public var minY: Double
+    /// Max x of the rectangle
+    public var maxX: Double
+    /// Max y of the rectangle
+    public var maxY: Double
     /// This geometry's vertices (ordered)
     public var vertices: [SMPoint] {
-        return [self.bottomLeft, self.topLeft, self.topRight, self.bottomRight]
+        return [self.minXminY, self.minXmaxY, self.maxXmaxY, self.maxXminY]
     }
-    /// The top left point
-    public var topLeft: SMPoint {
-        return self.origin + SMPoint(x: 0.0, y: self.height)
+    /// The corner with the min x and min y
+    public var minXminY: SMPoint {
+        return SMPoint(x: self.minX, y: self.minY)
     }
-    /// The top right point
-    public var topRight: SMPoint {
-        return self.end
+    /// The corner with the min x and max y
+    public var minXmaxY: SMPoint {
+        return SMPoint(x: self.minX, y: self.maxY)
     }
-    /// The bottom left point
-    public var bottomLeft: SMPoint {
-        return self.origin
+    /// The corner with the max x and min y
+    public var maxXminY: SMPoint {
+        return SMPoint(x: self.maxX, y: self.minY)
     }
-    /// The bottom right point
-    public var bottomRight: SMPoint {
-        return self.origin + SMPoint(x: self.width, y: 0.0)
+    /// The corner with the max x and max y
+    public var maxXmaxY: SMPoint {
+        return SMPoint(x: self.maxX, y: self.maxY)
+    }
+    /// The corner with the min x and min y
+    public var minCorner: SMPoint {
+        self.minXminY
+    }
+    /// The corner with the max x and max y
+    public var maxCorner: SMPoint {
+        self.maxXmaxY
     }
     /// This geometry's edges (ordered)
     public var edges: [SMLineSegment] {
@@ -46,22 +58,6 @@ public struct SMRect: SMGeometry {
             SMLineSegment(origin: vertices[2], end: vertices[3]),
             SMLineSegment(origin: vertices[3], end: vertices[0])
         ]
-    }
-    /// Min x of the rectangle
-    public var minX: Double {
-        return self.origin.x
-    }
-    /// Min y of the rectangle
-    public var minY: Double {
-        return self.origin.y
-    }
-    /// Max x of the rectangle
-    public var maxX: Double {
-        return self.end.x
-    }
-    /// Max y of the rectangle
-    public var maxY: Double {
-        return self.end.y
     }
     /// The center of the rectangle
     public var center: SMPoint {
@@ -94,23 +90,29 @@ public struct SMRect: SMGeometry {
     
     // MARK: - Constructors
     
-    public init(origin: SMPoint, end: SMPoint) {
-        self.origin = origin
-        self.end = end
+    public init(minCorner: SMPoint, maxCorner: SMPoint) {
+        self.minX = minCorner.x
+        self.minY = minCorner.y
+        self.maxX = maxCorner.x
+        self.maxY = maxCorner.y
     }
     
-    public init(minX: Double, maxX: Double, minY: Double, maxY: Double) {
-        self.origin = SMPoint(x: minX, y: minY)
-        self.end = SMPoint(x: maxX, y: maxY)
+    public init(minX: Double, minY: Double, maxX: Double, maxY: Double) {
+        self.minX = minX
+        self.minY = minY
+        self.maxX = maxX
+        self.maxY = maxY
     }
     
     public init(center: SMPoint, width: Double, height: Double) {
-        self.origin = center - SMPoint(x: width/2.0, y: height/2.0)
-        self.end = center + SMPoint(x: width/2.0, y: height/2.0)
+        self.minX = center.x - width/2.0
+        self.minY = center.y - height/2.0
+        self.maxX = center.x + width/2.0
+        self.maxY = center.y + height/2.0
     }
     
-    public init(origin: SMPoint, width: Double, height: Double) {
-        self.init(origin: origin, end: origin + SMPoint(x: width, y: height))
+    public init(minCorner: SMPoint, width: Double, height: Double) {
+        self.init(minCorner: minCorner, maxCorner: minCorner + SMPoint(x: width, y: height))
     }
     
     // MARK: - Functions
@@ -143,10 +145,10 @@ public struct SMRect: SMGeometry {
             return true
         }
         return (
-            self.topRight == other.bottomLeft
-            || self.bottomLeft == other.topRight
-            || self.topLeft == other.bottomRight
-            || self.bottomRight == other.topLeft
+            self.maxXmaxY == other.minXminY
+            || self.minXminY == other.maxXmaxY
+            || self.minXmaxY == other.maxXminY
+            || self.maxXminY == other.minXmaxY
         )
     }
     
@@ -163,10 +165,10 @@ public struct SMRect: SMGeometry {
             }
         }
         return (
-            self.topRight == other.bottomLeft
-            || self.bottomLeft == other.topRight
-            || self.topLeft == other.bottomRight
-            || self.bottomRight == other.topLeft
+            self.maxXmaxY == other.minXminY
+            || self.minXminY == other.maxXmaxY
+            || self.minXmaxY == other.maxXminY
+            || self.maxXminY == other.minXmaxY
         )
     }
     
@@ -194,10 +196,12 @@ public struct SMRect: SMGeometry {
         }
         let scaledWidth = self.width * scale
         let scaledHeight = self.height * scale
-        let x = self.origin.x - (scaledWidth - self.width) / 2
-        let y = self.origin.y - (scaledHeight - self.height) / 2
-        self.origin = SMPoint(x: x, y: y)
-        self.end = SMPoint(x: x + scaledWidth, y: y + scaledHeight)
+        let x = self.minCorner.x - (scaledWidth - self.width) / 2
+        let y = self.minCorner.y - (scaledHeight - self.height) / 2
+        self.minX = x
+        self.minY = y
+        self.maxX = x + scaledWidth
+        self.maxY = y + scaledHeight
     }
     
     /// Scale this rect from the center to fit the given size whilst maintaining the same aspect ratio.
@@ -216,30 +220,32 @@ public struct SMRect: SMGeometry {
         }
         let scaledWidth = self.width * scale
         let scaledHeight = self.height * scale
-        let x = self.origin.x + (self.width - scaledWidth) / 2
-        let y = self.origin.y + (self.height - scaledHeight) / 2
-        self.origin = SMPoint(x: x, y: y)
-        self.end = SMPoint(x: x + scaledWidth, y: y + scaledHeight)
+        let x = self.minCorner.x + (self.width - scaledWidth) / 2
+        let y = self.minCorner.y + (self.height - scaledHeight) / 2
+        self.minX = x
+        self.minY = y
+        self.maxX = x + scaledWidth
+        self.maxY = y + scaledHeight
     }
     
     /// Expand each side away from the center of the rect by specified magnitudes.
     /// - Parameters:
-    ///   - left: The amount of horizontal translation the left side of the rect receives (away from the center)
-    ///   - right: The amount of horizontal translation the right side of the rect receives (away from the center)
-    ///   - top: The amount of vertical translation the top side of the rect receives (away from the center)
-    ///   - bottom: The amount of vertical translation the bottom side of the rect receives (away from the center)
-    public mutating func expand(left: Double = 0.0, right: Double = 0.0, top: Double = 0.0, bottom: Double = 0.0) {
-        self.origin.x -= left
-        self.origin.y -= bottom
-        self.end.x += right
-        self.end.y += top
+    ///   - minX: The amount of horizontal translation the min x side of the rect receives (away from the center)
+    ///   - minY: The amount of vertical translation the min y side of the rect receives (away from the center)
+    ///   - maxX: The amount of horizontal translation the max x side of the rect receives (away from the center)
+    ///   - maxY: The amount of vertical translation the max y side of the rect receives (away from the center)
+    public mutating func expand(minX: Double = 0.0, minY: Double = 0.0, maxX: Double = 0.0, maxY: Double = 0.0) {
+        self.minX -= minX
+        self.minY -= minY
+        self.maxX += maxX
+        self.maxY += maxY
     }
     
     /// Expand each side away from the center by a certain magnitude.
     /// - Parameters:
     ///   - amount: The amount of translation each side of the rect receives (away from the center)
     public mutating func expandAllSides(by amount: Double) {
-        self.expand(left: amount, right: amount, top: amount, bottom: amount)
+        self.expand(minX: amount, minY: amount, maxX: amount, maxY: amount)
     }
     
     /// If a point is contained inside of this rect (including on an edge).
@@ -333,8 +339,10 @@ public struct SMRect: SMGeometry {
     // MARK: - Transformations
     
     public mutating func translate(by point: SMPoint) {
-        self.origin += point
-        self.end += point
+        self.minX += point.x
+        self.minY += point.y
+        self.maxX += point.x
+        self.maxY += point.y
     }
     
     public mutating func translateCenter(to point: SMPoint) {
@@ -346,21 +354,25 @@ public struct SMRect: SMGeometry {
         var rectCenter = self.center
         rectCenter.rotate(around: center, by: angle)
         let newRect = SMRect(center: rectCenter, width: self.width, height: self.height)
-        self.origin = newRect.origin
-        self.end = newRect.end
+        self.minX = newRect.minX
+        self.minY = newRect.minY
+        self.maxX = newRect.maxX
+        self.maxY = newRect.maxY
     }
     
     public mutating func scale(from point: SMPoint, scale: Double) {
         self.translate(by: point * -1)
-        self.origin *= scale
-        self.end *= scale
+        self.minX *= scale
+        self.minY *= scale
+        self.maxX *= scale
+        self.maxY *= scale
         self.translate(by: point)
     }
     
     // MARK: - Operations
     
     public static func + (left: SMRect, right: SMPoint) -> SMRect {
-        return SMRect(origin: left.origin + right, end: left.end + right)
+        return SMRect(minCorner: left.minCorner + right, maxCorner: left.maxCorner + right)
     }
 
     public static func += (left: inout SMRect, right: SMPoint) {
@@ -368,7 +380,7 @@ public struct SMRect: SMGeometry {
     }
 
     public static func - (left: SMRect, right: SMPoint) -> SMRect {
-        return SMRect(origin: left.origin - right, end: left.end - right)
+        return SMRect(minCorner: left.minCorner - right, maxCorner: left.maxCorner - right)
     }
 
     public static func -= (left: inout SMRect, right: SMPoint) {
@@ -376,13 +388,13 @@ public struct SMRect: SMGeometry {
     }
     
     public static func == (lhs: SMRect, rhs: SMRect) -> Bool {
-        return lhs.origin == rhs.origin && lhs.end == rhs.end
+        return lhs.minX.isEqual(to: rhs.minX) && lhs.minY.isEqual(to: rhs.minY) && lhs.maxX.isEqual(to: rhs.maxX) && lhs.maxY.isEqual(to: rhs.maxY)
     }
     
     // MARK: - Core Graphics
     
     public var cgRect: CGRect {
-        return CGRect(origin: self.origin.cgPoint, size: CGSize(width: self.width, height: self.height))
+        return CGRect(origin: self.minCorner.cgPoint, size: CGSize(width: self.width, height: self.height))
     }
     
     public var cgRectValidated: CGRect? {
@@ -393,11 +405,10 @@ public struct SMRect: SMGeometry {
     }
     
     public init(_ cgRect: CGRect) {
-        self.origin = SMPoint(cgRect.origin)
-        var end = cgRect.origin
-        end.x += cgRect.size.width
-        end.y += cgRect.size.height
-        self.end = SMPoint(end)
+        self.minX = cgRect.minX
+        self.minY = cgRect.minY
+        self.maxX = cgRect.maxX
+        self.maxY = cgRect.maxY
     }
     
 }

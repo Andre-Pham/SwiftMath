@@ -50,10 +50,7 @@ public struct SMPointCollection {
             minY = min(vertex.y, minY)
             maxY = max(vertex.y, maxY)
         }
-        return SMRect(
-            origin: SMPoint(x: minX, y: minY),
-            end: SMPoint(x: maxX, y: maxY)
-        )
+        return SMRect(minX: minX, minY: minY, maxX: maxX, maxY: maxY)
     }
     public var averagePoint: SMPoint? {
         guard !self.points.isEmpty else {

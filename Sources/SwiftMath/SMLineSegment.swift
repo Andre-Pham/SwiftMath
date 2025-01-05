@@ -50,8 +50,8 @@ public struct SMLineSegment: SMLinear, SMGeometry {
     public var boundingBox: SMRect {
         return SMRect(
             minX: min(self.origin.x, self.end.x),
-            maxX: max(self.origin.x, self.end.x),
             minY: min(self.origin.y, self.end.y),
+            maxX: max(self.origin.x, self.end.x),
             maxY: max(self.origin.y, self.end.y)
         )
     }

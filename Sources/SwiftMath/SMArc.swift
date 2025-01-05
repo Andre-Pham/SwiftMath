@@ -98,7 +98,7 @@ public struct SMArc: SMTransformable {
                 maxY = max(maxY, y)
             }
         }
-        return SMRect(minX: minX, maxX: maxX, minY: minY, maxY: maxY)
+        return SMRect(minX: minX, minY: minY, maxX: maxX, maxY: maxY)
     }
     
     public init(
