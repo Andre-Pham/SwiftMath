@@ -333,7 +333,7 @@ public struct SMRect: SMGeometry {
     }
     
     public func toString(decimalPlaces: Int = 2) -> String {
-        return "Rect\n- Left: \(self.minX.rounded(decimalPlaces: decimalPlaces))\n- Right: \(self.maxX.rounded(decimalPlaces: decimalPlaces))\n- Top: \(self.maxY.rounded(decimalPlaces: decimalPlaces))\n- Bottom: \(self.minY.rounded(decimalPlaces: decimalPlaces))\n- Width: \(self.width.rounded(decimalPlaces: decimalPlaces))\n- Height: \(self.height.rounded(decimalPlaces: decimalPlaces))"
+        return "Rect\n- origin: \(self.origin.toString(decimalPlaces: decimalPlaces))\n- end: \(self.end.toString(decimalPlaces: decimalPlaces))\n- Width: \(self.width.rounded(decimalPlaces: decimalPlaces))\n- Height: \(self.height.rounded(decimalPlaces: decimalPlaces))"
     }
     
     // MARK: - Transformations
