@@ -81,7 +81,7 @@ public struct SMRect: SMGeometry {
     }
     /// If the rectangle is valid
     public var isValid: Bool {
-        return self.minY.isLess(than: self.maxY) && self.minX.isLess(than: self.maxY)
+        return self.minY.isLess(than: self.maxY) && self.minX.isLess(than: self.maxX)
     }
     /// The size of the rect
     public var size: SMSize {
@@ -125,13 +125,13 @@ public struct SMRect: SMGeometry {
         return SMRect(self.cgRect.union(other.cgRect))
     }
     
-    /// Calculates the smallest rectangle that represents the overlap between the two input rectangles.
-    /// The result may have an area of 0 if the two rectangles share the same corner and have no other overlap.
+    /// Calculates the smallest rectangle that represents the intersection between the two input rectangles.
+    /// The resulting intersection may have an area of 0.
     /// Returns nil if the two rectangles don't relate to each other at all (have no spatial relationship).
     /// - Parameters:
-    ///   - other: The other rectangle to form an overlapping rectangle
-    /// - Returns: The union of the two rectangles (or nil if there is no spatial relationship)
-    public func overlap(_ other: SMRect) -> SMRect? {
+    ///   - other: The other rectangle to form an intersecting rectangle
+    /// - Returns: The intersection of the two rectangles (or nil if there is no spatial relationship)
+    public func intersection(_ other: SMRect) -> SMRect? {
         let overlap = SMRect(self.cgRect.intersection(other.cgRect))
         guard !(
             overlap.minX.isInfinite
@@ -144,13 +144,28 @@ public struct SMRect: SMGeometry {
         return overlap
     }
     
+    /// Calculates the smallest valid rectangle that represents the overlap between the two input rectangles.
+    /// Returns nil if the two rectangles don't relate to each other at all (have no spatial relationship) or if the result is invalid (no area).
+    /// - Parameters:
+    ///   - other: The other rectangle to form an overlapping rectangle
+    /// - Returns: The overlap of the two rectangles (or nil if there is no spatial relationship or valid result)
+    public func overlap(_ other: SMRect) -> SMRect? {
+        let intersection = self.intersection(other)
+        guard let intersection, intersection.isValid else {
+            return nil
+        }
+        return intersection
+    }
+    
     /// Calculates if there is an intersecting point between two rectangles (doesn't count overlapping edges).
     /// - Parameters:
     ///   - other: The other rectangle to check
     /// - Returns: True if the rectangles intersect without their edges overlapping
     public func intersects(with other: SMRect) -> Bool {
-        if self.overlap(other) != nil && !self.contains(rect: other) && !other.contains(rect: self) {
-            return true
+        for vertex in self.vertices {
+            if other.encloses(point: vertex) {
+                return true
+            }
         }
         return (
             self.maxXmaxY == other.minXminY
