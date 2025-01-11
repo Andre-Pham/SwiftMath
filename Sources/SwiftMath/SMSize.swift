@@ -70,6 +70,44 @@ public struct SMSize: Equatable {
         self.height *= scale
     }
     
+    /// Expand this size's width or height to match an aspect ratio.
+    /// - Parameters:
+    ///   - aspectRatio: The aspect ratio to match
+    public mutating func expandToAspectRatio(_ aspectRatio: Double) {
+        let currentAspectRatio = self.width / self.height
+        if currentAspectRatio.isGreater(than: aspectRatio) {
+            self.height = self.width/aspectRatio
+        } else if currentAspectRatio.isLess(than: aspectRatio) {
+            self.width = self.height*aspectRatio
+        }
+    }
+    
+    /// Shrink this size's width or height to match an aspect ratio.
+    /// - Parameters:
+    ///   - aspectRatio: The aspect ratio to match
+    public mutating func shrinkToAspectRatio(_ aspectRatio: Double) {
+        let currentAspectRatio = self.width / self.height
+        if currentAspectRatio.isGreater(than: aspectRatio) {
+            self.width = self.height*aspectRatio
+        } else if currentAspectRatio.isLess(than: aspectRatio) {
+            self.height = self.width/aspectRatio
+        }
+    }
+    
+    /// Adjust this size's height to match an aspect ratio.
+    /// - Parameters:
+    ///   - aspectRatio: The aspect ratio to match
+    public mutating func adjustHeightToAspectRatio(_ aspectRatio: Double) {
+        self.height = self.width/aspectRatio
+    }
+    
+    /// Adjust this size's width to match an aspect ratio.
+    /// - Parameters:
+    ///   - aspectRatio: The aspect ratio to match
+    public mutating func adjustWidthToAspectRatio(_ aspectRatio: Double) {
+        self.width = self.height*aspectRatio
+    }
+    
     public func toString(decimalPlaces: Int = 2) -> String {
         return "\(self.width.rounded(decimalPlaces: decimalPlaces)) x \(self.height.rounded(decimalPlaces: decimalPlaces))"
     }
